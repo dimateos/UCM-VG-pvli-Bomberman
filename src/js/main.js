@@ -32,7 +32,9 @@ var PreloaderScene = {
     this.load.setPreloadSprite(this.loadingBar);
 
     // TODO: load here the assets for the game
-    this.game.load.image('logo', 'images/readme/portada.jpg');
+    this.game.load.image('logo', 'images/readme/arena.png');
+
+    this.game.load.image('player', 'images/Sprites/Bomberman/Front/Bman_F_f00.png');
   },
 
   create: function () {
