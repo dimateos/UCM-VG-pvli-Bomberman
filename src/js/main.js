@@ -32,9 +32,15 @@ var PreloaderScene = {
     this.load.setPreloadSprite(this.loadingBar);
 
     // TODO: load here the assets for the game
-    this.game.load.image('logo', 'images/readme/arena.png');
+    //this.game.load.image('logo', 'images/readme/arena.png');
 
-    this.game.load.image('player', 'images/Sprites/Bomberman/Front/Bman_F_f00.png');
+    this.game.load.image('player', 'images/Sprites/Bomberman/Front/Bman_F_f00Correct.png');
+
+    this.game.load.image('wall', 'images/Sprites/Blocks/SolidBlock.png');
+
+    this.game.load.image('box', 'images/Sprites/Blocks/ExplodableBlock.png');
+
+    this.game.load.image('bomb', 'images/Sprites/Bomb/Bomb_f01.png');
   },
 
   create: function () {

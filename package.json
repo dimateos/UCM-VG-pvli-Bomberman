@@ -1,13 +1,9 @@
 {
   "version": "0.0.0",
   "name": "super-bomberman-js",
-  "version": "0.0.0",
-  "author": "",
-  "license": "CC-BY-NC-SA-4.0",
-  
-  "repository": "dimateos/PVLI_GLaDOS",
   "author": "dimateos",
-  
+  "license": "CC-BY-NC-SA-4.0",
+  "repository": "dimateos/PVLI_GLaDOS",
   "dependencies": {
     "browserify": "*",
     "browser-sync": "*",
