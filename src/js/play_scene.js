@@ -3,6 +3,7 @@
 var player;
 var cursors;
 var wall;
+var wallSprite;
 var box;
 var bomb;
 var bombIsUp = false;
@@ -29,10 +30,13 @@ var PlayScene = {
     //   this.game.world.centerX, this.game.world.centerY, 'logo');
     player = this.game.add.sprite(
       this.game.world.centerX, this.game.world.centerY, 'player');
-    player.scale.setTo(1/2.4, 1/6.4);
-
+    player.scale.setTo(1/1.2, 1/1.6);
+    
+    // wallSprite = this.game.sprite('wall');
+    // wallSprite.scale.setTo(1/1.2, 1/1.6);
+    
     wall = this.game.add.physicsGroup();
-    wall.scale.setTo(1/1.2, 1/1.6);
+    //wall.scale.setTo(1/1.2, 1/1.6);
 
     box = this.game.add.physicsGroup();
     box.scale.setTo(1/1.2, 1/1.6);
@@ -44,7 +48,7 @@ var PlayScene = {
       
       for (let j = 0; j < height; j=j+40) {
         if ((i==25||j==0||i==width-75||j==height-40)||(!this.isOdd((i-25)/50) && !this.isOdd(j/40))) {
-          wall.create(i*1.2,j*1.6,'wall');
+          wall.create(i,j,'wall');
         }
         if ((this.isOdd((i-25)/50) && i!=75 && i!=width-125 && !this.isOdd(j/40) && j!=0 && j!=height-40&&j!=height-80&&j!=40)
       || (!this.isOdd((i-25)/50) && i!=75 && i!=width-125 && i!=25 && i!=width-75 && this.isOdd(j/40) && j!=height-80 && j!=40))  
@@ -54,13 +58,19 @@ var PlayScene = {
         
       }
     }
-    
+    for (let i = 0; i < wall.length; i++) {
+      wall.children[i].scale.setTo(1/1.2, 1/1.6);
+      
+    }
 
     wall.setAll('body.immovable', true);
 
     this.game.physics.arcade.enable(player);
+    player.body.setSize(54, 63, -3, 28);
+    console.log(player.body.height);
     cursors = this.game.input.keyboard.createCursorKeys();
     player.body.collideWorldBounds = true;
+    
     console.log(player);
 
     //  logo.anchor.setTo(0.5, 0.5);
@@ -72,7 +82,7 @@ var PlayScene = {
     console.log("Loaded...", Date.now()-this.startTime, "ms");
   },
 
-  destBomb: function () { console.log("KABOOM"); this.bomb.destroy(); this.timer.destroy(); },  
+  destBomb: function () { console.log("KABOOM"); /*this.bomb.destroy(); this.timer.destroy();*/ },  
 
   update: function(){
     this.game.physics.arcade.collide(player, wall);
@@ -96,7 +106,7 @@ var PlayScene = {
       player.body.velocity.y = 250;
     }
     if(bombButton.isDown && !onceButton){
-      bomb.create(player.centerX*1.2-30,player.centerY*1.6-40,'bomb');
+      bomb.create(player.centerX*1.2-24,player.centerY*1.6-12,'bomb');
       bombIsUp = true;
       onceButton = true;
     } 
@@ -109,6 +119,13 @@ var PlayScene = {
         timer.start();
         bombIsUp=false;        
       }
+  },
+
+  render: function(){
+    this.game.debug.bodyInfo(player, 32, 32);
+    this.game.debug.body(player);
+    //this.game.debug.bodyInfo(box, 32, 32);
+    this.game.debug.body(wall.children[0]);
   }
 
 };
