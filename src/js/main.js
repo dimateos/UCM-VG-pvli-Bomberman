@@ -41,6 +41,8 @@ var PreloaderScene = {
     this.game.load.image('box', 'images/Sprites/Blocks/ExplodableBlock.png');
 
     this.game.load.image('bomb', 'images/Sprites/Bomb/Bomb_f01.png');
+
+    this.game.load.image('background', 'images/Sprites/Blocks/BackgroundTile.png');
   },
 
   create: function () {
