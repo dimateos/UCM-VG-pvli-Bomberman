@@ -1,8 +1,9 @@
 'use strict';
 const DEBUG = true;
 
+var Point = require('./objects/point.js');
 var Player = require('./objects/lateral/player.js');
-var Point = require('./objects/point.js')
+//var Solid = require('./objects/solid.js');
 
 var player;
 var wall;
@@ -126,36 +127,10 @@ var PlayScene = {
       this.game.time.events.add(3000, this.destBomb, this);
       onceButtonBomb = true;
     }
-    else if(!bombButton.isDown && onceButtonBomb) //switch to 1 bomb each time
+    else if(!bombButton.isDown && onceButtonBomb) //deploy 1 bomb each time
       onceButtonBomb = false;
 
-    if(toggleBoxCollisionButton.isDown && !onceButtonDebug) //JUST FOR DEBUGGING AND MILESTONE 1 PITCH
-      {
-        if (!isBoxCollDisabled) {0
-          for (let i = 0; i < box.length; i++) {
-            box.children[i].body.checkCollision.up = false;
-            box.children[i].body.checkCollision.down = false;
-            box.children[i].body.checkCollision.left = false;
-            box.children[i].body.checkCollision.right = false;
-          }
-          isBoxCollDisabled = true;
-        }
-
-        else
-          {
-            for (let i = 0; i < box.length; i++) {
-              box.children[i].body.checkCollision.up = true;
-              box.children[i].body.checkCollision.down = true;
-              box.children[i].body.checkCollision.left = true;
-              box.children[i].body.checkCollision.right = true;
-            }
-            isBoxCollDisabled = false;
-          }
-
-        onceButtonDebug = true;
-      }
-    else if(!toggleBoxCollisionButton.isDown && onceButtonDebug)
-      onceButtonDebug = false;
+      debugMode();
   },
 
   render: function(){
@@ -171,5 +146,34 @@ var PlayScene = {
 
 };
 
+//shows hitboxes and allows movement through the boxes
+var debugMode = function () {
+  if(toggleBoxCollisionButton.isDown && !onceButtonDebug)
+  {
+    if (!isBoxCollDisabled) {
+      for (let i = 0; i < box.length; i++) {
+        box.children[i].body.checkCollision.up = false;
+        box.children[i].body.checkCollision.down = false;
+        box.children[i].body.checkCollision.left = false;
+        box.children[i].body.checkCollision.right = false;
+      }
+      isBoxCollDisabled = true;
+    }
+    else
+      {
+        for (let i = 0; i < box.length; i++) {
+          box.children[i].body.checkCollision.up = true;
+          box.children[i].body.checkCollision.down = true;
+          box.children[i].body.checkCollision.left = true;
+          box.children[i].body.checkCollision.right = true;
+        }
+        isBoxCollDisabled = false;
+      }
+
+    onceButtonDebug = true;
+  }
+else if(!toggleBoxCollisionButton.isDown && onceButtonDebug)
+  onceButtonDebug = false;
+}
 
 module.exports = PlayScene;

@@ -30,7 +30,7 @@ var PreloaderScene = {
   preload: function () {
     if (DEBUG) this.startTime = Date.now();
 
-    this.game.stage.backgroundColor = '#E80C94';
+    //this.game.stage.backgroundColor = '#E80C94';
     this.loadingBar = this.game.add.sprite(winWith/2, winHeight/2, 'preloader_logo');
     this.loadingBar.anchor.setTo(0.5, 0.5);
     this.load.setPreloadSprite(this.loadingBar);

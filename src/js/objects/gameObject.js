@@ -1,15 +1,14 @@
 'use strict';
 
-function Point(x, y) {
-    this.x = x;
-    this.y = y;
-  }
+function gameObject (position, scale, sprite, game) {
+  //this = game.add.sprite(position.x, position.y, sprite);
 
-//Deberia heredar de sprite
-function gameObject (graphic, position) { //GO contructor
-  this._graphic = graphic;
-  this._position = position;
-}
-gameObject.prototype.draw = function () {}; //the only common function
+  Phaser.Sprite.call(this, game, position.x, position.y, sprite);
+  game.add.existing(this);
+  this.scale.setTo(scale.x, scale.y);
+};
+
+Player.prototype = Object.create(Phaser.Sprite.prototype);
+Player.prototype.constructor = Player;
 
 module.exports = gameObject;

@@ -1,5 +1,6 @@
 'use strict';
 
+//DE MOMENTO NO HERENCIA
 // var mobile = require('./mobile.js');
 
 // //dos clases hijas de mobile, diferentes
@@ -29,6 +30,5 @@ Player.prototype.constructor = Player;
 Player.prototype.update = function() {
 
 }
-
 
 module.exports = Player;
