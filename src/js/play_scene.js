@@ -2,7 +2,7 @@
 const DEBUG = true;
 
 var Point = require('./objects/point.js');
-var Player = require('./objects/lateral/player.js');
+var Player = require('./objects/player.js');
 //var Solid = require('./objects/solid.js');
 
 var player;
@@ -37,8 +37,8 @@ var PlayScene = {
   create: function () {
 
     //This is the player, right now the only one apart
-    player = new Player(new Point(80, 40), new Point(1/1.2, 1/1.6),
-    new Point(50, 60), new Point(-1, 28), 'player', this.game);
+    player = new Player(this.game, new Point(80, 40), 'player', new Point(1/1.2, 1/1.6),
+    new Point(50, 60), new Point(-1, 28), false, 3, false, {}, 1, {});
 
     //all the other map tiles
     background = this.game.add.group();
