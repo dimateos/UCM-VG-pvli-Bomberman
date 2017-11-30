@@ -1,6 +1,9 @@
 'use strict';
 const DEBUG = true;
 
+var Player = require('./objects/lateral/player.js');
+var Point = require('./objects/point.js')
+
 var player;
 var wall;
 var box;
@@ -10,9 +13,9 @@ var background;
 var cursors;
 var wasd;
 var bombButton;
-var onceButton = false;
+var onceButtonBomb = false;
 
-var toggleBoxCollisionButton; //just for debugging and milestone 1 pitch
+var toggleBoxCollisionButton; //just for debugging
 var isBoxCollDisabled = false;
 var onceButtonDebug = false;
 
@@ -20,21 +23,23 @@ const width = 800;
 const height = 600;
 
 var PlayScene = {
+
+  isOdd:function (num) { return (num % 2) == 1;},
+  destBomb: function () { bomb.remove(bomb.children[0], true); },
+
   preload: function () {
-    this.game.stage.backgroundColor = '#E80C94';
+    //this.game.stage.backgroundColor = '#E80C94';
     if (DEBUG) this.startTime = Date.now(); //to calculate booting time
   },
 
-  isOdd:function (num) { return (num % 2) == 1;},
 
   create: function () {
 
-    // var logo = this.game.add.sprite(
-    // this.game.world.centerX, this.game.world.centerY, 'logo');
-    player = this.game.add.sprite(
-      80, 40, 'player');
-    player.scale.setTo(1/1.2, 1/1.6);
+    //This is the player, right now the only one apart
+    player = new Player(new Point(80, 40), new Point(1/1.2, 1/1.6),
+    new Point(50, 60), new Point(-1, 28), 'player', this.game);
 
+    //all the other map tiles
     background = this.game.add.group();
     background.scale.setTo(1/1.2, 1/1.6);
 
@@ -45,7 +50,7 @@ var PlayScene = {
     bomb = this.game.add.physicsGroup();
     bomb.scale.setTo(1/1.2, 1/1.6);
 
-
+    //instead of a map.dat now we just insert them
     for (let i = - 25; i < width + 25; i += 50) {
       for (let j = 0; j < height ; j += 40) {
         background.create(i * 1.2, j * 1.6, 'background');
@@ -62,7 +67,6 @@ var PlayScene = {
         {
           box.create(i, j,'box');
         }
-
       }
     }
     for (let i = 0; i < wall.length; i++) {
@@ -75,20 +79,15 @@ var PlayScene = {
     wall.setAll('body.immovable', true);
     box.setAll('body.immovable', true);
 
-    this.game.physics.arcade.enable(player);
-    player.body.setSize(50, 60, -1, 28);
-    player.body.collideWorldBounds = true;
-
+    //Controls
     cursors = this.game.input.keyboard.createCursorKeys();
+
     wasd = {
       up: this.game.input.keyboard.addKey(Phaser.Keyboard.W),
       down: this.game.input.keyboard.addKey(Phaser.Keyboard.S),
       left: this.game.input.keyboard.addKey(Phaser.Keyboard.A),
       right: this.game.input.keyboard.addKey(Phaser.Keyboard.D),
     };
-
-    //  logo.anchor.setTo(0.5, 0.5);
-    //  logo.scale.setTo(1.25,1.25); // to fit in the canvas
 
     bombButton = this.game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
     toggleBoxCollisionButton = this.game.input.keyboard.addKey(Phaser.Keyboard.C);
@@ -98,7 +97,6 @@ var PlayScene = {
     if (DEBUG) console.log("Player body height: ", player.body.height);
   },
 
-  destBomb: function () { bomb.remove(bomb.children[0], true); },
 
   update: function(){
     this.game.physics.arcade.collide(player, wall);
@@ -108,7 +106,7 @@ var PlayScene = {
     player.body.velocity.x = 0;
     player.body.velocity.y = 0;
 
-    //MOVEMENT
+    //Player MOVEMENT
     if (cursors.left.isDown || wasd.left.isDown) {
       player.body.velocity.x = -250;
     }
@@ -123,13 +121,13 @@ var PlayScene = {
     }
 
     //BOMB
-    if(bombButton.isDown && !onceButton){
+    if(bombButton.isDown && !onceButtonBomb){
       bomb.create(player.centerX*1.2-24,player.centerY*1.6-12,'bomb');
       this.game.time.events.add(3000, this.destBomb, this);
-      onceButton = true;
+      onceButtonBomb = true;
     }
-    else if(!bombButton.isDown && onceButton) //switch to 1 bomb each time
-      onceButton = false;
+    else if(!bombButton.isDown && onceButtonBomb) //switch to 1 bomb each time
+      onceButtonBomb = false;
 
     if(toggleBoxCollisionButton.isDown && !onceButtonDebug) //JUST FOR DEBUGGING AND MILESTONE 1 PITCH
       {
@@ -158,7 +156,6 @@ var PlayScene = {
       }
     else if(!toggleBoxCollisionButton.isDown && onceButtonDebug)
       onceButtonDebug = false;
-
   },
 
   render: function(){
