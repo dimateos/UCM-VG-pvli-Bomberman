@@ -1,4 +1,5 @@
 'use strict';
+const DEBUG = true;
 
 var player;
 var wall;
@@ -7,6 +8,7 @@ var bomb;
 var background;
 
 var cursors;
+var wasd;
 var bombButton;
 var onceButton = false;
 
@@ -20,19 +22,19 @@ const height = 600;
 var PlayScene = {
   preload: function () {
     this.game.stage.backgroundColor = '#E80C94';
-    this.startTime = Date.now(); //to calculate booting time
+    if (DEBUG) this.startTime = Date.now(); //to calculate booting time
   },
 
   isOdd:function (num) { return (num % 2) == 1;},
-  
+
   create: function () {
-    
+
     // var logo = this.game.add.sprite(
-    //   this.game.world.centerX, this.game.world.centerY, 'logo');
+    // this.game.world.centerX, this.game.world.centerY, 'logo');
     player = this.game.add.sprite(
       80, 40, 'player');
     player.scale.setTo(1/1.2, 1/1.6);
-    
+
     background = this.game.add.group();
     background.scale.setTo(1/1.2, 1/1.6);
 
@@ -56,11 +58,11 @@ var PlayScene = {
           wall.create(i, j,'wall');
         }
         if ((this.isOdd((i-25)/50) && i!=75 && i!=width-125 && !this.isOdd(j/40) && j!=0 && j!=height-40&&j!=height-80&&j!=40)
-      || (!this.isOdd((i-25)/50) && i!=75 && i!=width-125 && i!=25 && i!=width-75 && this.isOdd(j/40) && j!=height-80 && j!=40))  
+      || (!this.isOdd((i-25)/50) && i!=75 && i!=width-125 && i!=25 && i!=width-75 && this.isOdd(j/40) && j!=height-80 && j!=40))
         {
           box.create(i, j,'box');
         }
-        
+
       }
     }
     for (let i = 0; i < wall.length; i++) {
@@ -78,22 +80,25 @@ var PlayScene = {
     player.body.collideWorldBounds = true;
 
     cursors = this.game.input.keyboard.createCursorKeys();
-    
-    console.log(player);
-    console.log(player.body.height);
+    wasd = {
+      up: this.game.input.keyboard.addKey(Phaser.Keyboard.W),
+      down: this.game.input.keyboard.addKey(Phaser.Keyboard.S),
+      left: this.game.input.keyboard.addKey(Phaser.Keyboard.A),
+      right: this.game.input.keyboard.addKey(Phaser.Keyboard.D),
+    };
 
     //  logo.anchor.setTo(0.5, 0.5);
     //  logo.scale.setTo(1.25,1.25); // to fit in the canvas
 
     bombButton = this.game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
-
     toggleBoxCollisionButton = this.game.input.keyboard.addKey(Phaser.Keyboard.C);
-     
-    console.log(this);
-    console.log("Loaded...", Date.now()-this.startTime, "ms");
+
+    if (DEBUG) console.log("Loaded...", Date.now()-this.startTime, "ms");
+    if (DEBUG) console.log("\n PLAYER: ", player);
+    if (DEBUG) console.log("Player body height: ", player.body.height);
   },
 
-  destBomb: function () { bomb.remove(bomb.children[0], true); },  
+  destBomb: function () { bomb.remove(bomb.children[0], true); },
 
   update: function(){
     this.game.physics.arcade.collide(player, wall);
@@ -102,32 +107,33 @@ var PlayScene = {
 
     player.body.velocity.x = 0;
     player.body.velocity.y = 0;
-    
-    if (cursors.left.isDown)
-    {
-        player.body.velocity.x = -250;
+
+    //MOVEMENT
+    if (cursors.left.isDown || wasd.left.isDown) {
+      player.body.velocity.x = -250;
     }
-    else if (cursors.right.isDown)
-    {
-        player.body.velocity.x = 250;
+    else if (cursors.right.isDown || wasd.right.isDown) {
+      player.body.velocity.x = 250;
     }
-    if (cursors.up.isDown){
-    player.body.velocity.y = -250;
+    if (cursors.up.isDown || wasd.up.isDown) {
+      player.body.velocity.y = -250;
     }
-    else if (cursors.down.isDown){
+    else if (cursors.down.isDown || wasd.down.isDown){
       player.body.velocity.y = 250;
     }
+
+    //BOMB
     if(bombButton.isDown && !onceButton){
       bomb.create(player.centerX*1.2-24,player.centerY*1.6-12,'bomb');
       this.game.time.events.add(3000, this.destBomb, this);
       onceButton = true;
-    } 
-    else if(!bombButton.isDown && onceButton)
+    }
+    else if(!bombButton.isDown && onceButton) //switch to 1 bomb each time
       onceButton = false;
 
     if(toggleBoxCollisionButton.isDown && !onceButtonDebug) //JUST FOR DEBUGGING AND MILESTONE 1 PITCH
-      {        
-        if (!isBoxCollDisabled) {
+      {
+        if (!isBoxCollDisabled) {0
           for (let i = 0; i < box.length; i++) {
             box.children[i].body.checkCollision.up = false;
             box.children[i].body.checkCollision.down = false;
@@ -147,7 +153,7 @@ var PlayScene = {
             }
             isBoxCollDisabled = false;
           }
-        
+
         onceButtonDebug = true;
       }
     else if(!toggleBoxCollisionButton.isDown && onceButtonDebug)
@@ -155,15 +161,16 @@ var PlayScene = {
 
   },
 
-  //DEBUG TOOLS
-  // render: function(){
-  //   //this.game.debug.bodyInfo(player, 32, 32);
-  //   this.game.debug.body(player);
-  //   //this.game.debug.body(box.children[5]);
-  //   for (let i = 0; i < wall.length; i++) {
-  //       this.game.debug.body(wall.children[i]);      
-  //   }
-  // }
+  render: function(){
+    if (isBoxCollDisabled) {
+      this.game.debug.bodyInfo(player, 32, 32);
+      this.game.debug.body(player);
+      this.game.debug.body(box.children[5]);
+      for (let i = 0; i < wall.length; i++) {
+          this.game.debug.body(wall.children[i]);
+      }
+    }
+  }
 
 };
 

@@ -1,15 +1,16 @@
 'use strict';
+const DEBUG = true;
 
-var PlayScene = require('./play_scene.js');
 
 var BootScene = {
 
   preload: function () {
-    this.startTime = Date.now(); //to calculate booting time
+    if (DEBUG) this.startTime = Date.now(); //to calculate booting time etc
 
     // load here assets required for the loading screen
     this.game.load.image('preloader_logo', 'images/phaser.png');
-},
+    // TODO: image not centered, almost off the canvas I think
+  },
 
   create: function () {
 
@@ -18,14 +19,14 @@ var BootScene = {
     //this.scale.setScreenSize();
 
     this.game.state.start('preloader');
-    console.log("Booting...", Date.now()-this.startTime, "ms");
+    if (DEBUG) console.log("Booting...", Date.now()-this.startTime, "ms");
   }
 };
 
 
 var PreloaderScene = {
   preload: function () {
-    this.startTime = Date.now(); //to calculate booting time
+    if (DEBUG) this.startTime = Date.now(); //to calculate booting time
 
     this.loadingBar = this.game.add.sprite(0, 0, 'preloader_logo');
     this.loadingBar.anchor.setTo(0, 0.5);
@@ -47,10 +48,11 @@ var PreloaderScene = {
 
   create: function () {
     this.game.state.start('play');
-    console.log("Preloading...", Date.now()-this.startTime, "ms");
+    if (DEBUG) console.log("Preloading...", Date.now()-this.startTime, "ms");
   }
 };
 
+var PlayScene = require('./play_scene.js');
 
 window.onload = function () {
   var game = new Phaser.Game(800, 600, Phaser.AUTO, 'game');
