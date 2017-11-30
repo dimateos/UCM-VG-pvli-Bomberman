@@ -57,12 +57,11 @@ Planificación:
     · Preparar presentación
 
 - Semana 3:
-    · Colisiones del jugador con los muros
     · Ajuste de código a diagrama de clases (herencia)
     · Destrucción de cajas rompibles
+    · Creación de estructura interna de casillas 
 
 - Semana 4:
-    · Creación de estructura interna de casillas 
     · Power-ups (aparición aleatoria)
     · Power-ups (utilidad) (1/2)
 
