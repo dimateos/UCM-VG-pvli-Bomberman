@@ -8,12 +8,17 @@ body {
   margin: 0;
   font-family: Courier, 'Courier New', monospace;
   font-size: 1.6rem;
-  background: #fff;
+  background: rgb(78, 129, 93);
   color: #000;
 }
 
+
 a {
-  color: #c39;
+  color: rgb(255, 255, 255);
+}
+
+strong {
+  font-size: 30px;
 }
 
 main {
@@ -27,4 +32,5 @@ main {
 
 footer {
   text-align: center;
+  font-size: 18px;
 }
