@@ -1,8 +1,20 @@
 'use strict';
 const DEBUG = true;
 
+var Point = require('./objects/point.js');
+
+var GameObject = require('./objects/gameObject.js')
+var Physical = require('./objects/physical.js');
+var Bombable = require('./objects/bombable.js');
+
+var Identifiable = require('./objects/identifiable.js');
+
+var Player = require('./objects/player.js');
+var Bomb = require('./objects/bomb.js');
+
 var player;
-var wall;
+
+var wall; //groups
 var box;
 var bomb;
 var background;
@@ -10,9 +22,9 @@ var background;
 var cursors;
 var wasd;
 var bombButton;
-var onceButton = false;
+var onceButtonBomb = false;
 
-var toggleBoxCollisionButton; //just for debugging and milestone 1 pitch
+var toggleBoxCollisionButton; //just for debugging
 var isBoxCollDisabled = false;
 var onceButtonDebug = false;
 
@@ -20,66 +32,54 @@ const width = 800;
 const height = 600;
 
 var PlayScene = {
+
+  isOdd:function (num) { return (num % 2) == 1;},
+  destBomb: function () { bomb.remove(bomb.children[0], true); },
+
   preload: function () {
-    this.game.stage.backgroundColor = '#E80C94';
+    //this.game.stage.backgroundColor = '#E80C94';
     if (DEBUG) this.startTime = Date.now(); //to calculate booting time
   },
 
-  isOdd:function (num) { return (num % 2) == 1;},
-
   create: function () {
 
-    // var logo = this.game.add.sprite(
-    // this.game.world.centerX, this.game.world.centerY, 'logo');
-    player = this.game.add.sprite(
-      80, 40, 'player');
-    player.scale.setTo(1/1.2, 1/1.6);
+    player = new Player(this.game, new Point(80, 40), 'player', new Point(1/1.2, 1/1.6),
+    new Point(50, 60), new Point(-1, 28), false, 3, false, {}, 1, {});
 
+    //groups for tiles
     background = this.game.add.group();
-    background.scale.setTo(1/1.2, 1/1.6);
-
     wall = this.game.add.physicsGroup();
-
     box = this.game.add.physicsGroup();
-
     bomb = this.game.add.physicsGroup();
+
+    background.scale.setTo(1/1.2, 1/1.6);
     bomb.scale.setTo(1/1.2, 1/1.6);
 
-
-    for (let i = - 25; i < width + 25; i += 50) {
-      for (let j = 0; j < height ; j += 40) {
-        background.create(i * 1.2, j * 1.6, 'background');
-      }
-    }
+    //instead of a map.dat now we just insert them
+    for (let i = - 25; i < width + 25; i += 50)
+      for (let j = 0; j < height ; j += 40)
+        background.add(new GameObject(this.game,
+          new Point(i * 1.2, j * 1.6), 'background', new Point(1, 1)));
 
     for (let i = 25; i < width-25; i += 50) {
       for (let j = 0; j < height; j += 40) {
         if ((i==25||j==0||i==width-75||j==height-40)||(!this.isOdd((i-25)/50) && !this.isOdd(j/40))) {
-          wall.create(i, j,'wall');
+          //wall.create(i, j,'wall');
+          wall.add(new Physical(this.game,
+             new Point(i, j), 'wall', new Point(1/1.2, 1/1.6), new Point(64,64), new Point(0,0), true));
         }
         if ((this.isOdd((i-25)/50) && i!=75 && i!=width-125 && !this.isOdd(j/40) && j!=0 && j!=height-40&&j!=height-80&&j!=40)
       || (!this.isOdd((i-25)/50) && i!=75 && i!=width-125 && i!=25 && i!=width-75 && this.isOdd(j/40) && j!=height-80 && j!=40))
         {
-          box.create(i, j,'box');
+          box.add(new Bombable(this.game,
+             new Point(i, j), 'box', new Point(1/1.2, 1/1.6), new Point(64,64), new Point(0,0), true, 1, false));
         }
-
       }
     }
-    for (let i = 0; i < wall.length; i++) {
-      wall.children[i].scale.setTo(1/1.2, 1/1.6);
-    }
-    for (let i = 0; i < box.length; i++) {
-      box.children[i].scale.setTo(1/1.2, 1/1.6);
-    }
 
-    wall.setAll('body.immovable', true);
-    box.setAll('body.immovable', true);
-
-    this.game.physics.arcade.enable(player);
-    player.body.setSize(50, 60, -1, 28);
-    player.body.collideWorldBounds = true;
-
+    //Controls
     cursors = this.game.input.keyboard.createCursorKeys();
+
     wasd = {
       up: this.game.input.keyboard.addKey(Phaser.Keyboard.W),
       down: this.game.input.keyboard.addKey(Phaser.Keyboard.S),
@@ -87,18 +87,14 @@ var PlayScene = {
       right: this.game.input.keyboard.addKey(Phaser.Keyboard.D),
     };
 
-    //  logo.anchor.setTo(0.5, 0.5);
-    //  logo.scale.setTo(1.25,1.25); // to fit in the canvas
-
     bombButton = this.game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
     toggleBoxCollisionButton = this.game.input.keyboard.addKey(Phaser.Keyboard.C);
 
     if (DEBUG) console.log("Loaded...", Date.now()-this.startTime, "ms");
-    if (DEBUG) console.log("\n PLAYER: ", player);
+    if (DEBUG) console.log("\n PLAYER: ", player.body);
     if (DEBUG) console.log("Player body height: ", player.body.height);
   },
 
-  destBomb: function () { bomb.remove(bomb.children[0], true); },
 
   update: function(){
     this.game.physics.arcade.collide(player, wall);
@@ -108,7 +104,7 @@ var PlayScene = {
     player.body.velocity.x = 0;
     player.body.velocity.y = 0;
 
-    //MOVEMENT
+    //Player MOVEMENT
     if (cursors.left.isDown || wasd.left.isDown) {
       player.body.velocity.x = -250;
     }
@@ -123,46 +119,20 @@ var PlayScene = {
     }
 
     //BOMB
-    if(bombButton.isDown && !onceButton){
+    if(bombButton.isDown && !onceButtonBomb){
       bomb.create(player.centerX*1.2-24,player.centerY*1.6-12,'bomb');
       this.game.time.events.add(3000, this.destBomb, this);
-      onceButton = true;
+      onceButtonBomb = true;
     }
-    else if(!bombButton.isDown && onceButton) //switch to 1 bomb each time
-      onceButton = false;
+    else if(!bombButton.isDown && onceButtonBomb) //deploy 1 bomb each time
+      onceButtonBomb = false;
 
-    if(toggleBoxCollisionButton.isDown && !onceButtonDebug) //JUST FOR DEBUGGING AND MILESTONE 1 PITCH
-      {
-        if (!isBoxCollDisabled) {0
-          for (let i = 0; i < box.length; i++) {
-            box.children[i].body.checkCollision.up = false;
-            box.children[i].body.checkCollision.down = false;
-            box.children[i].body.checkCollision.left = false;
-            box.children[i].body.checkCollision.right = false;
-          }
-          isBoxCollDisabled = true;
-        }
-
-        else
-          {
-            for (let i = 0; i < box.length; i++) {
-              box.children[i].body.checkCollision.up = true;
-              box.children[i].body.checkCollision.down = true;
-              box.children[i].body.checkCollision.left = true;
-              box.children[i].body.checkCollision.right = true;
-            }
-            isBoxCollDisabled = false;
-          }
-
-        onceButtonDebug = true;
-      }
-    else if(!toggleBoxCollisionButton.isDown && onceButtonDebug)
-      onceButtonDebug = false;
-
+      debugMode();
   },
 
   render: function(){
     if (isBoxCollDisabled) {
+      //console.log(wall.children[5])
       this.game.debug.bodyInfo(player, 32, 32);
       this.game.debug.body(player);
       this.game.debug.body(box.children[5]);
@@ -174,5 +144,34 @@ var PlayScene = {
 
 };
 
+//shows hitboxes and allows movement through the boxes
+var debugMode = function () {
+  if(toggleBoxCollisionButton.isDown && !onceButtonDebug)
+  {
+    if (!isBoxCollDisabled) {
+      for (let i = 0; i < box.length; i++) {
+        box.children[i].body.checkCollision.up = false;
+        box.children[i].body.checkCollision.down = false;
+        box.children[i].body.checkCollision.left = false;
+        box.children[i].body.checkCollision.right = false;
+      }
+      isBoxCollDisabled = true;
+    }
+    else
+      {
+        for (let i = 0; i < box.length; i++) {
+          box.children[i].body.checkCollision.up = true;
+          box.children[i].body.checkCollision.down = true;
+          box.children[i].body.checkCollision.left = true;
+          box.children[i].body.checkCollision.right = true;
+        }
+        isBoxCollDisabled = false;
+      }
+
+    onceButtonDebug = true;
+  }
+else if(!toggleBoxCollisionButton.isDown && onceButtonDebug)
+  onceButtonDebug = false;
+}
 
 module.exports = PlayScene;

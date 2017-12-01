@@ -1,6 +1,8 @@
 'use strict';
 const DEBUG = true;
 
+const winWith = 800;
+const winHeight = 600;
 
 var BootScene = {
 
@@ -26,10 +28,11 @@ var BootScene = {
 
 var PreloaderScene = {
   preload: function () {
-    if (DEBUG) this.startTime = Date.now(); //to calculate booting time
+    if (DEBUG) this.startTime = Date.now();
 
-    this.loadingBar = this.game.add.sprite(0, 0, 'preloader_logo');
-    this.loadingBar.anchor.setTo(0, 0.5);
+    //this.game.stage.backgroundColor = '#E80C94';
+    this.loadingBar = this.game.add.sprite(winWith/2, winHeight/2, 'preloader_logo');
+    this.loadingBar.anchor.setTo(0.5, 0.5);
     this.load.setPreloadSprite(this.loadingBar);
 
     // TODO: load here the assets for the game
@@ -55,7 +58,7 @@ var PreloaderScene = {
 var PlayScene = require('./play_scene.js');
 
 window.onload = function () {
-  var game = new Phaser.Game(800, 600, Phaser.AUTO, 'game');
+  var game = new Phaser.Game(winWith, winHeight, Phaser.AUTO, 'game');
 
   game.state.add('boot', BootScene);
   game.state.add('preloader', PreloaderScene);
