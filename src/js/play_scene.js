@@ -2,11 +2,19 @@
 const DEBUG = true;
 
 var Point = require('./objects/point.js');
+
+var GameObject = require('./objects/gameObject.js')
+var Physical = require('./objects/physical.js');
+var Bombable = require('./objects/bombable.js');
+
+var Identifiable = require('./objects/identifiable.js');
+
 var Player = require('./objects/player.js');
-//var Solid = require('./objects/solid.js');
+var Bomb = require('./objects/bomb.js');
 
 var player;
-var wall;
+
+var wall; //groups
 var box;
 var bomb;
 var background;
@@ -33,52 +41,41 @@ var PlayScene = {
     if (DEBUG) this.startTime = Date.now(); //to calculate booting time
   },
 
-
   create: function () {
 
-    //This is the player, right now the only one apart
     player = new Player(this.game, new Point(80, 40), 'player', new Point(1/1.2, 1/1.6),
     new Point(50, 60), new Point(-1, 28), false, 3, false, {}, 1, {});
 
-    //all the other map tiles
+    //groups for tiles
     background = this.game.add.group();
-    background.scale.setTo(1/1.2, 1/1.6);
-
     wall = this.game.add.physicsGroup();
-
     box = this.game.add.physicsGroup();
-
     bomb = this.game.add.physicsGroup();
+
+    background.scale.setTo(1/1.2, 1/1.6);
     bomb.scale.setTo(1/1.2, 1/1.6);
 
     //instead of a map.dat now we just insert them
-    for (let i = - 25; i < width + 25; i += 50) {
-      for (let j = 0; j < height ; j += 40) {
-        background.create(i * 1.2, j * 1.6, 'background');
-      }
-    }
+    for (let i = - 25; i < width + 25; i += 50)
+      for (let j = 0; j < height ; j += 40)
+        background.add(new GameObject(this.game,
+          new Point(i * 1.2, j * 1.6), 'background', new Point(1, 1)));
 
     for (let i = 25; i < width-25; i += 50) {
       for (let j = 0; j < height; j += 40) {
         if ((i==25||j==0||i==width-75||j==height-40)||(!this.isOdd((i-25)/50) && !this.isOdd(j/40))) {
-          wall.create(i, j,'wall');
+          //wall.create(i, j,'wall');
+          wall.add(new Physical(this.game,
+             new Point(i, j), 'wall', new Point(1/1.2, 1/1.6), new Point(64,64), new Point(0,0), true));
         }
         if ((this.isOdd((i-25)/50) && i!=75 && i!=width-125 && !this.isOdd(j/40) && j!=0 && j!=height-40&&j!=height-80&&j!=40)
       || (!this.isOdd((i-25)/50) && i!=75 && i!=width-125 && i!=25 && i!=width-75 && this.isOdd(j/40) && j!=height-80 && j!=40))
         {
-          box.create(i, j,'box');
+          box.add(new Bombable(this.game,
+             new Point(i, j), 'box', new Point(1/1.2, 1/1.6), new Point(64,64), new Point(0,0), true, 1, false));
         }
       }
     }
-    for (let i = 0; i < wall.length; i++) {
-      wall.children[i].scale.setTo(1/1.2, 1/1.6);
-    }
-    for (let i = 0; i < box.length; i++) {
-      box.children[i].scale.setTo(1/1.2, 1/1.6);
-    }
-
-    wall.setAll('body.immovable', true);
-    box.setAll('body.immovable', true);
 
     //Controls
     cursors = this.game.input.keyboard.createCursorKeys();
@@ -94,7 +91,7 @@ var PlayScene = {
     toggleBoxCollisionButton = this.game.input.keyboard.addKey(Phaser.Keyboard.C);
 
     if (DEBUG) console.log("Loaded...", Date.now()-this.startTime, "ms");
-    if (DEBUG) console.log("\n PLAYER: ", player);
+    if (DEBUG) console.log("\n PLAYER: ", player.body);
     if (DEBUG) console.log("Player body height: ", player.body.height);
   },
 
@@ -135,6 +132,7 @@ var PlayScene = {
 
   render: function(){
     if (isBoxCollDisabled) {
+      //console.log(wall.children[5])
       this.game.debug.bodyInfo(player, 32, 32);
       this.game.debug.body(player);
       this.game.debug.body(box.children[5]);
