@@ -15,6 +15,7 @@
     - [Bomba](#bomba)
     - [Enemigos](#enemigos)
     - [Generacion de niveles](#generacion-de-niveles)
+        - [*Formato*](#formato)
         - [Mundo 1-1](#mundo-1-1)
         - [Mundo 1-2](#mundo-1-2)
         - [Mundo 1-3](#mundo-1-3)
@@ -53,9 +54,9 @@ Los enemigos y cajas por nivel son cte -> sus drops no (ni cantidad ni tipo).
 
 ### Implementacion
 * Los power up tienen tiers de basico a mejorado (e intermedios?) para el modo normal
-    * *Tier 0*: BombaUp, BombaPower, Patines...
-    * *Tier 1*: Empujar, BombControl, Escudo, Tiempo...
-    * *Tier 2*: Golpear, Atravesar?...
+    * *Tier0*: BombaUp, BombaPower, Patines...
+    * *Tier1*: Empujar, BombControl, Escudo, Tiempo...
+    * *Tier2*: Golpear, Atravesar?...
     * *Drops de puntos*: Ajustados a tier segun cantidad.
 
 * Al generar el nivel se asignan todos los drops de forma aleatoria.
@@ -67,6 +68,9 @@ Los enemigos y cajas por nivel son cte -> sus drops no (ni cantidad ni tipo).
 * En el original parece haber muy baja aleatoriedad sobre la cantidad
     * Pero es cierto que varia de uno a veces
     * Se puede implementar posteriormente
+
+* **En la seccion de generacion de niveles se concreta cantida y tiers para enemigos y cajas**
+    * Basado en observacion inicial -> balancearemos
 
 ### [Lista completa](https://strategywiki.org/wiki/Super_Bomberman/Power-ups)
 #### Basicos
@@ -112,6 +116,16 @@ Los enemigos y cajas por nivel son cte -> sus drops no (ni cantidad ni tipo).
     * Pero no al matar un enemigo
 
 * Una explosion de bomba detona otra instantaneamente (mantiene el delay)
+    * De momento no existe power up que las haga invulnerables
+
+* Las cadenas de puntos no funcionan de forma muy constante
+    * En teoria si de una explosion matas a mas de uno sumas 2*puntos
+        * Parece que si matas tres el siguiente es 4*puntos (no creo que sea 2^n)
+    * Esto se consigue tambien al enlazar explosiones de bomba
+    * *A veces aparenta ir por tiempo en vez de misma explosion?*
+
+* La bomba empujable quita 1 de vida al golpear! Y aunque mate explota a su t normal
+    * En algunos casos da puntos extras porque si?
 
 
 ## Enemigos
@@ -119,20 +133,20 @@ Los enemigos y cajas por nivel son cte -> sus drops no (ni cantidad ni tipo).
 Para ver sprite y respectivos niveles mirar generacion de niveles.
 Movimiento simple, habria que analizar los diferentes.
 
-* **type-0:** 1 hit, *100 puntos*, 1 speed
-* **type-1:** 2 hits, *400 puntos* 1 speed
-* **type-2:** 1 hit, *200 puntos*, 1 speed?
-* **type-3:** 1 hit, *800 punyos*, 1 speed (cte parece)
+* **type0:** 1 hit, *100 puntos*, 1 speed
+* **type1:** 2 hits, *400 puntos* 1 speed
+* **type2:** 1 hit, *200 puntos*, 1 speed?
+* **type3:** 1 hit, *800 punyos*, 1 speed (cte parece)
     * Se transforma en bomba y explota (radio 3)
     * Puede matar otros enemigos no le da pts a nadie
     * Si matan a otro de su tipo este segundo no llega a explotar
     * Aparentemente no bombean de forma exacta
         * 5 segundos empiezan animacion - 2 explotan - 2 vuelven a moverse
-* **type-4:** 1 hit, 400 puntos, 1 speed
+* **type4:** 1 hit, 400 puntos, 1 speed
     * No le afectan las bombas/explosiones (empujarle una bomba no lo mata)
     * Le atraen las bombas! Se las come/va a por ellas
     * Una vez se ha comido una cualquier explosion le mata
-* **type-5:** 4 hit, 1600 points, 1 speed
+* **type5:** 4 hit, 1600 points, 1 speed
     * Cada x tiempo disparan un lanzallamas (3 casillas) en dir rnd
     * Rompe la primera caja que encuentra
 
@@ -155,13 +169,23 @@ Movimiento simple, habria que analizar los diferentes.
 * Tambien se le añaden enemigos en pos aleatorias
     * Tmb varia cantidad y tipo con nivel
 
+### *Formato*
+
+* **MUROS EXTRA**
+* **CAJAS DESTRUCTIBLES**
+    * **POWER UPS QUE DROPEAN** (tier*cantidad)
+* **ENEMIGOS** (tipo*cantidad)
+    * **POWER UPS QUE DROPEAN** (tier*cantidad)
+
 ### Mundo 1-1
 
 ![1-1](lvls/1-1.png)
 
 * 8 muros extra
 * 33 cajas
-* 3*type-0
+    * 1-2*tier0?
+* 3*type0
+    * 2*tier0
 
 ### Mundo 1-2
 
@@ -169,7 +193,9 @@ Movimiento simple, habria que analizar los diferentes.
 
 * 6 muros extra
 * 35 cajas
-* 3*type-0 + 2*type-1
+    * 1-2*tier0?
+* 3*type0 + 2*type1
+    * 2*tier0
 
 ### Mundo 1-3
 
@@ -177,7 +203,10 @@ Movimiento simple, habria que analizar los diferentes.
 
 * 6 muros extra
 * 35 cajas
-* 9*type-3
+    * ?
+* 9*type3
+    * Siempre empujar?
+    * +1*tier0?
 
 ### Mundo 1-4
 
@@ -185,7 +214,9 @@ Movimiento simple, habria que analizar los diferentes.
 
 * 6 muros extra
 * 35 cajas
-* 2*type-0 + 2*type-1 + 2*type-3
+    * ?
+* 2*type0 + 2*type1 + 2*type3
+    * 1*tier2 (no empujar?)
 
 ### Mundo 1-5
 
@@ -193,7 +224,9 @@ Movimiento simple, habria que analizar los diferentes.
 
 * 6 muros extra
 * 34 cajas? *(menor total de extras)*
-* 2*type-0 + 3*type-3 + 1*type-4
+    * 2*tier1?
+* 2*type0 + 3*type3 + 1*type4
+    * 1 Empujar? +?
 
 ### Mundo 1-6
 
@@ -201,7 +234,7 @@ Movimiento simple, habria que analizar los diferentes.
 
 * 6 muros extra
 * 34 cajas?
-* 2*type-1 + 2*type-3 + 2*type-5
+* 2*type1 + 2*type3 + 2*type5
 
 
 ### Mundo 1-8 BOSS
