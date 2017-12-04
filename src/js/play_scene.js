@@ -13,9 +13,9 @@ var player, player2;
 var map;
 
 var wallGroup; //groups
-var boxGroups;
+var boxGroup;
 var bombGroup;
-var background;
+var bgGroup;
 
 var cursors;
 var wasd;
@@ -31,10 +31,12 @@ var toogleBoxCollisionButtonFF = false; //flip flop
 const width = 800;
 const height = 600;
 
-var PlayScene = {
+//fit in res + space for Hud
+const tileRes = 64; //64x64
+const tileScale = new Point(0.75, 0.625); //64x64 to 48x40
 
-  isOdd:function (num) { return (num % 2) == 1;},
-  //destBomb: function () { bomb.remove(bomb.children[0], true); },
+
+var PlayScene = {
 
   preload: function () {
     //this.game.stage.backgroundColor = '#E80C94';
@@ -42,9 +44,6 @@ var PlayScene = {
   },
 
   create: function () {
-
-    //map
-    map = new Map(this.game,1,1);
 
     //Controls
     cursors = this.game.input.keyboard.createCursorKeys();
@@ -62,42 +61,17 @@ var PlayScene = {
     toggleBoxCollisionButton = this.game.input.keyboard.addKey(Phaser.Keyboard.C); //debug
 
     //groups for tiles
-    background = this.game.add.group();
-    background.scale.setTo(1/1.2, 1/1.6);
-
+    bgGroup = this.game.add.group();
     wallGroup = this.game.add.group();
-    boxGroups = this.game.add.group();
+    boxGroup = this.game.add.group();
     bombGroup = this.game.add.group();
-    console.log(bombGroup);
+
+    //map
+    map = new Map(this.game,1,1,bgGroup,wallGroup,boxGroup,bombGroup);
 
     //player
-    player = new Player(this.game, new Point(80, 40), 'player', new Point(1/1.2, 1/1.6),
-    new Point(50, 60), new Point(-1, 28), false, 3, false, wasd, bombButton, bombButtonFF, 1, bombGroup,{});
-
-    //player2 = new Player(this.game, new Point(680, 520), 'player', new Point(1/1.2, 1/1.6),
-    //new Point(50, 60), new Point(-1, 28), false, 3, false, cursors, bombButton2, bombButton2FF, 1, bombGroup,{});
-
-    // //instead of a map.dat now we just insert them
-    // for (let i = - 25; i < width + 25; i += 50)
-    //   for (let j = 0; j < height ; j += 40)
-    //     background.add(new GameObject(this.game,
-    //       new Point(i * 1.2, j * 1.6), 'background', new Point(1, 1)));
-
-    // for (let i = 25; i < width-25; i += 50) {
-    //   for (let j = 0; j < height; j += 40) {
-    //     if ((i==25||j==0||i==width-75||j==height-40)||(!this.isOdd((i-25)/50) && !this.isOdd(j/40))) {
-    //       //wall.create(i, j,'wall');
-    //       wallGroup.add(new Physical(this.game,
-    //          new Point(i, j), 'wall', new Point(1/1.2, 1/1.6), new Point(64,64), new Point(0,0), true));
-    //     }
-    //     if ((this.isOdd((i-25)/50) && i!=75 && i!=width-125 && !this.isOdd(j/40) && j!=0 && j!=height-40&&j!=height-80&&j!=40)
-    //   || (!this.isOdd((i-25)/50) && i!=75 && i!=width-125 && i!=25 && i!=width-75 && this.isOdd(j/40) && j!=height-80 && j!=40))
-    //     {
-    //        boxGroups.add(new Bombable(this.game,
-    //           new Point(i, j), 'box', new Point(1/1.2, 1/1.6), new Point(64,64), new Point(0,0), true, 1, false));
-    //     }
-    //   }
-    // }
+    player = new Player(this.game, new Point(88, 128), 'player', new Point(0.75, 0.625),
+    new Point(60, 60), new Point(-8,  32), false, 3, false, wasd, bombButton, bombButtonFF, 1, bombGroup,{});
 
     if (DEBUG) console.log("Loaded...", Date.now()-this.startTime, "ms");
     if (DEBUG) console.log("\n PLAYER: ", player.body);
@@ -107,7 +81,7 @@ var PlayScene = {
 
   update: function(){
     this.game.physics.arcade.collide(player, wallGroup);
-    this.game.physics.arcade.collide(player, boxGroups);
+    this.game.physics.arcade.collide(player, boxGroup);
 
     //this.game.physics.arcade.collide(player2, wallGroup);
     //this.game.physics.arcade.collide(player2, boxGroups);
@@ -125,10 +99,13 @@ var PlayScene = {
       //console.log(wall.children[5])
       this.game.debug.bodyInfo(player, 32, 32);
       this.game.debug.body(player);
-      this.game.debug.body(boxGroups.children[5]);
-      for (let i = 0; i < wallGroup.length; i++) {
+      //this.game.debug.body(boxGroup.children[5]);
+
+      for (let i = 0; i < wallGroup.length; i++)
           this.game.debug.body(wallGroup.children[i]);
-      }
+
+      for (let i = 0; i < boxGroup.length; i++)
+          this.game.debug.body(boxGroup.children[i]);
     }
   }
 
@@ -139,22 +116,22 @@ var debugMode = function () {
   if(toggleBoxCollisionButton.isDown && !toogleBoxCollisionButtonFF)
   {
     if (!isBoxCollDisabled) {
-      for (let i = 0; i < boxGroups.length; i++) {
-        boxGroups.children[i].body.checkCollision.up = false;
-        boxGroups.children[i].body.checkCollision.down = false;
-        boxGroups.children[i].body.checkCollision.left = false;
-        boxGroups.children[i].body.checkCollision.right = false;
-      }
+      // for (let i = 0; i < boxGroup.length; i++) {
+      //   boxGroup.children[i].body.checkCollision.up = false;
+      //   boxGroup.children[i].body.checkCollision.down = false;
+      //   boxGroup.children[i].body.checkCollision.left = false;
+      //   boxGroup.children[i].body.checkCollision.right = false;
+      // }
       isBoxCollDisabled = true;
     }
     else
       {
-        for (let i = 0; i < boxGroups.length; i++) {
-          boxGroups.children[i].body.checkCollision.up = true;
-          boxGroups.children[i].body.checkCollision.down = true;
-          boxGroups.children[i].body.checkCollision.left = true;
-          boxGroups.children[i].body.checkCollision.right = true;
-        }
+        // for (let i = 0; i < boxGroup.length; i++) {
+        //   boxGroup.children[i].body.checkCollision.up = true;
+        //   boxGroup.children[i].body.checkCollision.down = true;
+        //   boxGroup.children[i].body.checkCollision.left = true;
+        //   boxGroup.children[i].body.checkCollision.right = true;
+        // }
         isBoxCollDisabled = false;
       }
 

@@ -4,13 +4,24 @@ var GameObject = require('../objects/gameObject.js');
 var Physical = require('../objects/physical.js');
 var Bombable = require('../objects/bombable.js');
 
+var Point = require('../objects/point.js')
 var snippetMap = require("./snippetMap.js"); //base map
 
-function Map (game, worldNum, levelNum, bgGroup, wallGroup, boxGroups, bombGroup) {
+var width = 800;
+var height = 600;
+function isOdd(num) { return (num % 2) == 1;};
+
+
+function Map (game, worldNum, levelNum, bgGroup, wallGroup, boxGroup, bombGroup) {
 
     this.game = game;
     this.worldNum = worldNum;
     this.levelNum = levelNum;
+
+    this.bgGroup = bgGroup;
+    this.wallGroup = wallGroup;
+    this.boxGroup = boxGroup;
+    this.bombGroup = bombGroup;
 
     //Always same map
     this.map = snippetMap;
@@ -55,37 +66,24 @@ Map.prototype.getFreeSquares = function(map) {
 
 
 Map.prototype.buildMap = function () {
-    for (var i = 0; i < this.map.fils; i++) {
-        for (var j = 0; j < this.map.cols; j++) {
+
+    for (var i = 0; i < this.map.cols; i++) {
+        for (var j = 0; j < this.map.fils; j++) {
+
+
             switch(this.map.squares[j][i]) {
                 case 3:
+                    this.boxGroup.add(new Bombable(this.game,
+                    new Point(i*48+40, j*40+80), 'box', new Point(0.75, 0.625), new Point(64,64), new Point(0,0), true, 1, false));
                 case 0:
-                this.bgGroup.add(new GameObject(this.game, new Point(i * 1.2, j * 1.6),
-                'background', new Point(1, 1)));
+                    this.bgGroup.add(new GameObject(this.game, new Point(48 * i + 40, 40 * j + 80),
+                    'background', new Point(0.75, 0.625)));
+                    break;
                 case 1:
                 case 2:
+                this.wallGroup.add(new Physical(this.game,
+                    new Point(i*48+40, j*40+80), 'wall', new Point(0.75, 0.625), new Point(64,64), new Point(0,0), true));
                     break;
-    // //instead of a map.dat now we just insert them
-    // for (let i = - 25; i < width + 25; i += 50)
-    //   for (let j = 0; j < height ; j += 40)
-    //     background.add(new GameObject(this.game,
-    //       new Point(i * 1.2, j * 1.6), 'background', new Point(1, 1)));
-
-    // for (let i = 25; i < width-25; i += 50) {
-    //   for (let j = 0; j < height; j += 40) {
-    //     if ((i==25||j==0||i==width-75||j==height-40)||(!this.isOdd((i-25)/50) && !this.isOdd(j/40))) {
-    //       //wall.create(i, j,'wall');
-    //       wallGroup.add(new Physical(this.game,
-    //          new Point(i, j), 'wall', new Point(1/1.2, 1/1.6), new Point(64,64), new Point(0,0), true));
-    //     }
-    //     if ((this.isOdd((i-25)/50) && i!=75 && i!=width-125 && !this.isOdd(j/40) && j!=0 && j!=height-40&&j!=height-80&&j!=40)
-    //   || (!this.isOdd((i-25)/50) && i!=75 && i!=width-125 && i!=25 && i!=width-75 && this.isOdd(j/40) && j!=height-80 && j!=40))
-    //     {
-    //        boxGroups.add(new Bombable(this.game,
-    //           new Point(i, j), 'box', new Point(1/1.2, 1/1.6), new Point(64,64), new Point(0,0), true, 1, false));
-    //     }
-    //   }
-    // }
             }
         }
     }
