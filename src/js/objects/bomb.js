@@ -19,8 +19,7 @@ Bomb.prototype = Object.create(Bombable.prototype);
 Bomb.prototype.constructor = Bomb;
 
 Bomb.prototype.xplode = function() {
-    this.bombGroup.remove(this, true); //removes and destroy
+    this.bombGroup.remove(this, true); //removes and destroyz
     //this.destroy();
 }
-
 module.exports = Bomb;

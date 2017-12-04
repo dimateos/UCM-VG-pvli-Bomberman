@@ -93,8 +93,8 @@ Los enemigos y cajas por nivel son cte -> sus drops no (ni cantidad ni tipo).
 #### Modo normal only
 * **AtravesaCajas**, *800 pts*, poder atravesar destructibles.
 * **TiempoExtra**, *900 pts*, reinicia el tiempo totalmente
-* **Escudo**, *500 pts*, te pone en modo invulneable hasta recibir un hit?
-    * Parece que es por tiempo, da igual los hits
+* **Escudo**, *500 pts*, te pone en modo invulneable
+    * Dura unos 10 segundos, da igual los hits
     * ***Solo dura ese nivel***
 * **MORE...**
 
@@ -110,7 +110,11 @@ Los enemigos y cajas por nivel son cte -> sus drops no (ni cantidad ni tipo).
 
 * Explota en alrededor de **2 segundos** (probablemente exactos)
     * Aparentemente la exlosion no es instantanea
-    * Se propaga hasta su radio maximo con cierto delay
+    * Se propaga hasta su **radio maximo** con cierto delay
+    * La explosion dura **0.5 segundos**
+
+> Supongo que podemos hacer que la explosion sea hija de la bomba
+> y asi desaparece con ella
 
 * La propagacion se detiene al romper una caja
     * Pero no al matar un enemigo
@@ -152,6 +156,8 @@ Movimiento simple, habria que analizar los diferentes.
 
 
 ## Generacion de niveles
+
+> [Podemos usar guias para enemigos, etc](https://www.gamefaqs.com/snes/588720-super-bomberman/faqs)
 
 * Se superan acabando con todos los enemigos y encontrando la entrada.
 * No hace falta romper todas las cajas.

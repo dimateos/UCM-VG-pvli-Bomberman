@@ -1,18 +1,16 @@
 'use strict';
 const DEBUG = true;
 
-var Point = require('./objects/point.js');
+var Map = require('./maps/map.js');
 
-var GameObject = require('./objects/gameObject.js')
-var Physical = require('./objects/physical.js');
-var Bombable = require('./objects/bombable.js');
+var Point = require('./objects/point.js');
 
 var Identifiable = require('./objects/identifiable.js');
 
 var Player = require('./objects/player.js');
-var Bomb = require('./objects/bomb.js');
 
 var player, player2;
+var map;
 
 var wallGroup; //groups
 var boxGroups;
@@ -45,6 +43,9 @@ var PlayScene = {
 
   create: function () {
 
+    //map
+    map = new Map(this.game,1,1);
+
     //Controls
     cursors = this.game.input.keyboard.createCursorKeys();
 
@@ -73,30 +74,30 @@ var PlayScene = {
     player = new Player(this.game, new Point(80, 40), 'player', new Point(1/1.2, 1/1.6),
     new Point(50, 60), new Point(-1, 28), false, 3, false, wasd, bombButton, bombButtonFF, 1, bombGroup,{});
 
-    player2 = new Player(this.game, new Point(680, 520), 'player', new Point(1/1.2, 1/1.6),
-    new Point(50, 60), new Point(-1, 28), false, 3, false, cursors, bombButton2, bombButton2FF, 1, bombGroup,{});
+    //player2 = new Player(this.game, new Point(680, 520), 'player', new Point(1/1.2, 1/1.6),
+    //new Point(50, 60), new Point(-1, 28), false, 3, false, cursors, bombButton2, bombButton2FF, 1, bombGroup,{});
 
-    //instead of a map.dat now we just insert them
-    for (let i = - 25; i < width + 25; i += 50)
-      for (let j = 0; j < height ; j += 40)
-        background.add(new GameObject(this.game,
-          new Point(i * 1.2, j * 1.6), 'background', new Point(1, 1)));
+    // //instead of a map.dat now we just insert them
+    // for (let i = - 25; i < width + 25; i += 50)
+    //   for (let j = 0; j < height ; j += 40)
+    //     background.add(new GameObject(this.game,
+    //       new Point(i * 1.2, j * 1.6), 'background', new Point(1, 1)));
 
-    for (let i = 25; i < width-25; i += 50) {
-      for (let j = 0; j < height; j += 40) {
-        if ((i==25||j==0||i==width-75||j==height-40)||(!this.isOdd((i-25)/50) && !this.isOdd(j/40))) {
-          //wall.create(i, j,'wall');
-          wallGroup.add(new Physical(this.game,
-             new Point(i, j), 'wall', new Point(1/1.2, 1/1.6), new Point(64,64), new Point(0,0), true));
-        }
-        if ((this.isOdd((i-25)/50) && i!=75 && i!=width-125 && !this.isOdd(j/40) && j!=0 && j!=height-40&&j!=height-80&&j!=40)
-      || (!this.isOdd((i-25)/50) && i!=75 && i!=width-125 && i!=25 && i!=width-75 && this.isOdd(j/40) && j!=height-80 && j!=40))
-        {
-           boxGroups.add(new Bombable(this.game,
-              new Point(i, j), 'box', new Point(1/1.2, 1/1.6), new Point(64,64), new Point(0,0), true, 1, false));
-        }
-      }
-    }
+    // for (let i = 25; i < width-25; i += 50) {
+    //   for (let j = 0; j < height; j += 40) {
+    //     if ((i==25||j==0||i==width-75||j==height-40)||(!this.isOdd((i-25)/50) && !this.isOdd(j/40))) {
+    //       //wall.create(i, j,'wall');
+    //       wallGroup.add(new Physical(this.game,
+    //          new Point(i, j), 'wall', new Point(1/1.2, 1/1.6), new Point(64,64), new Point(0,0), true));
+    //     }
+    //     if ((this.isOdd((i-25)/50) && i!=75 && i!=width-125 && !this.isOdd(j/40) && j!=0 && j!=height-40&&j!=height-80&&j!=40)
+    //   || (!this.isOdd((i-25)/50) && i!=75 && i!=width-125 && i!=25 && i!=width-75 && this.isOdd(j/40) && j!=height-80 && j!=40))
+    //     {
+    //        boxGroups.add(new Bombable(this.game,
+    //           new Point(i, j), 'box', new Point(1/1.2, 1/1.6), new Point(64,64), new Point(0,0), true, 1, false));
+    //     }
+    //   }
+    // }
 
     if (DEBUG) console.log("Loaded...", Date.now()-this.startTime, "ms");
     if (DEBUG) console.log("\n PLAYER: ", player.body);
@@ -108,11 +109,11 @@ var PlayScene = {
     this.game.physics.arcade.collide(player, wallGroup);
     this.game.physics.arcade.collide(player, boxGroups);
 
-    this.game.physics.arcade.collide(player2, wallGroup);
-    this.game.physics.arcade.collide(player2, boxGroups);
+    //this.game.physics.arcade.collide(player2, wallGroup);
+    //this.game.physics.arcade.collide(player2, boxGroups);
 
     this.game.world.bringToTop(player);
-    this.game.world.bringToTop(player2);
+    //this.game.world.bringToTop(player2);
 
     debugMode();
 

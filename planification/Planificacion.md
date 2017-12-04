@@ -21,20 +21,27 @@
 
 ### Hechas
 - Movimiento del jugador con flechas
+    - Y cualquier control que se le pase
 - Colisiones del jugador con los muros
 - Creación de los muros (iterativo/provisional)
 - Creación y destrucción de bombas
+    - Sin explosion
 - Ajuste de sprites a pantalla
 - Creación del jugador
+    - N jugadores posibles (te quedas sin teclado)
 - Ajuste de código a diagrama de clases (herencia)
-- Posibilidad de varios jugadores en el mismo ordenador
+- Concretados las mecanicas tecnicas del gameplay en diseño.md
+    - Asi como tambien su implementacion
 
 ### En proceso
-- Analisis del gameplay para concretar los atributos de las clases
-
-### Por empezar
+- Concretar todos los atributos y metodos de las clases
+    - Segun la implementacion de diseño.md (maybe not?)
+        - Añade muchos metodos posibles - quizas no los necesitamos
+    - Cambiar nuestro "point" por phaser.point
 - Creación de mapa a partir de un archivo (opcional)
 - Creación de estructura interna de casillas
+
+### Por empezar
 - Animaciones de jugador
 - Animaciones de bomba
 - Power-ups (aparición aleatoria)
