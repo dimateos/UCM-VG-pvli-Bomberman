@@ -21,7 +21,6 @@ function Map (game, worldNum, levelNum, groups, tileRes, tileScale, offset) {
     this.map = snippetMap;
 
     this.developMap(8,33); //should depend on the level
-    console.log(this.map.squares);
 
     this.buildMap(groups, tileRes, tileScale, offset);
 };
@@ -62,25 +61,29 @@ Map.prototype.getFreeSquares = function(map) {
 
 Map.prototype.buildMap = function (groups, tileRes, tileScale, offset) {
 
-    var squareScaled = Phaser.Point.multiply(tileScale,tileRes); //??
-
     for (var i = 0; i < this.map.cols; i++) {
         for (var j = 0; j < this.map.fils; j++) {
 
-            var squareIndex = Point.Add(offset, Point.multiply(new Point(i,j), squareScaled));
+            //new point each time is bad? auto deletes trash?
+            var squareIndex = new Point(i,j)
+                .multiply(tileRes.x,tileRes.y).multiply(tileScale.x,tileScale.y).add(offset.x, offset.y);
 
             switch(this.map.squares[j][i]) {
-                case 3:
-                    groups.box.add(new Bombable(this.game,
-                        squareIndex, 'box', tileScale, tileRes, new Point(0,0), true, 1, false));
-                case 0: //(i*48+40, j*40+80)
-                    groups.background.add(new GameObject(this.game, new Point(48 * i + 40, 40 * j + 80),
-                    'background', new Point(0.75, 0.625)));
+
+                case 3: groups.box.add(new Bombable
+                    (this.game, squareIndex, 'box', tileScale, tileRes, new Point(), true, 1, false));
+
+                    //no break so there is background underneath
+
+                case 0: groups.background.add(new GameObject
+                    (this.game, squareIndex, 'background', tileScale));
+
                     break;
-                case 1:
-                case 2:
-                    groups.wall.add(new Physical(this.game,
-                    new Point(i*48+40, j*40+80), 'wall', tileScale, tileRes, new Point(0,0), true));
+
+                case 1: //no special tile for now
+                case 2: groups.wall.add(new Physical
+                    (this.game, squareIndex, 'wall', tileScale, tileRes, new Point(), true));
+
                     break;
             }
         }

@@ -6,10 +6,13 @@ var Point = require('../point.js');
 var Groups = require('../groups.js')
 var groups;
 var Map = require('../maps/map.js');
-var map;
+var level;
 
 var Player = require('../objects/player.js');
 var player, player2;
+var playerBodySize = new Point(60, 60);
+var playerBodyOffset = new Point(-8,  32);
+
 
 var inputs = {
   mov: {
@@ -38,10 +41,13 @@ var toogleBoxCollisionButtonFF = false; //flip flop
 const width = 800;
 const height = 600;
 
-//fit in res + space for Hud
 const tileRes = new Point(64, 64);
 const tileScale = new Point(0.75, 0.625); //64x64 to 48x40
-const offset = new Point(tileRes*tileScale.y, tileRes*tileScale.y*2);
+const tileOffset = new Point(tileRes.y*tileScale.y, tileRes.y*tileScale.y*2); //space for hud
+//all applied (not really used atm)
+const tileFixed = new Point(1,1)
+.multiply(tileRes.x,tileRes.y).multiply(tileScale.x,tileScale.y).add(tileOffset.x, tileOffset.y);
+
 
 var PlayScene = {
 
@@ -69,15 +75,17 @@ var PlayScene = {
 
     //map
     groups = new Groups (this.game); //first need the groups
-    map = new Map(this.game,1,1,groups,tileRes,tileScale,offset);
+    level = new Map(this.game,1,1,groups,tileRes,tileScale,tileOffset);
 
-    //player
-    player = new Player(this.game, new Point(48+40+6, 40+80-20), 'player', tileScale,
-    new Point(60, 60), new Point(-8,  32), false, 3, false, wasd, bombButton, bombButtonFF, 1, groups.bomb,{});
+    //player //neads some extra offset cause of the body offset etc
+    player = new Player(this.game, new Point(tileFixed.x+6, tileFixed.y-20), 'player', tileScale,
+    playerBodySize, playerBodyOffset, false, 3, false, wasd, bombButton, bombButtonFF, 1, groups.bomb,{});
 
-    if (DEBUG) console.log("Loaded...", Date.now()-this.startTime, "ms");
-    if (DEBUG) console.log("\n PLAYER: ", player.body);
-    if (DEBUG) console.log("Player body height: ", player.body.height);
+    if (DEBUG) {
+      console.log("Loaded...", Date.now()-this.startTime, "ms");
+      console.log("\n PLAYER: ", player.body);
+      console.log("\n MAP: ", level.map.squares);
+    }
   },
 
 
