@@ -9,23 +9,13 @@ var Map = require('../maps/map.js');
 var level;
 
 var Player = require('../objects/player.js');
-var player, player2;
+var player0, player1;
 var playerBodySize = new Point(60, 60);
 var playerBodyOffset = new Point(-8,  32);
+var playerLives = 3;
 
-
-var inputs = {
-  mov: {
-    up: {},
-    down: {},
-    left: {},
-    rigth: {}
-  },
-  bomb: {
-    button: {},
-    ff: false,
-  }
-}
+var Inputs = require('../inputs.js')
+var inputs;
 
 var cursors;
 var wasd;
@@ -59,17 +49,19 @@ var PlayScene = {
   create: function () {
 
     //Controls
-    cursors = this.game.input.keyboard.createCursorKeys();
+    //cursors = this.game.input.keyboard.createCursorKeys();
 
-    wasd = {
-      up: this.game.input.keyboard.addKey(Phaser.Keyboard.W),
-      down: this.game.input.keyboard.addKey(Phaser.Keyboard.S),
-      left: this.game.input.keyboard.addKey(Phaser.Keyboard.A),
-      right: this.game.input.keyboard.addKey(Phaser.Keyboard.D),
-    };
+    // wasd = {
+    //   up: this.game.input.keyboard.addKey(Phaser.Keyboard.W),
+    //   down: this.game.input.keyboard.addKey(Phaser.Keyboard.S),
+    //   left: this.game.input.keyboard.addKey(Phaser.Keyboard.A),
+    //   right: this.game.input.keyboard.addKey(Phaser.Keyboard.D),
+    // };
 
-    bombButton = this.game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
-    bombButton2 = this.game.input.keyboard.addKey(Phaser.Keyboard.P);
+    // bombButton = this.game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
+    // bombButton2 = this.game.input.keyboard.addKey(Phaser.Keyboard.P);
+
+    inputs = new Inputs(this.game, 0);
 
     toggleBoxCollisionButton = this.game.input.keyboard.addKey(Phaser.Keyboard.C); //debug
 
@@ -77,26 +69,26 @@ var PlayScene = {
     groups = new Groups (this.game); //first need the groups
     level = new Map(this.game,1,1,groups,tileRes,tileScale,tileOffset);
 
-    //player //neads some extra offset cause of the body offset etc
-    player = new Player(this.game, new Point(tileFixed.x+6, tileFixed.y-20), 'player', tileScale,
-    playerBodySize, playerBodyOffset, false, 3, false, wasd, bombButton, bombButtonFF, 1, groups.bomb,{});
+    //player //neads some extra offset cause of the body offset etc not finished
+    player0 = new Player(this.game, new Point(tileFixed.x+6, tileFixed.y-20), 'player', tileScale,
+    playerBodySize, playerBodyOffset, false, playerLives, false, inputs, 1, groups.bomb,{});
 
     if (DEBUG) {
       console.log("Loaded...", Date.now()-this.startTime, "ms");
-      console.log("\n PLAYER: ", player.body);
+      console.log("\n PLAYER: ", player0.body);
       console.log("\n MAP: ", level.map.squares);
     }
   },
 
 
   update: function(){
-    this.game.physics.arcade.collide(player, groups.wall);
-    this.game.physics.arcade.collide(player, groups.box);
+    this.game.physics.arcade.collide(player0, groups.wall);
+    this.game.physics.arcade.collide(player0, groups.box);
 
     //this.game.physics.arcade.collide(player2, wallGroup);
     //this.game.physics.arcade.collide(player2, boxGroups);
 
-    this.game.world.bringToTop(player);
+    this.game.world.bringToTop(player0);
     //this.game.world.bringToTop(player2);
 
     debugMode();
@@ -107,8 +99,8 @@ var PlayScene = {
   render: function(){
     if (isBoxCollDisabled) {
       //console.log(wall.children[5])
-      this.game.debug.bodyInfo(player, 32, 32);
-      this.game.debug.body(player);
+      this.game.debug.bodyInfo(player0, 32, 32);
+      this.game.debug.body(player0);
       //this.game.debug.body(boxGroup.children[5]);
 
       for (let i = 0; i < groups.wall.length; i++)

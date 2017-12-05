@@ -1,7 +1,7 @@
 'use strict';
 
 //Creates a super group to contain all of the game's groups
-//and it's a group itself (exteds Phaser.Group) - not really needed now?
+//and it's a group itself (extends Phaser.Group) - not really used now
 function Groups(game) {
 
     Phaser.Group.call(this, game);
