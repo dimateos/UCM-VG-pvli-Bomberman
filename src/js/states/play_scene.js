@@ -1,21 +1,28 @@
 'use strict';
 const DEBUG = true;
 
-var Map = require('./maps/map.js');
+var Point = require('../point.js');
 
-var Point = require('./objects/point.js');
-
-var Identifiable = require('./objects/identifiable.js');
-
-var Player = require('./objects/player.js');
-
-var player, player2;
+var Groups = require('../groups.js')
+var groups;
+var Map = require('../maps/map.js');
 var map;
 
-var wallGroup; //groups
-var boxGroup;
-var bombGroup;
-var bgGroup;
+var Player = require('../objects/player.js');
+var player, player2;
+
+var inputs = {
+  mov: {
+    up: {},
+    down: {},
+    left: {},
+    rigth: {}
+  },
+  bomb: {
+    button: {},
+    ff: false,
+  }
+}
 
 var cursors;
 var wasd;
@@ -32,9 +39,9 @@ const width = 800;
 const height = 600;
 
 //fit in res + space for Hud
-const tileRes = 64; //64x64
+const tileRes = new Point(64, 64);
 const tileScale = new Point(0.75, 0.625); //64x64 to 48x40
-
+const offset = new Point(tileRes*tileScale.y, tileRes*tileScale.y*2);
 
 var PlayScene = {
 
@@ -60,18 +67,13 @@ var PlayScene = {
 
     toggleBoxCollisionButton = this.game.input.keyboard.addKey(Phaser.Keyboard.C); //debug
 
-    //groups for tiles
-    bgGroup = this.game.add.group();
-    wallGroup = this.game.add.group();
-    boxGroup = this.game.add.group();
-    bombGroup = this.game.add.group();
-
     //map
-    map = new Map(this.game,1,1,bgGroup,wallGroup,boxGroup,bombGroup);
+    groups = new Groups (this.game); //first need the groups
+    map = new Map(this.game,1,1,groups,tileRes,tileScale,offset);
 
     //player
-    player = new Player(this.game, new Point(88, 128), 'player', new Point(0.75, 0.625),
-    new Point(60, 60), new Point(-8,  32), false, 3, false, wasd, bombButton, bombButtonFF, 1, bombGroup,{});
+    player = new Player(this.game, new Point(48+40+6, 40+80-20), 'player', tileScale,
+    new Point(60, 60), new Point(-8,  32), false, 3, false, wasd, bombButton, bombButtonFF, 1, groups.bomb,{});
 
     if (DEBUG) console.log("Loaded...", Date.now()-this.startTime, "ms");
     if (DEBUG) console.log("\n PLAYER: ", player.body);
@@ -80,8 +82,8 @@ var PlayScene = {
 
 
   update: function(){
-    this.game.physics.arcade.collide(player, wallGroup);
-    this.game.physics.arcade.collide(player, boxGroup);
+    this.game.physics.arcade.collide(player, groups.wall);
+    this.game.physics.arcade.collide(player, groups.box);
 
     //this.game.physics.arcade.collide(player2, wallGroup);
     //this.game.physics.arcade.collide(player2, boxGroups);
@@ -101,11 +103,11 @@ var PlayScene = {
       this.game.debug.body(player);
       //this.game.debug.body(boxGroup.children[5]);
 
-      for (let i = 0; i < wallGroup.length; i++)
-          this.game.debug.body(wallGroup.children[i]);
+      for (let i = 0; i < groups.wall.length; i++)
+          this.game.debug.body(groups.wall.children[i]);
 
-      for (let i = 0; i < boxGroup.length; i++)
-          this.game.debug.body(boxGroup.children[i]);
+      for (let i = 0; i < groups.box.length; i++)
+          this.game.debug.body(groups.box.children[i]);
     }
   }
 

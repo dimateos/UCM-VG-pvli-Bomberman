@@ -55,7 +55,7 @@ var PreloaderScene = {
   }
 };
 
-var PlayScene = require('./play_scene.js');
+var PlayScene = require('./states/play_scene.js');
 
 window.onload = function () {
   var game = new Phaser.Game(winWith, winHeight, Phaser.AUTO, 'game');

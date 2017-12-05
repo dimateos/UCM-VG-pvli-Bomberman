@@ -4,31 +4,26 @@ var GameObject = require('../objects/gameObject.js');
 var Physical = require('../objects/physical.js');
 var Bombable = require('../objects/bombable.js');
 
-var Point = require('../objects/point.js')
+var Point = require('../point.js')
 var snippetMap = require("./snippetMap.js"); //base map
 
-var width = 800;
-var height = 600;
 function isOdd(num) { return (num % 2) == 1;};
 
-
-function Map (game, worldNum, levelNum, bgGroup, wallGroup, boxGroup, bombGroup) {
+function Map (game, worldNum, levelNum, groups, tileRes, tileScale, offset) {
 
     this.game = game;
     this.worldNum = worldNum;
     this.levelNum = levelNum;
 
-    this.bgGroup = bgGroup;
-    this.wallGroup = wallGroup;
-    this.boxGroup = boxGroup;
-    this.bombGroup = bombGroup;
+    //this.groups = groups; no need to extra atributes
 
-    //Always same map
+    //Always same base map
     this.map = snippetMap;
 
-    this.developMap(8,33);
+    this.developMap(8,33); //should depend on the level
     console.log(this.map.squares);
-    this.buildMap();
+
+    this.buildMap(groups, tileRes, tileScale, offset);
 };
 //Map.prototype = Object.create(Phaser.Sprite.prototype);
 //Map.prototype.constructor = Map;
@@ -65,24 +60,27 @@ Map.prototype.getFreeSquares = function(map) {
 };
 
 
-Map.prototype.buildMap = function () {
+Map.prototype.buildMap = function (groups, tileRes, tileScale, offset) {
+
+    var squareScaled = Phaser.Point.multiply(tileScale,tileRes); //??
 
     for (var i = 0; i < this.map.cols; i++) {
         for (var j = 0; j < this.map.fils; j++) {
 
+            var squareIndex = Point.Add(offset, Point.multiply(new Point(i,j), squareScaled));
 
             switch(this.map.squares[j][i]) {
                 case 3:
-                    this.boxGroup.add(new Bombable(this.game,
-                    new Point(i*48+40, j*40+80), 'box', new Point(0.75, 0.625), new Point(64,64), new Point(0,0), true, 1, false));
-                case 0:
-                    this.bgGroup.add(new GameObject(this.game, new Point(48 * i + 40, 40 * j + 80),
+                    groups.box.add(new Bombable(this.game,
+                        squareIndex, 'box', tileScale, tileRes, new Point(0,0), true, 1, false));
+                case 0: //(i*48+40, j*40+80)
+                    groups.background.add(new GameObject(this.game, new Point(48 * i + 40, 40 * j + 80),
                     'background', new Point(0.75, 0.625)));
                     break;
                 case 1:
                 case 2:
-                this.wallGroup.add(new Physical(this.game,
-                    new Point(i*48+40, j*40+80), 'wall', new Point(0.75, 0.625), new Point(64,64), new Point(0,0), true));
+                    groups.wall.add(new Physical(this.game,
+                    new Point(i*48+40, j*40+80), 'wall', tileScale, tileRes, new Point(0,0), true));
                     break;
             }
         }
