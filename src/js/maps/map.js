@@ -9,7 +9,7 @@ var snippetMap = require("./snippetMap.js"); //base map
 
 function isOdd(num) { return (num % 2) == 1;};
 
-function Map (game, worldNum, levelNum, groups, tileRes, tileScale, offset) {
+function Map (game, worldNum, levelNum, groups, tileData) {
 
     this.game = game;
     this.worldNum = worldNum;
@@ -22,7 +22,7 @@ function Map (game, worldNum, levelNum, groups, tileRes, tileScale, offset) {
 
     this.developMap(8,33); //should depend on the level
 
-    this.buildMap(groups, tileRes, tileScale, offset);
+    this.buildMap(groups, tileData);
 };
 //Map.prototype = Object.create(Phaser.Sprite.prototype);
 //Map.prototype.constructor = Map;
@@ -59,30 +59,29 @@ Map.prototype.getFreeSquares = function(map) {
 };
 
 
-Map.prototype.buildMap = function (groups, tileRes, tileScale, offset) {
+Map.prototype.buildMap = function (groups, tileData) {
 
     for (var i = 0; i < this.map.cols; i++) {
         for (var j = 0; j < this.map.fils; j++) {
 
             //new point each time is bad? auto deletes trash?
-            var squareIndex = new Point(i,j)
-                .multiply(tileRes.x,tileRes.y).multiply(tileScale.x,tileScale.y).add(offset.x, offset.y);
+            var squareIndex = new Point(i,j).applyTileData(tileData);
 
             switch(this.map.squares[j][i]) {
 
                 case 3: groups.box.add(new Bombable
-                    (this.game, squareIndex, 'box', tileScale, tileRes, new Point(), true, 1, false));
+                    (this.game, squareIndex, 'box', tileData.Scale, tileData.Res, new Point(), true, 1, false));
 
                     //no break so there is background underneath
 
                 case 0: groups.background.add(new GameObject
-                    (this.game, squareIndex, 'background', tileScale));
+                    (this.game, squareIndex, 'background', tileData.Scale));
 
                     break;
 
                 case 1: //no special tile for now
                 case 2: groups.wall.add(new Physical
-                    (this.game, squareIndex, 'wall', tileScale, tileRes, new Point(), true));
+                    (this.game, squareIndex, 'wall', tileData.Scale, tileData.Res, new Point(), true));
 
                     break;
             }

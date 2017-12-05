@@ -1,17 +1,40 @@
 'use strict';
 
-var  Bombable = require('./bombable.js');
-var Bomb = require('./bomb.js')
+var  Bombable = require('./bombable.js'); //father
 
-function Player (game, position, sprite, scale, bodySize, bodyOffSet, immovable, lives, invencible, inputs, bombs, bombGroup, mods) {
+var Point = require('../point.js');
 
-    Bombable.call(this, game, position, sprite, scale, bodySize, bodyOffSet, immovable, lives, invencible);
+var Inputs = require('../inputs.js');
+var Bomb = require('./bomb.js');
+
+//extraOffset required because body is not 64x64
+var extraOffset = {x: 7.5, y: -19};
+
+var playerSpawns =
+[
+    {x: 1, y: 1},
+    {x: 13, y: 1},
+    {x: 1, y: 11},
+    {x: 13, y: 11},
+];
+
+//function Player (game, position, sprite, scale, bodySize, bodyOffSet, immovable, lives, invencible, inputs, bombs, bombGroup, mods) {
+function Player (game, numPlayer, tileData, bodySize, bodyOffSet, immovable, lives, invencible, bombs, bombGroup, mods) {
+
+    //produces respawn position based on playerSpawns[numPlayer]
+    this.respawnPos = new Point(playerSpawns[numPlayer].x, playerSpawns[numPlayer].y)
+        .applyTileData(tileData).add(extraOffset.x, extraOffset.y);
+
+    Bombable.call(this, game, this.respawnPos, 'player_'+ numPlayer,
+        tileData.Scale, bodySize, bodyOffSet, immovable, lives, invencible);
+
+    this.numPlayer = numPlayer;
 
     this.bombs = bombs;
-    this.mods = mods;
-    this.inputs = inputs;
-
     this.bombGroup = bombGroup;
+    this.mods = mods;
+
+    this.inputs = new Inputs (game, numPlayer);
 };
 
 Player.prototype = Object.create(Bombable.prototype);

@@ -9,21 +9,15 @@ var Map = require('../maps/map.js');
 var level;
 
 var Player = require('../objects/player.js');
-var player0, player1;
+var player_0, player_1;
 var playerBodySize = new Point(60, 60);
 var playerBodyOffset = new Point(-8,  32);
-var playerLives = 3;
+var playerLives = 5;
 
-var Inputs = require('../inputs.js')
-var inputs;
+//var Inputs = require('../inputs.js')
+//var inputs_0;
 
-var cursors;
-var wasd;
-var bombButton;
-var bombButton2;
-var bombButtonFF = false;
-var bombButton2FF = false;
-
+//use inputs 0 or -1 for this?
 var toggleBoxCollisionButton; //just for debugging
 var isBoxCollDisabled = false;
 var toogleBoxCollisionButtonFF = false; //flip flop
@@ -31,13 +25,11 @@ var toogleBoxCollisionButtonFF = false; //flip flop
 const width = 800;
 const height = 600;
 
-const tileRes = new Point(64, 64);
-const tileScale = new Point(0.75, 0.625); //64x64 to 48x40
-const tileOffset = new Point(tileRes.y*tileScale.y, tileRes.y*tileScale.y*2); //space for hud
-//all applied (not really used atm)
-const tileFixed = new Point(1,1)
-.multiply(tileRes.x,tileRes.y).multiply(tileScale.x,tileScale.y).add(tileOffset.x, tileOffset.y);
-
+const tileData = {
+  Res: new Point(64, 64),
+  Scale: new Point(0.75, 0.625), //64x64 to 48x40
+  Offset: new Point(40, 80), //space for hud
+};
 
 var PlayScene = {
 
@@ -48,47 +40,41 @@ var PlayScene = {
 
   create: function () {
 
-    //Controls
-    //cursors = this.game.input.keyboard.createCursorKeys();
-
-    // wasd = {
-    //   up: this.game.input.keyboard.addKey(Phaser.Keyboard.W),
-    //   down: this.game.input.keyboard.addKey(Phaser.Keyboard.S),
-    //   left: this.game.input.keyboard.addKey(Phaser.Keyboard.A),
-    //   right: this.game.input.keyboard.addKey(Phaser.Keyboard.D),
-    // };
-
-    // bombButton = this.game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
-    // bombButton2 = this.game.input.keyboard.addKey(Phaser.Keyboard.P);
-
-    inputs = new Inputs(this.game, 0);
-
-    toggleBoxCollisionButton = this.game.input.keyboard.addKey(Phaser.Keyboard.C); //debug
-
     //map
     groups = new Groups (this.game); //first need the groups
-    level = new Map(this.game,1,1,groups,tileRes,tileScale,tileOffset);
+    level = new Map(this.game,1,1,groups,tileData);
+
+    //controls
+    //inputs_0 = new Inputs(this.game, 0);
+    toggleBoxCollisionButton = this.game.input.keyboard.addKey(Phaser.Keyboard.C); //debug
 
     //player //neads some extra offset cause of the body offset etc not finished
-    player0 = new Player(this.game, new Point(tileFixed.x+6, tileFixed.y-20), 'player', tileScale,
-    playerBodySize, playerBodyOffset, false, playerLives, false, inputs, 1, groups.bomb,{});
+    //position should be fixed to the player number aswell as the sprite and inputs
+    //player_0 = new Player(this.game, new Point(tileFixed.x+6, tileFixed.y-20), 'player', tileScale,
+    //playerBodySize, playerBodyOffset, false, playerLives, false, inputs_0, 1, groups.bomb,{});
+
+    player_0 = new Player(this.game, 0, tileData,
+    playerBodySize, playerBodyOffset, false, playerLives, false, 1, groups.bomb,{});
 
     if (DEBUG) {
       console.log("Loaded...", Date.now()-this.startTime, "ms");
-      console.log("\n PLAYER: ", player0.body);
+      console.log("\n PLAYER: ", player_0.body);
       console.log("\n MAP: ", level.map.squares);
     }
   },
 
 
   update: function(){
-    this.game.physics.arcade.collide(player0, groups.wall);
-    this.game.physics.arcade.collide(player0, groups.box);
+
+    //foreach player {do all this}
+
+    this.game.physics.arcade.collide(player_0, groups.wall);
+    this.game.physics.arcade.collide(player_0, groups.box);
 
     //this.game.physics.arcade.collide(player2, wallGroup);
     //this.game.physics.arcade.collide(player2, boxGroups);
 
-    this.game.world.bringToTop(player0);
+    this.game.world.bringToTop(player_0);
     //this.game.world.bringToTop(player2);
 
     debugMode();
@@ -99,8 +85,8 @@ var PlayScene = {
   render: function(){
     if (isBoxCollDisabled) {
       //console.log(wall.children[5])
-      this.game.debug.bodyInfo(player0, 32, 32);
-      this.game.debug.body(player0);
+      this.game.debug.bodyInfo(player_0, 32, 32);
+      this.game.debug.body(player_0);
       //this.game.debug.body(boxGroup.children[5]);
 
       for (let i = 0; i < groups.wall.length; i++)

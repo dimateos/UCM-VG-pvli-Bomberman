@@ -31,7 +31,7 @@ Inputs.prototype.switchControls = function (game, numPlayer) {
             this.mov = game.input.keyboard.createCursorKeys();
 
             this.bomb = {
-                button: this.game.input.keyboard.addKey(Phaser.Keyboard.P),
+                button: game.input.keyboard.addKey(Phaser.Keyboard.P),
             }
             break;
 
