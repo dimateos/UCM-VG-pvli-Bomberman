@@ -9,15 +9,16 @@ var Map = require('../maps/map.js');
 var level;
 
 var Player = require('../objects/player.js');
-var player_0, player_1;
+var players = [{},{}]; //2 max for this mode
 var playerBodySize = new Point(60, 60);
 var playerBodyOffset = new Point(-8,  32);
 var playerLives = 5;
+var maxPlayers = 2;
 
 //var Inputs = require('../inputs.js')
 //var inputs_0;
 
-//use inputs 0 or -1 for this?
+//use inputs 0 or -1  for this?
 var toggleBoxCollisionButton; //just for debugging
 var isBoxCollDisabled = false;
 var toogleBoxCollisionButtonFF = false; //flip flop
@@ -42,23 +43,20 @@ var PlayScene = {
 
     //map
     groups = new Groups (this.game); //first need the groups
-    level = new Map(this.game,1,1,groups,tileData);
+    level = new Map(this.game, 1, 1, groups, tileData, maxPlayers);
 
-    //controls
-    //inputs_0 = new Inputs(this.game, 0);
-    toggleBoxCollisionButton = this.game.input.keyboard.addKey(Phaser.Keyboard.C); //debug
+    //controls extra
+    toggleBoxCollisionButton = this.game.input.keyboard.addKey(Phaser.Keyboard.C);
+    console.log("test");
 
-    //player //neads some extra offset cause of the body offset etc not finished
-    //position should be fixed to the player number aswell as the sprite and inputs
-    //player_0 = new Player(this.game, new Point(tileFixed.x+6, tileFixed.y-20), 'player', tileScale,
-    //playerBodySize, playerBodyOffset, false, playerLives, false, inputs_0, 1, groups.bomb,{});
-
-    player_0 = new Player(this.game, 0, tileData,
-    playerBodySize, playerBodyOffset, false, playerLives, false, 1, groups.bomb,{});
+    //players
+    for (var numPlayer = 0; numPlayer < maxPlayers; numPlayer++)
+      players[numPlayer] = new Player(this.game, numPlayer, tileData,
+        playerBodySize, playerBodyOffset, false, playerLives, false, 1, groups.bomb,{});
 
     if (DEBUG) {
       console.log("Loaded...", Date.now()-this.startTime, "ms");
-      console.log("\n PLAYER: ", player_0.body);
+      console.log("\n PLAYER: ", players[0].body);
       console.log("\n MAP: ", level.map.squares);
     }
   },
@@ -66,27 +64,24 @@ var PlayScene = {
 
   update: function(){
 
-    //foreach player {do all this}
-
-    this.game.physics.arcade.collide(player_0, groups.wall);
-    this.game.physics.arcade.collide(player_0, groups.box);
-
-    //this.game.physics.arcade.collide(player2, wallGroup);
-    //this.game.physics.arcade.collide(player2, boxGroups);
-
-    this.game.world.bringToTop(player_0);
-    //this.game.world.bringToTop(player2);
+    //maybe in some object update?
+    for (var numPlayer = 0; numPlayer < maxPlayers; numPlayer++) {
+      this.game.physics.arcade.collide(players[numPlayer], groups.wall);
+      this.game.physics.arcade.collide(players[numPlayer], groups.box);
+      this.game.world.bringToTop(players[numPlayer]);
+    }
 
     debugMode();
 
-    //rest in player.update()
+    //rest in player and bomb updates
   },
+
 
   render: function(){
     if (isBoxCollDisabled) {
       //console.log(wall.children[5])
-      this.game.debug.bodyInfo(player_0, 32, 32);
-      this.game.debug.body(player_0);
+      this.game.debug.bodyInfo(players[0], 32, 32);
+      this.game.debug.body(players[0]);
       //this.game.debug.body(boxGroup.children[5]);
 
       for (let i = 0; i < groups.wall.length; i++)

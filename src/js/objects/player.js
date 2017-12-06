@@ -7,18 +7,13 @@ var Point = require('../point.js');
 var Inputs = require('../inputs.js');
 var Bomb = require('./bomb.js');
 
-//extraOffset required because body is not 64x64
-var extraOffset = {x: 7.5, y: -19};
 
-var playerSpawns =
-[
-    {x: 1, y: 1},
-    {x: 13, y: 1},
-    {x: 1, y: 11},
-    {x: 13, y: 11},
-];
+//spawns are in baseMapData (the info is shared with the map)
+var playerSpawns = require("../maps/baseMapData.js").playerSpawns;
 
-//function Player (game, position, sprite, scale, bodySize, bodyOffSet, immovable, lives, invencible, inputs, bombs, bombGroup, mods) {
+var extraOffset = {x: 7.5, y: -19}; //required because player body is not 64x64
+
+
 function Player (game, numPlayer, tileData, bodySize, bodyOffSet, immovable, lives, invencible, bombs, bombGroup, mods) {
 
     //produces respawn position based on playerSpawns[numPlayer]
@@ -39,6 +34,7 @@ function Player (game, numPlayer, tileData, bodySize, bodyOffSet, immovable, liv
 
 Player.prototype = Object.create(Bombable.prototype);
 Player.prototype.constructor = Player;
+
 
 Player.prototype.update = function() {
 

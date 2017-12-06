@@ -1,11 +1,16 @@
 'use strict';
 
-var snippetMap = {
+var baseMapData = {
 
     cols: 15, fils: 13, //not really necessary
 
-    player: {x: 1, y: 1}, //spawn point (squares[1][1])
-    //needs more
+    playerSpawns:
+    [
+        {x: 1, y: 1}, //(squares[1][1])
+        {x: 13, y: 1},
+        {x: 1, y: 11},
+        {x: 13, y: 11},
+    ],
 
     squares:
     [
@@ -25,4 +30,4 @@ var snippetMap = {
     ]
 };
 
-module.exports = snippetMap;
+module.exports = baseMapData;
