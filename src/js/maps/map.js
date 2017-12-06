@@ -21,14 +21,14 @@ function Map (game, worldNum, levelNum, groups, tileData, maxPlayers) {
     //Always same base map
     this.map = baseMapData;
 
-    this.developMap(8,33); //will depend on the level
+    this.generateMap(8,33); //will depend on the level
 
     this.buildMap(groups, tileData);
 };
 
 
 //Adds all the extra bombables and walls
-Map.prototype.developMap = function(numWall, numBombable) {
+Map.prototype.generateMap = function(numWall, numBombable) {
     var self = this;
     var freeSquares = this.getFreeSquares(this.map,this.maxPlayers);
     console.log(freeSquares);
@@ -45,82 +45,85 @@ Map.prototype.developMap = function(numWall, numBombable) {
 
             self.map.squares[y][x] = type;
 
-            freeSquares.splice(rnd,1); //removes from list
-
-            //special wall placement to avoid wrong generation
-            if (type === 1 && x%2 != 0 && y%2 != 0) {
-                var index; //searches and removes possible squares that could lead to a blocked zone
-
-                index = freeSquares.findIndex(function equal (e) { return e.x === x-2 && e.y === y});
-                if (index > -1) freeSquares.splice(index, 1);
-
-                index = freeSquares.findIndex(function equal (e) { return e.x === x+2 && e.y === y});
-                if (index > -1) freeSquares.splice(index, 1);
-
-                index = freeSquares.findIndex(function equal (e) { return e.x === x && e.y === y-2});
-                if (index > -1) freeSquares.splice(index, 1);
-
-                index = freeSquares.findIndex(function equal (e) { return e.x === x && e.y === y+2});
-                if (index > -1) freeSquares.splice(index, 1);
-            }
+            //special odd wall placement to avoid wrong generation
+            if (type === 1 && x%2 != 0 && y%2 != 0)
+                self.removeSurroundingSquares(x,y,2,freeSquares)
+            else freeSquares.splice(rnd,1); //removes from list
         }
     }
 };
 
+
 //gets the free squares of map excluding player pos
-Map.prototype.getFreeSquares = function(map,maxPlayers) {
+Map.prototype.getFreeSquares = function(map, maxPlayers) {
     var freeSquares = [];
 
     for (var i = 0; i < map.fils; i++)
-        for (var j = 0; j < map.cols; j++)
-            if (map.squares[i][j] == 0 /*&& !checkPlayerSquare(j,i,maxPlayers)*/)
-                freeSquares.push({x: j, y: i});
+    for (var j = 0; j < map.cols; j++)
+    if (map.squares[i][j] == 0 /*&& !checkPlayerSquare(j,i,maxPlayers)*/)
+    freeSquares.push({x: j, y: i});
 
-    var index; //now we search and remove the players spawns (and souroundings?)
-    for (var numPlayer = 0; numPlayer < maxPlayers; numPlayer++) {
-        index = freeSquares.findIndex(function equal (e) {
-            return e.x === map.playerSpawns[numPlayer].x
-                && e.y === map.playerSpawns[numPlayer].y});
-        if (index > -1) freeSquares.splice(index, 1);
-
-        index = freeSquares.findIndex(function equal (e) {
-            return e.x === map.playerSpawns[numPlayer].x-1
-                && e.y === map.playerSpawns[numPlayer].y});
-        if (index > -1) freeSquares.splice(index, 1);
-
-        index = freeSquares.findIndex(function equal (e) {
-            return e.x === map.playerSpawns[numPlayer].x+1
-                && e.y === map.playerSpawns[numPlayer].y});
-        if (index > -1) freeSquares.splice(index, 1);
-
-        index = freeSquares.findIndex(function equal (e) {
-            return e.x === map.playerSpawns[numPlayer].x
-                && e.y === map.playerSpawns[numPlayer].y-1});
-        if (index > -1) freeSquares.splice(index, 1);
-
-        index = freeSquares.findIndex(function equal (e) {
-            return e.x === map.playerSpawns[numPlayer].x
-                && e.y === map.playerSpawns[numPlayer].y+1});
-        if (index > -1) freeSquares.splice(index, 1);
-    }
+    //now we search and remove the players spawns and surroundings
+    for (var numPlayer = 0; numPlayer < maxPlayers; numPlayer++)
+        this.removeSurroundingSquares(
+            map.playerSpawns[numPlayer].x, map.playerSpawns[numPlayer].y, 1, freeSquares);
 
     return freeSquares;
 
-    //maybe better to search afterwars and remove them? this seems perfectly smooth anyway
-    //this just allows to move the players around instead of the original fixed squares
-    //BOTH are implemented, so just need to choose based on performance
-    function checkPlayerSquare (x,y,maxPlayers) {
+    //to compare directly instead of searching after (was my first aproach)
+    //the newer implementation searches and removes, so worse case => as complex as this
+    //the newer is better too because is a shared method (used in map generation)
+    /*function checkPlayerSquare (x,y,maxPlayers) {
         for (var numPlayer = 0; numPlayer < maxPlayers; numPlayer++)
             if ((x == map.playerSpawns[numPlayer].x && y == map.playerSpawns[numPlayer].y)
-                || (x == map.playerSpawns[numPlayer].x-1 && y == map.playerSpawns[numPlayer].y)
-                || (x == map.playerSpawns[numPlayer].x+1 && y == map.playerSpawns[numPlayer].y)
-                || (x == map.playerSpawns[numPlayer].x && y == map.playerSpawns[numPlayer].y-1)
-                || (x == map.playerSpawns[numPlayer].x && y == map.playerSpawns[numPlayer].y+1))
-                    return true;
-    }
+            || (x == map.playerSpawns[numPlayer].x-1 && y == map.playerSpawns[numPlayer].y)
+            || (x == map.playerSpawns[numPlayer].x+1 && y == map.playerSpawns[numPlayer].y)
+            || (x == map.playerSpawns[numPlayer].x && y == map.playerSpawns[numPlayer].y-1)
+            || (x == map.playerSpawns[numPlayer].x && y == map.playerSpawns[numPlayer].y+1))
+                return true;
+    }*/
 };
 
 
+//given a free square {x: x, y: y} in a freeSquares[] and a radius
+//searches and removes (real map) surroundings squares of that radius
+//removes the given square too? atm yes
+Map.prototype.removeSurroundingSquares = function(x, y, radius, freeSquares) {
+
+    //Will be used with findIndex *(not supported in IE)*
+    function equal (e) {
+        return e.x === x_toFind
+            && e.y === y_toFind;
+    };
+
+    var index; //search and store index
+    var x_toFind = x, y_toFind = y; //tmp
+
+    //first search: given square
+    index = freeSquares.findIndex(equal);
+    if (index > -1) freeSquares.splice(index, 1);
+
+    //second and third searches: horizontal
+    x_toFind = x - radius;
+    index = freeSquares.findIndex(equal);
+    if (index > -1) freeSquares.splice(index, 1);
+
+    x_toFind = x + radius;
+    index = freeSquares.findIndex(equal);
+    if (index > -1) freeSquares.splice(index, 1);
+
+    //last two: vertical (reset x required)
+    x_toFind = x; y_toFind = y - radius;
+    index = freeSquares.findIndex(equal);
+    if (index > -1) freeSquares.splice(index, 1);
+
+    y_toFind = y + radius;
+    index = freeSquares.findIndex(equal);
+    if (index > -1) freeSquares.splice(index, 1);
+};
+
+
+//creates all elements in their respective positions etc
 Map.prototype.buildMap = function (groups, tileData) {
 
     for (var i = 0; i < this.map.cols; i++) {
