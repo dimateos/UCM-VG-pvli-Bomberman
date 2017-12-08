@@ -13,7 +13,7 @@ var players = [{},{}]; //2 max for this mode
 var playerBodySize = new Point(60, 60);
 var playerBodyOffset = new Point(-8,  32);
 var playerLives = 5;
-var maxPlayers = 2;
+var maxPlayers = 1;
 
 //var Inputs = require('../inputs.js')
 //var inputs_0;
@@ -47,7 +47,6 @@ var PlayScene = {
 
     //controls extra
     toggleBoxCollisionButton = this.game.input.keyboard.addKey(Phaser.Keyboard.C);
-    console.log("test");
 
     //players
     for (var numPlayer = 0; numPlayer < maxPlayers; numPlayer++)

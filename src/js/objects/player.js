@@ -11,14 +11,16 @@ var Bomb = require('./bomb.js');
 //spawns are in baseMapData (the info is shared with the map)
 var playerSpawns = require("../maps/baseMapData.js").playerSpawns;
 
-var extraOffset = {x: 7.5, y: -19}; //required because player body is not 64x64
+var extraOffset = {x: 6, y: -20}; //required because player body is not 64x64
 
 
 function Player (game, numPlayer, tileData, bodySize, bodyOffSet, immovable, lives, invencible, bombs, bombGroup, mods) {
 
+    this.tileData = tileData;
+
     //produces respawn position based on playerSpawns[numPlayer]
     this.respawnPos = new Point(playerSpawns[numPlayer].x, playerSpawns[numPlayer].y)
-        .applyTileData(tileData).add(extraOffset.x, extraOffset.y);
+        .applyTileData(this.tileData, extraOffset);
 
     Bombable.call(this, game, this.respawnPos, 'player_'+ numPlayer,
         tileData.Scale, bodySize, bodyOffSet, immovable, lives, invencible);
@@ -41,9 +43,10 @@ Player.prototype.update = function() {
     this.body.velocity.x = 0;
     this.body.velocity.y = 0;
 
+
     //MOVEMENT
     if (this.inputs.mov.left.isDown) {
-      this.body.velocity.x = -250;
+        this.body.velocity.x = -250;
     }
     else if (this.inputs.mov.right.isDown) {
         this.body.velocity.x = 250;
@@ -57,8 +60,12 @@ Player.prototype.update = function() {
 
     //BOMB
     if(this.inputs.bomb.button.isDown && !this.inputs.bomb.ff){
-        this.bombGroup.add(new Bomb (this.game, {x: this.position.x, y: this.position.y+22},
-            'bomb', this.scale, {x: 64, y: 64}, {x: 0, y: 0}, true, 1, false, 3000, 1, this.bombGroup));
+        var bombPosition = new Point(this.position.x, this.position.y)
+            .getMapSquareValue(this.tileData, extraOffset)
+            .applyTileData(this.tileData);
+
+        this.bombGroup.add(new Bomb (this.game, bombPosition,
+            'bomb', this.tileData.Scale, this.tileData.Res, new Point(), true, 1, false, 3000, 1, this.bombGroup));
 
         this.inputs.bomb.ff = true;
     }
