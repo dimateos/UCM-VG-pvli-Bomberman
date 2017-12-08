@@ -10,13 +10,8 @@ var level;
 
 var Player = require('../objects/player.js');
 var players = [{},{}]; //2 max for this mode
-var playerBodySize = new Point(60, 60);
-var playerBodyOffset = new Point(-8,  32);
-var playerLives = 5;
-var maxPlayers = 1;
 
-//var Inputs = require('../inputs.js')
-//var inputs_0;
+var maxPlayers = 1;
 
 //use inputs 0 or -1  for this?
 var toggleBoxCollisionButton; //just for debugging
@@ -50,8 +45,7 @@ var PlayScene = {
 
     //players
     for (var numPlayer = 0; numPlayer < maxPlayers; numPlayer++)
-      players[numPlayer] = new Player(this.game, numPlayer, tileData,
-        playerBodySize, playerBodyOffset, false, playerLives, false, 1, groups.bomb,{});
+      players[numPlayer] = new Player(this.game, numPlayer, tileData, groups.bomb,{});
 
     if (DEBUG) {
       console.log("Loaded...", Date.now()-this.startTime, "ms");
@@ -67,6 +61,7 @@ var PlayScene = {
     for (var numPlayer = 0; numPlayer < maxPlayers; numPlayer++) {
       this.game.physics.arcade.collide(players[numPlayer], groups.wall);
       this.game.physics.arcade.collide(players[numPlayer], groups.box);
+      this.game.physics.arcade.collide(players[numPlayer], groups.bomb);
       this.game.world.bringToTop(players[numPlayer]);
     }
 
@@ -81,7 +76,6 @@ var PlayScene = {
       //console.log(wall.children[5])
       this.game.debug.bodyInfo(players[0], 32, 32);
       this.game.debug.body(players[0]);
-      //this.game.debug.body(boxGroup.children[5]);
 
       for (let i = 0; i < groups.wall.length; i++)
           this.game.debug.body(groups.wall.children[i]);

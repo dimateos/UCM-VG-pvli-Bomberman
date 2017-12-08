@@ -68,11 +68,15 @@ Point.prototype.getMapSquareValue = function (tileData, extraOffset) {
     var exactMapValue = this.getReversedTileData(tileData, extraOffset);
     console.log(exactMapValue);
 
-    exactMapValue.x -= exactMapValue.x % 1
-    exactMapValue.y -= exactMapValue.y % 1
+    var difX = exactMapValue.x % 1;
+    exactMapValue.x -= difX;
+    if (difX >= 0.5) exactMapValue.x++;
+
+    var difY = exactMapValue.y % 1;
+    exactMapValue.y -= difY;
+    if (difY >= 0.5) exactMapValue.y++;
+
     console.log(exactMapValue);
-
-
     return exactMapValue;
 }
 
