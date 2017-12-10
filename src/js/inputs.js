@@ -6,11 +6,27 @@
 
 function Inputs(game, numPlayer) {
 
-    //done apart to be able to see the common controls first
-    this.switchControls(game, numPlayer);
+    if (numPlayer === -1) this.globalControls(game);
+    else {
 
-    this.bomb.ff = false; //bomb flip flop (not really a control)
+        //done apart to be able to see the common controls first
+        this.switchControls(game, numPlayer);
+
+        this.bomb.ff = false; //bomb flip flop (not really a control)
+    }
 };
+
+//all global inputs
+Inputs.prototype.globalControls = function(game) {
+    this.addPlayer = {
+        button: game.input.keyboard.addKey(Phaser.Keyboard.X),
+    }
+    this.debug = {
+        button: game.input.keyboard.addKey(Phaser.Keyboard.C),
+        ff: false,
+        state : false
+    }
+}
 
 //selects specific controls
 Inputs.prototype.switchControls = function (game, numPlayer) {
