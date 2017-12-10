@@ -38,8 +38,8 @@ var PreloaderScene = {
     // TODO: load here the assets for the game
     //this.game.load.image('logo', 'images/readme/arena.png');
 
-    this.game.load.image('player_0', 'images/Sprites/Bomberman/Bman_0.png');
-    this.game.load.image('player_1', 'images/Sprites/Bomberman/Bman_1.png');
+    for (var numPlayers = 0; numPlayers < 4; numPlayers++)
+      this.game.load.image('player_'+numPlayers, 'images/Sprites/Bomberman/Bman_'+numPlayers+'.png');
 
     this.game.load.image('wall', 'images/Sprites/Blocks/SolidBlock.png');
 

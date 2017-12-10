@@ -9,10 +9,11 @@ function Inputs(game, numPlayer) {
     if (numPlayer === -1) this.globalControls(game);
     else {
 
-        //done apart to be able to see the common controls first
+        //needed to be created first (atm it creates this.bomb)
+        this.bomb = {ff: false}; //bomb flip flop (not really a control)
+
         this.switchControls(game, numPlayer);
 
-        this.bomb.ff = false; //bomb flip flop (not really a control)
     }
 };
 
@@ -20,11 +21,12 @@ function Inputs(game, numPlayer) {
 Inputs.prototype.globalControls = function(game) {
     this.addPlayer = {
         button: game.input.keyboard.addKey(Phaser.Keyboard.X),
+        ff: false
     }
     this.debug = {
         button: game.input.keyboard.addKey(Phaser.Keyboard.C),
         ff: false,
-        state : false
+        state: false
     }
 }
 
@@ -38,41 +40,36 @@ Inputs.prototype.switchControls = function (game, numPlayer) {
                 left: game.input.keyboard.addKey(Phaser.Keyboard.A),
                 right: game.input.keyboard.addKey(Phaser.Keyboard.D),
             },
-            this.bomb = {
-                button: game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR),
-            }
+
+            this.bomb.button = game.input.keyboard.addKey(Phaser.Keyboard.E)
             break;
 
         case 1:
             this.mov = game.input.keyboard.createCursorKeys();
 
-            this.bomb = {
-                button: game.input.keyboard.addKey(Phaser.Keyboard.P),
-            }
+            this.bomb.button = game.input.keyboard.addKey(Phaser.Keyboard.NUMPAD_1)
             break;
 
         case 2:
             this.mov = {
-                up: {},
-                down: {},
-                left: {},
-                rigth: {}
+                up: game.input.keyboard.addKey(Phaser.Keyboard.T),
+                down: game.input.keyboard.addKey(Phaser.Keyboard.G),
+                left: game.input.keyboard.addKey(Phaser.Keyboard.F),
+                right: game.input.keyboard.addKey(Phaser.Keyboard.H),
             },
-            this.bomb = {
-                button: {},
-            }
+
+            this.bomb.button = game.input.keyboard.addKey(Phaser.Keyboard.Y)
             break;
 
         case 3:
             this.mov = {
-                up: {},
-                down: {},
-                left: {},
-                rigth: {}
+                up: game.input.keyboard.addKey(Phaser.Keyboard.I),
+                down: game.input.keyboard.addKey(Phaser.Keyboard.K),
+                left: game.input.keyboard.addKey(Phaser.Keyboard.J),
+                right: game.input.keyboard.addKey(Phaser.Keyboard.L),
             },
-            this.bomb = {
-                button: {},
-            }
+
+            this.bomb.button = game.input.keyboard.addKey(Phaser.Keyboard.O)
             break;
     }
 }
