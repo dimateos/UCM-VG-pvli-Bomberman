@@ -4,56 +4,11 @@ const DEBUG = true;
 const winWith = 800;
 const winHeight = 600;
 
-var BootScene = {
+var BootScene = require('./states/boot_scene.js');
 
-  preload: function () {
-    if (DEBUG) this.startTime = Date.now(); //to calculate booting time etc
+var PreloaderScene = require('./states/preloader_scene.js');
 
-    // load here assets required for the loading screen
-    this.game.load.image('preloader_logo', 'images/phaser.png');
-    // TODO: image not centered, almost off the canvas I think
-  },
-
-  create: function () {
-
-    //this.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
-    //this.scale.pageAlignHorizontally = true;
-    //this.scale.setScreenSize();
-
-    this.game.state.start('preloader');
-    if (DEBUG) console.log("Booting...", Date.now()-this.startTime, "ms");
-  }
-};
-
-
-var PreloaderScene = {
-  preload: function () {
-    if (DEBUG) this.startTime = Date.now();
-
-    //this.game.stage.backgroundColor = '#E80C94';
-    this.loadingBar = this.game.add.sprite(winWith/2, winHeight/2, 'preloader_logo');
-    this.loadingBar.anchor.setTo(0.5, 0.5);
-    this.load.setPreloadSprite(this.loadingBar);
-
-    // TODO: load here the assets for the game
-    //this.game.load.image('logo', 'images/readme/arena.png');
-
-    for (var numPlayers = 0; numPlayers < 4; numPlayers++)
-      this.game.load.image('player_'+numPlayers, 'images/Sprites/Bomberman/Bman_'+numPlayers+'.png');
-
-      this.game.load.image('background', 'images/Sprites/Blocks/BackgroundTile.png');
-      this.game.load.image('box', 'images/Sprites/Blocks/ExplodableBlock.png');
-      this.game.load.image('wall', 'images/Sprites/Blocks/SolidBlock.png');
-
-      this.game.load.image('bomb', 'images/Sprites/Bomb/Bomb_f01.png');
-      this.game.load.image('flame', 'images/Sprites/Flame/Flame_f00.png');
-  },
-
-  create: function () {
-    this.game.state.start('play');
-    if (DEBUG) console.log("Preloading...", Date.now()-this.startTime, "ms");
-  }
-};
+var MainMenu = require('./states/main_menu.js');
 
 var PlayScene = require('./states/play_scene.js');
 
@@ -62,6 +17,7 @@ window.onload = function () {
 
   game.state.add('boot', BootScene);
   game.state.add('preloader', PreloaderScene);
+  game.state.add('mainMenu', MainMenu);
   game.state.add('play', PlayScene);
 
   game.state.start('boot');
