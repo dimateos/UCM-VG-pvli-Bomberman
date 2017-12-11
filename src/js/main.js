@@ -41,13 +41,12 @@ var PreloaderScene = {
     for (var numPlayers = 0; numPlayers < 4; numPlayers++)
       this.game.load.image('player_'+numPlayers, 'images/Sprites/Bomberman/Bman_'+numPlayers+'.png');
 
-    this.game.load.image('wall', 'images/Sprites/Blocks/SolidBlock.png');
+      this.game.load.image('background', 'images/Sprites/Blocks/BackgroundTile.png');
+      this.game.load.image('box', 'images/Sprites/Blocks/ExplodableBlock.png');
+      this.game.load.image('wall', 'images/Sprites/Blocks/SolidBlock.png');
 
-    this.game.load.image('box', 'images/Sprites/Blocks/ExplodableBlock.png');
-
-    this.game.load.image('bomb', 'images/Sprites/Bomb/Bomb_f01.png');
-
-    this.game.load.image('background', 'images/Sprites/Blocks/BackgroundTile.png');
+      this.game.load.image('bomb', 'images/Sprites/Bomb/Bomb_f01.png');
+      this.game.load.image('flame', 'images/Sprites/Flame/Flame_f00.png');
   },
 
   create: function () {

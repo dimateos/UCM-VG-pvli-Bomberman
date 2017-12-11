@@ -14,7 +14,7 @@ var playerSpawns = require("../maps/baseMapData.js").playerSpawns;
 var playerSpritePath = 'player_'; //partial, to complete with numPlayer
 
 var playerBodySize = new Point(60, 60); //little smaller
-var playerBodyOffset = new Point(-8,  32);
+var playerBodyOffset = new Point(-7,  32);
 var playerExtraOffset = new Point(6, -20); //reaquired because player body is not full res
 
 var playerImmovable = false;
@@ -26,8 +26,9 @@ var playerNumBombs = 1;
 var playerVelocity = 250;
 
 
-function Player (game, numPlayer, tileData, bombGroup, mods) {
+function Player (game, map, numPlayer, tileData, bombGroup, mods) {
 
+    this.map = map;
     this.tileData = tileData;
     this.numPlayer = numPlayer;
 
@@ -80,8 +81,8 @@ Player.prototype.update = function() {
             .getMapSquareValue(this.tileData, playerExtraOffset)
             .applyTileData(this.tileData);
 
-        this.bombGroup.add(new Bomb (this.game,
-            bombPosition, this.tileData.Scale, this.bombGroup, this, {}));
+        this.bombGroup.add(new Bomb (this.game, this.map,
+            bombPosition, this.tileData, this.bombGroup, this, {}));
 
         this.inputs.bomb.ff = true;
     }

@@ -4,10 +4,9 @@ var GameObject = require('../objects/gameObject.js');
 var Physical = require('../objects/physical.js');
 var Bombable = require('../objects/bombable.js');
 
-var Point = require('../point.js')
+var Point = require('../point.js');
 var baseMapData = require("./baseMapData.js"); //base map and spawns
 
-function isOdd(num) { return (num % 2) == 1;};
 
 function Map (game, worldNum, levelNum, groups, tileData, maxPlayers) {
 
@@ -21,7 +20,7 @@ function Map (game, worldNum, levelNum, groups, tileData, maxPlayers) {
     //Always same base map
     this.map = baseMapData;
 
-    this.generateMap(8,33); //will depend on the level
+    this.generateMap(6,35); //will depend on the level
 
     this.buildMap(groups, tileData);
 };
@@ -31,7 +30,6 @@ function Map (game, worldNum, levelNum, groups, tileData, maxPlayers) {
 Map.prototype.generateMap = function(numWall, numBombable) {
     var self = this;
     var freeSquares = this.getFreeSquares(this.map,this.maxPlayers);
-    console.log(freeSquares);
 
     insertRnd(numBombable, 3);
     insertRnd(numWall, 1);
@@ -52,7 +50,6 @@ Map.prototype.generateMap = function(numWall, numBombable) {
         }
     }
 };
-
 
 //gets the free squares of map excluding player pos
 Map.prototype.getFreeSquares = function(map, maxPlayers) {
@@ -83,7 +80,6 @@ Map.prototype.getFreeSquares = function(map, maxPlayers) {
                 return true;
     }*/
 };
-
 
 //given a free square {x: x, y: y} in a freeSquares[] and a radius
 //searches and removes (real map) surroundings squares of that radius
@@ -122,7 +118,6 @@ Map.prototype.removeSurroundingSquares = function(x, y, radius, freeSquares) {
     if (index > -1) freeSquares.splice(index, 1);
 };
 
-
 //creates all elements in their respective positions etc
 Map.prototype.buildMap = function (groups, tileData) {
 
@@ -153,5 +148,16 @@ Map.prototype.buildMap = function (groups, tileData) {
         }
     }
 };
+
+//given a square position returns true if in given direction there is not a wall
+Map.prototype.getNextSquare = function (position, direction) {
+
+    var x = position.x + direction.x;
+    var y = position.y + direction.y;
+
+    return (this.map.squares[y][x] !== 1
+        && this.map.squares[y][x] !== 2);
+}
+
 
 module.exports = Map;

@@ -43,7 +43,7 @@ var PlayScene = {
 
     //player/s (initialPlayers)
     for (var numPlayer = 0; numPlayer < initialPlayers; numPlayer++)
-      players.push(new Player(this.game, numPlayer, tileData, groups.bomb,{}));
+      players.push(new Player(this.game, level, numPlayer, tileData, groups.bomb,{}));
 
     if (DEBUG) {
       console.log("Loaded...", Date.now()-this.startTime, "ms");
@@ -80,6 +80,9 @@ var PlayScene = {
     if (gInputs.debug.state) {
       this.game.debug.bodyInfo(players[0], 32, 32);
       this.game.debug.body(players[0]);
+
+      for (let i = 0; i < groups.bomb.length; i++)
+        this.game.debug.body(groups.bomb.children[i]);
 
       for (let i = 0; i < groups.wall.length; i++)
         this.game.debug.body(groups.wall.children[i]);

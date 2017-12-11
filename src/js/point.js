@@ -50,7 +50,7 @@ Point.prototype.reverseTileData = function (tileData, extraOffset) {
 Point.prototype.getReversedTileData = function (tileData, extraOffset) {
 
     var tmp = new Point(this.x, this.y);
-    console.log(tmp);
+    //console.log(tmp);
 
     if (extraOffset !== undefined)
         tmp.subtract(extraOffset.x, extraOffset.y);
@@ -66,7 +66,7 @@ Point.prototype.getReversedTileData = function (tileData, extraOffset) {
 Point.prototype.getMapSquareValue = function (tileData, extraOffset) {
 
     var exactMapValue = this.getReversedTileData(tileData, extraOffset);
-    console.log(exactMapValue);
+    //console.log(exactMapValue);
 
     var difX = exactMapValue.x % 1;
     exactMapValue.x -= difX;
@@ -76,7 +76,7 @@ Point.prototype.getMapSquareValue = function (tileData, extraOffset) {
     exactMapValue.y -= difY;
     if (difY >= 0.5) exactMapValue.y++;
 
-    console.log(exactMapValue);
+    //console.log(exactMapValue);
     return exactMapValue;
 }
 

@@ -42,12 +42,16 @@ Inputs.prototype.switchControls = function (game, numPlayer) {
             },
 
             this.bomb.button = game.input.keyboard.addKey(Phaser.Keyboard.E)
+
+            console.log(" - Controls P"+numPlayer+": WASD + E");
             break;
 
         case 1:
             this.mov = game.input.keyboard.createCursorKeys();
 
             this.bomb.button = game.input.keyboard.addKey(Phaser.Keyboard.NUMPAD_1)
+
+            console.log(" - Controls P"+numPlayer+": ARROWS + Numpad_1");
             break;
 
         case 2:
@@ -59,6 +63,8 @@ Inputs.prototype.switchControls = function (game, numPlayer) {
             },
 
             this.bomb.button = game.input.keyboard.addKey(Phaser.Keyboard.Y)
+
+            console.log(" - Controls P"+numPlayer+": TFGH + Y");
             break;
 
         case 3:
@@ -70,6 +76,8 @@ Inputs.prototype.switchControls = function (game, numPlayer) {
             },
 
             this.bomb.button = game.input.keyboard.addKey(Phaser.Keyboard.O)
+
+            console.log(" - Controls P"+numPlayer+": IJKL + O");
             break;
     }
 }
