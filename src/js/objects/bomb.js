@@ -4,12 +4,12 @@ var  Bombable = require('./bombable.js'); //father
 
 var Point = require('../point.js');
 var Map = require('../maps/map.js');
-var Identifiable = require('./identifiable.js'); //father
+var Identifiable = require('../id/identifiable.js');
 
 
 //default bomb values
 var bombBodySize = new Point(48, 48); //little smaller
-var bombBodyOffset = new Point(0,  0);
+var bombBodyOffset = new Point(0, 0);
 var bombExtraOffset = new Point(5, 5); //reaquired because bomb body is not full res
 
 var bombImmovable = true;
@@ -17,25 +17,25 @@ var bombInvecible = false;
 
 var bombLives = 1;
 var bombPower = 1;
-var bombTimer = 3000;
-var bombFlameTimer = 3000;
+var bombTimer = 2000;
+var bombFlameTimer = 500;
 
 var bombSpritePath = 'bomb';
 
 
-function Bomb (game, map, position, tileData, bombGroup, player, mods) {
+function Bomb (game, level, position, tileData, groups, player, mods) {
 
     var bombPosition = position.add(bombExtraOffset.x, bombExtraOffset.y);
 
-    Bombable.call(this, game, bombPosition, bombSpritePath,
+    Bombable.call(this, game, groups.flame, bombPosition, bombSpritePath,
         tileData.Scale, bombBodySize, bombBodyOffset, bombImmovable, bombLives, bombInvecible);
 
     this.timer = bombTimer;
     this.flameTimer = bombFlameTimer;
     this.power = bombPower;
 
-    this.map = map;
-    this.bombGroup = bombGroup;
+    this.level = level;
+    this.groups = groups;
     this.player = player;
     this.tileData = tileData;
 
@@ -47,19 +47,28 @@ function Bomb (game, map, position, tileData, bombGroup, player, mods) {
 Bomb.prototype = Object.create(Bombable.prototype);
 Bomb.prototype.constructor = Bomb;
 
+//removes the bomb, spawns the fames and then removes them
 Bomb.prototype.xplode = function() {
-    this.bombGroup.remove(this); //removes and destroys the bomb
-    this.player.bombs++; //adds a bomb back to the player
+    this.groups.bomb.remove(this); //removes and destroys the bomb
+    this.player.numBombs++; //adds a bomb back to the player
 
     var flames = this.spawnFlames();
+
+    //pushes the flames into map.flames
+    for(var i = 0; i < flames.length; i++) this.groups.flame.add(flames[i]);
+
+    //console.log(this.groups.flame.children);
 
     //callback to destroy the flames
     this.game.time.events.add(this.flameTimer, removeFlames, this);
     function removeFlames () {
+        //.destroy() removes them from the group too
         for(var i = 0; i < flames.length; i++) flames[i].destroy();
+        this.destroy();
     }
 }
 
+//spawns the first flame and calls expandFlames
 Bomb.prototype.spawnFlames = function() {
 
     //initial flame postion (corrected offset even though then is the same)
@@ -67,12 +76,17 @@ Bomb.prototype.spawnFlames = function() {
         .subtract(bombExtraOffset.x, bombExtraOffset.y);
 
     var flames = [new Identifiable(this.game, cleanPosition, this.scale, 0)];
+
     //get the virtual map position
-
     var positionMap = cleanPosition.reverseTileData(this.tileData, bombExtraOffset);
-    console.log(positionMap);
 
-    //Tries to expand in each direction one by one (maybe new method)
+    return this.expandFlames(flames, positionMap);
+}
+
+//expands (and creates) the extra flames
+Bomb.prototype.expandFlames = function(flames, positionMap) {
+
+    //Tries to expand in each direction one by one
     var directions = [new Point(-1,0), new Point(1,0), new Point(0,-1), new Point(0,1)];
     for (var i = 0; i < directions.length; i++) {
 
@@ -83,7 +97,7 @@ Bomb.prototype.spawnFlames = function() {
         while(expansion <= this.power && !obstacle) {
 
             //checks if the next square is free
-            if (this.map.getNextSquare(tmpPositionMap, directions[i])) {
+            if (this.level.getNextSquare(tmpPositionMap, directions[i])) {
 
                 //updates tmp position
                 tmpPositionMap.add(directions[i].x, directions[i].y);
@@ -101,5 +115,6 @@ Bomb.prototype.spawnFlames = function() {
     }
     return flames;
 }
+
 
 module.exports = Bomb;

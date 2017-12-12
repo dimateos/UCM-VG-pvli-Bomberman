@@ -15,7 +15,7 @@ function Map (game, worldNum, levelNum, groups, tileData, maxPlayers) {
     this.levelNum = levelNum;
 
     this.maxPlayers = maxPlayers;
-    //this.groups = groups; no need to extra atributes?
+    //this.groups = groups; //no need to extra atributes?
 
     //Always same base map
     this.map = baseMapData;
@@ -130,7 +130,7 @@ Map.prototype.buildMap = function (groups, tileData) {
             switch(this.map.squares[j][i]) {
 
                 case 3: groups.box.add(new Bombable
-                    (this.game, squareIndex, 'box', tileData.Scale, tileData.Res, new Point(), true, 1, false));
+                    (this.game, groups.flame, squareIndex, 'box', tileData.Scale, tileData.Res, new Point(), true, 1, false));
 
                     //no break so there is background underneath
 

@@ -41,13 +41,15 @@ var PlayScene = {
     //global controls
     gInputs = new Inputs (this.game, -1);
 
-    //player/s (initialPlayers)
+    //player/s (initialPlayers) //maybe player group instead?
     for (var numPlayer = 0; numPlayer < initialPlayers; numPlayer++)
-      players.push(new Player(this.game, level, numPlayer, tileData, groups.bomb,{}));
+      players.push(new Player(this.game, level, numPlayer, tileData, groups,{}));
+
+    level.players = players; //adds players reference to the map
 
     if (DEBUG) {
       console.log("Loaded...", Date.now()-this.startTime, "ms");
-      console.log("\n PLAYER: ", players[0].body);
+      console.log("\n PLAYER: ", players[0]);
       console.log("\n MAP: ", level.map.squares);
     }
   },
@@ -56,21 +58,21 @@ var PlayScene = {
   update: function(){
 
     //maybe in some object update?
-    for (var numPlayer = 0; numPlayer < players.length; numPlayer++) {
-      this.game.physics.arcade.collide(players[numPlayer], groups.wall);
-
-      if (!gInputs.debug.state) {
-        this.game.physics.arcade.collide(players[numPlayer], groups.box);
-        this.game.physics.arcade.collide(players[numPlayer], groups.bomb);
-      }
-
-      this.game.world.bringToTop(players[numPlayer]);
+    //collide players (works with groups and arrays too)
+    this.game.physics.arcade.collide(players, groups.wall);
+    if (!gInputs.debug.state) {
+      this.game.physics.arcade.collide(players, groups.box);
+      this.game.physics.arcade.collide(players, groups.bomb);
     }
+
+    //but full array bringToTop doesnt work
+    for (var numPlayer = 0; numPlayer < players.length; numPlayer++)
+      this.game.world.bringToTop(players[numPlayer]);
 
     addPlayerControl(this.game);
     debugModeControl(this.game);
 
-    //rest in player and bomb updates etc
+    //rest in player and id etc
   },
 
 
@@ -89,10 +91,14 @@ var PlayScene = {
 
       for (let i = 0; i < groups.box.length; i++)
         this.game.debug.body(groups.box.children[i]);
+
+      for (let i = 0; i < groups.flame.length; i++)
+        this.game.debug.body(groups.flame.children[i]);
     }
   }
 
 };
+
 
 //this two methods may could go into some globalInputs.js update? but seems good
 //allow to add extra players
@@ -107,7 +113,7 @@ var addPlayerControl = function (game) {
       players[numPlayer].lives -= players[numPlayer].lives % 2;
       players[numPlayer].lives /= 2;
     }
-    players.push(new Player (game, players.length, tileData, groups.bomb,{}))
+    players.push(new Player (game, level, players.length, tileData, groups,{}))
     players[players.length-1].lives = players[0].lives;
     //new player's lives = player0; maybe a little unfair, but the real mode only allows 2 players
   }
