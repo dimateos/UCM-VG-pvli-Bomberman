@@ -21,6 +21,7 @@ var bombTimer = 2000;
 var bombFlameTimer = 500;
 
 var bombSpritePath = 'bomb';
+var flameId = {tier: 0, num: 0};
 
 
 function Bomb (game, level, position, tileData, groups, player, mods) {
@@ -75,7 +76,7 @@ Bomb.prototype.spawnFlames = function() {
     var cleanPosition = new Point (this.position.x, this.position.y)
         .subtract(bombExtraOffset.x, bombExtraOffset.y);
 
-    var flames = [new Identifiable(this.game, cleanPosition, this.scale, 0)];
+    var flames = [new Identifiable(this.game, cleanPosition, this.scale, flameId)];
 
     //get the virtual map position
     var positionMap = cleanPosition.reverseTileData(this.tileData, bombExtraOffset);
@@ -107,7 +108,7 @@ Bomb.prototype.expandFlames = function(flames, positionMap) {
                     .applyTileData(this.tileData);
 
                 //creates the flame
-                flames.push(new Identifiable(this.game, flamePos, this.scale, 0));
+                flames.push(new Identifiable(this.game, flamePos, this.scale, flameId));
                 expansion++;
             }
             else obstacle = true;

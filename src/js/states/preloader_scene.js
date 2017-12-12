@@ -23,10 +23,14 @@ var PreloaderScene = {
         this.game.load.image('box', 'images/Sprites/Blocks/ExplodableBlock.png');
         this.game.load.image('wall', 'images/Sprites/Blocks/SolidBlock.png');
 
+        this.game.load.image('powerUpBombUp', 'images/Sprites/Powerups/BombPowerup.png');
+        this.game.load.image('powerUpFlamesUp', 'images/Sprites/Powerups/FlamePowerup.png');
+        this.game.load.image('powerUpSpeedUp', 'images/Sprites/Powerups/SpeedPowerup.png');
+
         this.game.load.image('bomb', 'images/Sprites/Bomb/Bomb_f01.png');
         this.game.load.image('flame', 'images/Sprites/Flame/Flame_f00.png');
     },
-  
+
     create: function () {
         this.game.state.start('mainMenu');
         if (DEBUG) console.log("Preloading...", Date.now()-this.startTime, "ms");

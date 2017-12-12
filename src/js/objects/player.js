@@ -3,6 +3,7 @@
 var  Bombable = require('./bombable.js'); //father
 
 var Point = require('../point.js');
+var idData = require('../id/idData.js'); //all the database
 
 var Inputs = require('../inputs.js');
 var Bomb = require('./bomb.js');
@@ -22,14 +23,17 @@ var playerInvecible = true;
 
 var playerLives = 5;
 var playerNumBombs = 3;
+var playerPowerBomb = 1;
 
-var playerVelocity = 250;
+var playerVelocity = 200;
 var playerInvencibleTime = 5000;
 
+var playerModsIds = [{tier: 1, num: 2}, {tier: 1, num: 0}];
 
-function Player (game, level, numPlayer, tileData, groups, mods) {
+function Player (game, level, numPlayer, tileData, groups, mods, bombMods) {
 
     this.level = level;
+    this.groups = groups;
     this.tileData = tileData;
     this.numPlayer = numPlayer;
 
@@ -41,13 +45,14 @@ function Player (game, level, numPlayer, tileData, groups, mods) {
         tileData.Scale, playerBodySize, playerBodyOffset,
         playerImmovable, playerLives, playerInvecible);
 
-    this.mods = mods;
     this.velocity = playerVelocity;
-
     this.numBombs = playerNumBombs;
-    this.groups = groups;
 
     this.inputs = new Inputs (game, numPlayer);
+
+    this.mods = [];
+    this.bombMods = [];
+    this.addPowerUps(playerModsIds, this);
 
     //Initial invencible time
     this.game.time.events.add(playerInvencibleTime, this.endInvencibility, this);
@@ -56,6 +61,24 @@ function Player (game, level, numPlayer, tileData, groups, mods) {
 Player.prototype = Object.create(Bombable.prototype);
 Player.prototype.constructor = Player;
 
+//maybe move this to identifiable logic
+Player.prototype.addPowerUps = function(powerUpIds, target, reverseMode) {
+    //Adds the id of the mods to the player.mods (so we can reverse them, etc)
+    for (var i = 0; i < powerUpIds.length; i++) {
+        target.mods.push(powerUpIds[i]);
+
+        var mods = idData[powerUpIds[i].tier][powerUpIds[i].num].mods;
+        this.applyMods(mods, target, reverseMode);
+    }
+}
+
+Player.prototype.applyMods = function(mods, target, reverseMode) {
+    for (var i = 0; i < mods.length; i++) {
+        console.log(target[mods[i].key]);
+        console.log(mods[i].key, mods[i].mod);
+        target[mods[i].key] += mods[i].mod;
+    }
+}
 
 Player.prototype.update = function() {
 
@@ -100,7 +123,6 @@ Player.prototype.update = function() {
 //player concrete logic for die
 Player.prototype.die = function () {
     //console.log("checkin player die");
-
     this.lives--;
     this.respawn();
 
