@@ -22,9 +22,9 @@ var MainMenu = {
 
     nextState: function() { this.game.state.start('play');  },
 
-    over: function() { buttonCount++; },
+    // over: function() { buttonCount++; },
 
-    out: function() { buttonCount--; },
+    // out: function() { buttonCount--; },
 
     create: function() {      
         mMenuBG = this.game.add.sprite(0, 0, 'mMenuBG');
@@ -38,7 +38,7 @@ var MainMenu = {
         //mMenuButton.scale.x = 100;
         //mMenuButton.scale.y = 75;
 
-        mMenuButton.onInputOver.add(this.over, this);        
+        // mMenuButton.onInputOver.add(this.over, this);        
     },
 
     update: function() {
