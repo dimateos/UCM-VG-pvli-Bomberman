@@ -104,7 +104,7 @@ Player.prototype.die = function () {
     this.lives--;
     this.respawn();
 
-    if (this.lives <= 0) console.log("You ded, 0 lives");
+    if (this.lives <= 0) console.log("P" + this.numPlayer + ", you ded (0 lives)");
 
     this.tmpInven = false; //vulneable again
 }
@@ -119,7 +119,7 @@ Player.prototype.respawn = function () {
 }
 
 Player.prototype.endInvencibility  = function () {
-    console.log("Invencible ended");
+    console.log("P" + this.numPlayer + " invencibility ended");
     this.invencible = false;
 }
 

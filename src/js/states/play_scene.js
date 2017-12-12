@@ -109,9 +109,11 @@ var addPlayerControl = function (game) {
 
     //logic for new player
     for (var numPlayer = 0; numPlayer < players.length; numPlayer++) {
-      //divides by 2 all players' lives (integers)
-      players[numPlayer].lives -= players[numPlayer].lives % 2;
-      players[numPlayer].lives /= 2;
+      //divides by 2 all players' lives (integers) but only down to 1
+      if (players[numPlayer].lives > 1) {
+        players[numPlayer].lives -= players[numPlayer].lives % 2;
+        players[numPlayer].lives /= 2;
+      }
     }
     players.push(new Player (game, level, players.length, tileData, groups,{}))
     players[players.length-1].lives = players[0].lives;
