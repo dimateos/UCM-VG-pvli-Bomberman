@@ -19,9 +19,6 @@ function Inputs(game, numPlayer) {
 
 //all global inputs
 Inputs.prototype.globalControls = function(game) {
-    this.menuClick = {
-        button: game.input.keyboard.addKey(Phaser.mouse)
-    }
     this.addPlayer = {
         button: game.input.keyboard.addKey(Phaser.Keyboard.X),
         ff: false
