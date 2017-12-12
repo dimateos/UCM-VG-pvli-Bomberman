@@ -111,7 +111,8 @@ Player.prototype.die = function () {
 
 //needs improvements ofc, atm only moves the player
 Player.prototype.respawn = function () {
-    this.position = this.respawnPos;
+    this.position = new Point (this.respawnPos.x, this.respawnPos.y);
+    this.body.velocity = new Point(); //sometimes the player gets in the wall
     this.invencible = true;
 
     this.game.time.events.add(playerInvencibleTime, this.endInvencibility, this);
