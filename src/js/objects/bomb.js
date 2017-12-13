@@ -1,9 +1,9 @@
 'use strict';
 
-var  Bombable = require('./bombable.js'); //father
+var Bombable = require('./bombable.js'); //father
+var Flame = require('../id/flame.js');
 
 var Point = require('../point.js');
-var Map = require('../maps/map.js');
 var Identifiable = require('../id/identifiable.js');
 
 
@@ -80,7 +80,7 @@ Bomb.prototype.spawnFlames = function() {
     var cleanPosition = new Point (this.position.x, this.position.y)
         .subtract(bombExtraOffset.x, bombExtraOffset.y);
 
-    var flames = [new Identifiable(this.game, cleanPosition, this.scale, flameId)];
+    var flames = [new Flame(this.game, cleanPosition, this.scale)];
 
     //get the virtual map position
     var positionMap = cleanPosition.reverseTileData(this.tileData, bombExtraOffset);
@@ -112,7 +112,7 @@ Bomb.prototype.expandFlames = function(flames, positionMap) {
                     .applyTileData(this.tileData);
 
                 //creates the flame
-                flames.push(new Identifiable(this.game, flamePos, this.scale, flameId));
+                flames.push(new Flame(this.game, flamePos, this.scale));
                 expansion++;
             }
             else obstacle = true;

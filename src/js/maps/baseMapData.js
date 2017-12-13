@@ -12,6 +12,15 @@ var baseMapData = {
         {x: 13, y: 11},
     ],
 
+    squaresTypes:
+    {
+        wallSP: {value: 2, sprite: "wallSP"},
+        wall: {value: 1, sprite: "wall"},
+
+        free: {value: 0, sprite: "background"},
+        bombable: {value: 3, sprite: "bombable"}
+    },
+
     squares:
     [
         [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2], //2: Wall with special sprite (optional)

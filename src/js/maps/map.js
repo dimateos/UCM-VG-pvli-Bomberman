@@ -18,7 +18,11 @@ function Map (game, worldNum, levelNum, groups, tileData, maxPlayers) {
     //this.groups = groups; //no need to extra atributes?
 
     //Always same base map
-    this.map = baseMapData;
+    this.map = baseMapData.squares;
+    this.cols = baseMapData.cols;
+    this.fils = baseMapData.fils;
+    this.types = baseMapData.squaresTypes;
+    this.playerSpawns = baseMapData.playerSpawns;
 
     this.generateMap();
 
@@ -29,7 +33,7 @@ function Map (game, worldNum, levelNum, groups, tileData, maxPlayers) {
 //Adds all the extra bombables and walls
 Map.prototype.generateMap = function() {
     var self = this;
-    var freeSquares = this.getFreeSquares(this.map,this.maxPlayers);
+    var freeSquares = this.getFreeSquares(this.maxPlayers);
 
     insertRnd(this.levelData.bombables, 3);
     insertRnd(this.levelData.extraWalls, 1);
@@ -41,7 +45,7 @@ Map.prototype.generateMap = function() {
             var x = freeSquares[rnd].x;
             var y = freeSquares[rnd].y;
 
-            self.map.squares[y][x] = type;
+            self.map[y][x] = type;
 
             //special odd wall placement to avoid wrong generation
             if (type === 1 && x%2 != 0 && y%2 != 0)
@@ -52,18 +56,18 @@ Map.prototype.generateMap = function() {
 };
 
 //gets the free squares of map excluding player pos
-Map.prototype.getFreeSquares = function(map, maxPlayers) {
+Map.prototype.getFreeSquares = function(maxPlayers) {
     var freeSquares = [];
 
-    for (var i = 0; i < map.fils; i++)
-    for (var j = 0; j < map.cols; j++)
-    if (map.squares[i][j] == 0 /*&& !checkPlayerSquare(j,i,maxPlayers)*/)
-    freeSquares.push({x: j, y: i});
+    for (var i = 0; i < this.fils; i++)
+        for (var j = 0; j < this.cols; j++)
+            if (this.map[i][j] == 0 /*&& !checkPlayerSquare(j,i,maxPlayers)*/)
+                freeSquares.push({x: j, y: i});
 
     //now we search and remove the players spawns and surroundings
     for (var numPlayer = 0; numPlayer < maxPlayers; numPlayer++)
         this.removeSurroundingSquares(
-            map.playerSpawns[numPlayer].x, map.playerSpawns[numPlayer].y, 1, freeSquares);
+            this.playerSpawns[numPlayer].x, this.playerSpawns[numPlayer].y, 1, freeSquares);
 
     return freeSquares;
 
@@ -121,27 +125,31 @@ Map.prototype.removeSurroundingSquares = function(x, y, radius, freeSquares) {
 //creates all elements in their respective positions etc
 Map.prototype.buildMap = function (groups, tileData) {
 
-    for (var i = 0; i < this.map.cols; i++) {
-        for (var j = 0; j < this.map.fils; j++) {
+    for (var i = 0; i < this.cols; i++) {
+        for (var j = 0; j < this.fils; j++) {
 
             //new point each time is bad? auto deletes trash?
             var squareIndex = new Point(i,j).applyTileData(tileData);
 
-            switch(this.map.squares[j][i]) {
+            switch(this.map[j][i]) {
 
-                case 3: groups.box.add(new Bombable
-                    (this.game, groups, squareIndex, 'box', tileData.Scale, tileData.Res, new Point(), true, 1, false));
+                case this.types.bombable.value:
+                    groups.box.add(new Bombable (this.game, groups, squareIndex,
+                        this.types.bombable.sprite, tileData.Scale, tileData.Res,
+                        new Point(), true, 1, false));
 
                     //no break so there is background underneath
-
-                case 0: groups.background.add(new GameObject
-                    (this.game, squareIndex, 'background', tileData.Scale));
+                case this.types.free.value:
+                    groups.background.add(new GameObject (this.game, squareIndex,
+                        this.types.free.sprite, tileData.Scale));
 
                     break;
 
-                case 1: //no special tile for now
-                case 2: groups.wall.add(new Physical
-                    (this.game, squareIndex, 'wall', tileData.Scale, tileData.Res, new Point(), true));
+                case this.types.wallSP.value: //no special tile atm
+                case this.types.wall.value:
+                    groups.wall.add(new Physical (this.game, squareIndex,
+                        this.types.wall.sprite, tileData.Scale, tileData.Res,
+                        new Point(), true));
 
                     break;
             }
@@ -155,8 +163,8 @@ Map.prototype.getNextSquare = function (position, direction) {
     var x = position.x + direction.x;
     var y = position.y + direction.y;
 
-    return (this.map.squares[y][x] !== 1
-        && this.map.squares[y][x] !== 2);
+    return (this.map[y][x] !== 1
+        && this.map[y][x] !== 2);
 }
 
 

@@ -20,7 +20,7 @@ var PreloaderScene = {
             this.game.load.image('player_'+numPlayers, 'images/Sprites/Bomberman/Bman_'+numPlayers+'.png');
 
         this.game.load.image('background', 'images/Sprites/Blocks/BackgroundTile.png');
-        this.game.load.image('box', 'images/Sprites/Blocks/ExplodableBlock.png');
+        this.game.load.image('bombable', 'images/Sprites/Blocks/ExplodableBlock.png');
         this.game.load.image('wall', 'images/Sprites/Blocks/SolidBlock.png');
 
         this.game.load.image('powerUpBombUp', 'images/Sprites/Powerups/BombPowerup.png');

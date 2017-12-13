@@ -11,9 +11,8 @@ function Mod (type, key, mod) {
 //contains the different tiers, and inside the power ups
 var idDataBase = [
 
-    [ //tier 0 (special for enemie and flames)
-        //maybe should be a different object
-        {sprite: 'flame'} //0
+    [ //tier 0 (special for next level ladder etc)
+
     ],
 
     [ //tier 1 //maybe sprite more generic + add name?

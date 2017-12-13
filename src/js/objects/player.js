@@ -1,14 +1,11 @@
 'use strict';
 
-var  Bombable = require('./bombable.js'); //father
+var Bombable = require('./bombable.js'); //father
 var Point = require('../point.js');
 
 var Inputs = require('../inputs.js');
 var Bomb = require('./bomb.js');
 var Identifiable = require('../id/identifiable.js');
-
-//spawns are in baseMapData (the info is shared with the map)
-var playerSpawns = require("../maps/baseMapData.js").playerSpawns;
 
 //default player values
 var playerSpritePath = 'player_'; //partial, to complete with numPlayer
@@ -27,7 +24,7 @@ var playerPowerBomb = 1;
 var playerVelocity = 200;
 var playerInvencibleTime = 5000;
 
-var Mod = Identifiable.Mod;
+var Mod = Identifiable.Mod; //the mini factory is in Identifiable
 var playerInitialModsIds = [new Mod(1,2), new Mod (1,1), new Mod(1,0)];
 
 
@@ -39,7 +36,7 @@ function Player (game, level, numPlayer, tileData, groups) {
     this.numPlayer = numPlayer;
 
     //produces respawn position based on playerSpawns[numPlayer]
-    this.respawnPos = new Point(playerSpawns[numPlayer].x, playerSpawns[numPlayer].y)
+    this.respawnPos = new Point(level.playerSpawns[numPlayer].x, level.playerSpawns[numPlayer].y)
         .applyTileData(this.tileData, playerExtraOffset);
 
     Bombable.call(this, game, groups, this.respawnPos, playerSpritePath + this.numPlayer,

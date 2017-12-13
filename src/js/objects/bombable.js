@@ -8,7 +8,7 @@ var Identifiable = require('../id/identifiable.js');
 var bombableTimer = 500;
 
 var Mod = Identifiable.Mod; //the mini factory is in Identifiable
-var bombableDropId = new Mod (1,1);
+//var bombableDropId = new Mod (1,1);
 
 
 function Bombable(game, groups, position, sprite, scale, bodySize, bodyOffSet, immovable, lives, invencible, dropId) {
@@ -23,7 +23,7 @@ function Bombable(game, groups, position, sprite, scale, bodySize, bodyOffSet, i
     this.lives = lives;
     this.invencible = invencible;
 
-    this.dropId = bombableDropId;
+    this.dropId = dropId;
 
     this.dieTimer = bombableTimer;
 }
@@ -59,8 +59,9 @@ Bombable.prototype.checkFlames = function() {
 //player, bomb, enemie, etc will extend this
 Bombable.prototype.die = function () {
     //console.log("checkin die");
-    //var dropPosition = new Point (this.position.x, this.position.y);
-    new Identifiable(this.game, this.position, this.scale, this.dropId);
+
+    if (this.dropId !== undefined) var drop = //not really needed atm
+        new Identifiable(this.game, this.position, this.scale, this.dropId);
 
     this.lives--;
     if (this.lives === 0) this.destroy();

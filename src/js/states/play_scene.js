@@ -49,7 +49,7 @@ var PlayScene = {
     if (DEBUG) {
       console.log("Loaded...", Date.now()-this.startTime, "ms");
       console.log("\n PLAYER: ", players[0]);
-      console.log("\n MAP: ", level.map.squares);
+      console.log("\n MAP: ", level.map);
     }
   },
 
@@ -57,7 +57,7 @@ var PlayScene = {
   update: function(){
 
     //maybe in some object update?
-    //collide players (works with groups and arrays too)
+    //collide players (works with groups but arrays too)
     this.game.physics.arcade.collide(players, groups.wall);
     if (!gInputs.debug.state) {
       this.game.physics.arcade.collide(players, groups.box);
