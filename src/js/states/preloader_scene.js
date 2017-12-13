@@ -25,6 +25,11 @@ var PreloaderScene = {
 
         this.game.load.image('bomb', 'images/Sprites/Bomb/Bomb_f01.png');
         this.game.load.image('flame', 'images/Sprites/Flame/Flame_f00.png');
+
+        //Main Menu sprites
+        this.game.load.image('mMenuBG', 'images/Sprites/Menu/title_background.jpg');
+        this.game.load.image('mMenuButton1', 'images/Sprites/Menu/One_Player_Normal.png');
+        this.game.load.image('mMenuButton2', 'images/Sprites/Menu/One_Player_Hover.png');
     },
   
     create: function () {

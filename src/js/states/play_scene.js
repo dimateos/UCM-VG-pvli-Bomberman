@@ -69,6 +69,7 @@ var PlayScene = {
 
     addPlayerControl(this.game);
     debugModeControl(this.game);
+    pauseMenuControl(this.game);
 
     //rest in player and bomb updates etc
   },
@@ -128,6 +129,19 @@ var debugModeControl = function (game) {
 
   else if(gInputs.debug.button.isUp)
     gInputs.debug.ff = false;
+  
 };
+
+var pauseMenuControl = function (game) {
+  if(gInputs.pMenu.button.isDown && !gInputs.pMenu.ff)
+  {
+    gInputs.pMenu.ff = true;
+    game.paused = !game.paused;
+  }
+//MIRAR DOCUMENTACION DE PHASER.SIGNAL
+  else if(game.onPause || game.onResume)
+    gInputs.pMenu.ff = false;
+  console.log(gInputs.pMenu.ff)
+}
 
 module.exports = PlayScene;
