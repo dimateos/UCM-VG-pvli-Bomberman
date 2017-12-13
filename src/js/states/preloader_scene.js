@@ -24,7 +24,7 @@ var PreloaderScene = {
         this.game.load.image('wall', 'images/Sprites/Blocks/SolidBlock.png');
 
         this.game.load.image('powerUpBombUp', 'images/Sprites/Powerups/BombPowerup.png');
-        this.game.load.image('powerUpFlamesUp', 'images/Sprites/Powerups/FlamePowerup.png');
+        this.game.load.image('powerUpFlameUp', 'images/Sprites/Powerups/FlamePowerup.png');
         this.game.load.image('powerUpSpeedUp', 'images/Sprites/Powerups/SpeedPowerup.png');
 
         this.game.load.image('bomb', 'images/Sprites/Bomb/Bomb_f01.png');

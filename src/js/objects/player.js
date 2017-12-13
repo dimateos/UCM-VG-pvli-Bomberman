@@ -27,7 +27,7 @@ var playerPowerBomb = 1;
 var playerVelocity = 200;
 var playerInvencibleTime = 5000;
 
-function Mod (tier, num) {this.tier = tier; this.num = num;}
+var Mod = Identifiable.Mod;
 var playerInitialModsIds = [new Mod(1,2), new Mod (1,1), new Mod(1,0)];
 
 

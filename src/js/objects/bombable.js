@@ -1,12 +1,17 @@
 'use strict';
 
-var Physical = require('./physical.js');
+var Physical = require('./physical.js'); //father
+//some drop powerUps
+var Identifiable = require('../id/identifiable.js');
 
 //default bombable values
 var bombableTimer = 500;
 
+var Mod = Identifiable.Mod; //the mini factory is in Identifiable
+var bombableDropId = new Mod (1,1);
 
-function Bombable(game, groups, position, sprite, scale, bodySize, bodyOffSet, immovable, lives, invencible) {
+
+function Bombable(game, groups, position, sprite, scale, bodySize, bodyOffSet, immovable, lives, invencible, dropId) {
 
     Physical.call(this, game, position, sprite, scale, bodySize, bodyOffSet, immovable);
 
@@ -17,6 +22,8 @@ function Bombable(game, groups, position, sprite, scale, bodySize, bodyOffSet, i
     //this could be handled in the player
     this.lives = lives;
     this.invencible = invencible;
+
+    this.dropId = bombableDropId;
 
     this.dieTimer = bombableTimer;
 }
@@ -52,6 +59,8 @@ Bombable.prototype.checkFlames = function() {
 //player, bomb, enemie, etc will extend this
 Bombable.prototype.die = function () {
     //console.log("checkin die");
+    //var dropPosition = new Point (this.position.x, this.position.y);
+    new Identifiable(this.game, this.position, this.scale, this.dropId);
 
     this.lives--;
     if (this.lives === 0) this.destroy();

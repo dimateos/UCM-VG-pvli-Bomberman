@@ -6,13 +6,13 @@ var Bombable = require('../objects/bombable.js');
 
 var Point = require('../point.js');
 var baseMapData = require("./baseMapData.js"); //base map and spawns
+var levelsDataBase = require("./levelsDataBase.js"); //base map and spawns
 
 
 function Map (game, worldNum, levelNum, groups, tileData, maxPlayers) {
 
     this.game = game;
-    this.worldNum = worldNum;
-    this.levelNum = levelNum;
+    this.levelData = levelsDataBase[worldNum][levelNum];
 
     this.maxPlayers = maxPlayers;
     //this.groups = groups; //no need to extra atributes?
@@ -20,19 +20,19 @@ function Map (game, worldNum, levelNum, groups, tileData, maxPlayers) {
     //Always same base map
     this.map = baseMapData;
 
-    this.generateMap(6,35); //will depend on the level
+    this.generateMap();
 
     this.buildMap(groups, tileData);
 };
 
 
 //Adds all the extra bombables and walls
-Map.prototype.generateMap = function(numWall, numBombable) {
+Map.prototype.generateMap = function() {
     var self = this;
     var freeSquares = this.getFreeSquares(this.map,this.maxPlayers);
 
-    insertRnd(numBombable, 3);
-    insertRnd(numWall, 1);
+    insertRnd(this.levelData.bombables, 3);
+    insertRnd(this.levelData.extraWalls, 1);
 
     function insertRnd (numElem, type) {
         for (var i = 0; i < numElem; i++) {

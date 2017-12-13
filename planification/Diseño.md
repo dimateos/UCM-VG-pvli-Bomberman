@@ -193,7 +193,7 @@ Movimiento simple, habria que analizar los diferentes.
 * 3*type0
     * 2*tier0
 
-### Mundo 1awd-2
+### Mundo 1-2
 
 ![1-2](lvls/1-2.png)
 

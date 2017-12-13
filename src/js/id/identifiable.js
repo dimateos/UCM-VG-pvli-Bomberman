@@ -25,6 +25,8 @@ function Identifiable(game, position, scale, id) {
 Identifiable.prototype = Object.create(Physical.prototype);
 Identifiable.prototype.constructor = Identifiable;
 
+//generic base mod factorie
+Identifiable.Mod = function (tier, num) {this.tier = tier; this.num = num;}
 
 Identifiable.addPowerUps = function(powerUpIds, target, reverseMode) {
   //Adds the id of the mods to the player.mods (so we can reverse them, etc)

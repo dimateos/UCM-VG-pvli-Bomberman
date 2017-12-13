@@ -7,6 +7,7 @@ var Groups = require('../groups.js')
 var groups;
 var Map = require('../maps/map.js');
 var level;
+var initialMap = {world: 1, level: 1};
 
 var Inputs = require('../inputs.js');
 var gInputs; //global inputs
@@ -36,7 +37,7 @@ var PlayScene = {
 
     //map
     groups = new Groups (this.game); //first need the groups
-    level = new Map(this.game, 1, 1, groups, tileData, maxPlayers);
+    level = new Map(this.game, initialMap.world, initialMap.level, groups, tileData, maxPlayers);
 
     //global controls
     gInputs = new Inputs (this.game, -1);
