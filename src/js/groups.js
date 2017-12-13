@@ -10,8 +10,13 @@ function Groups(game) {
     this.background = game.add.group();
     this.wall = game.add.group();
     this.box = game.add.group();
+
     this.bomb = game.add.group();
     this.flame = game.add.group();
+
+    this.powerUp = game.add.group();
+    this.player = game.add.group();
+
 }
 Groups.prototype = Object.create(Phaser.Group.prototype);
 Groups.prototype.constructor = Groups;

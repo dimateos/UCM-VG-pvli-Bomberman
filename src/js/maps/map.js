@@ -4,9 +4,18 @@ var GameObject = require('../objects/gameObject.js');
 var Physical = require('../objects/physical.js');
 var Bombable = require('../objects/bombable.js');
 
+var Id = require('../id/identifiable.js').Id; //for bombable id
+var tierSize = require('../id/identifiable.js').tierSize; //for the rnd gen
+
 var Point = require('../point.js');
 var baseMapData = require("./baseMapData.js"); //base map and spawns
 var levelsDataBase = require("./levelsDataBase.js"); //base map and spawns
+
+//default map tiles values
+var defaultBodyOffset = new Point();
+var defaultImmovable = true;
+var defaultBombableLives = 1;
+var defaultBombableInvencible = false;
 
 
 function Map (game, worldNum, levelNum, groups, tileData, maxPlayers) {
@@ -24,8 +33,9 @@ function Map (game, worldNum, levelNum, groups, tileData, maxPlayers) {
     this.types = baseMapData.squaresTypes;
     this.playerSpawns = baseMapData.playerSpawns;
 
-    this.generateMap();
+    this.idsPowerUps = this.generateIdsPowerUps();
 
+    this.generateMap();
     this.buildMap(groups, tileData);
 };
 
@@ -35,8 +45,12 @@ Map.prototype.generateMap = function() {
     var self = this;
     var freeSquares = this.getFreeSquares(this.maxPlayers);
 
-    insertRnd(this.levelData.bombables, 3);
-    insertRnd(this.levelData.extraWalls, 1);
+    //first generates the ones with the drops
+    var numDrops = this.idsPowerUps.length;
+    insertRnd(numDrops, this.types.bombableDrop.value);
+
+    insertRnd(this.levelData.bombables-numDrops, this.types.bombable.value);
+    insertRnd(this.levelData.extraWalls, this.types.wall.value);
 
     function insertRnd (numElem, type) {
         for (var i = 0; i < numElem; i++) {
@@ -85,6 +99,24 @@ Map.prototype.getFreeSquares = function(maxPlayers) {
     }*/
 };
 
+//generates the array of random powerUps based on levelsDataBase info
+Map.prototype.generateIdsPowerUps = function () {
+
+    var powerUps = this.levelData.powerUps;
+    var Ids = [];
+
+    for (var tier = 0; tier < powerUps.length; tier++) {
+        for (var n = 0; n < powerUps[tier]; n++) {
+            //between and including min and max (Phaser)
+            var rnd = this.game.rnd.integerInRange(0, tierSize(tier)-1);
+            Ids.push(new Id(tier, rnd));
+        }
+    }
+    //for (var i = 0; i < Ids.length; i++) console.log(Ids[i]);
+
+    return Ids;
+};
+
 //given a free square {x: x, y: y} in a freeSquares[] and a radius
 //searches and removes (real map) surroundings squares of that radius
 //removes the given square too? atm yes
@@ -130,13 +162,20 @@ Map.prototype.buildMap = function (groups, tileData) {
 
             //new point each time is bad? auto deletes trash?
             var squareIndex = new Point(i,j).applyTileData(tileData);
+            var idPowerUp;
 
             switch(this.map[j][i]) {
+
+                case this.types.bombableDrop.value:
+                    idPowerUp = this.idsPowerUps.pop(); //gets an Id
 
                 case this.types.bombable.value:
                     groups.box.add(new Bombable (this.game, groups, squareIndex,
                         this.types.bombable.sprite, tileData.Scale, tileData.Res,
-                        new Point(), true, 1, false));
+                        defaultBodyOffset, defaultImmovable,
+                        defaultBombableLives, defaultBombableInvencible, idPowerUp));
+
+                    idPowerUp = undefined; //resets it
 
                     //no break so there is background underneath
                 case this.types.free.value:
@@ -149,13 +188,14 @@ Map.prototype.buildMap = function (groups, tileData) {
                 case this.types.wall.value:
                     groups.wall.add(new Physical (this.game, squareIndex,
                         this.types.wall.sprite, tileData.Scale, tileData.Res,
-                        new Point(), true));
+                        defaultBodyOffset, defaultImmovable));
 
                     break;
             }
         }
     }
 };
+
 
 //given a square position returns true if in given direction there is not a wall
 Map.prototype.getNextSquare = function (position, direction) {

@@ -18,14 +18,13 @@ var playerImmovable = false;
 var playerInvecible = true;
 
 var playerLives = 5;
-var playerNumBombs = 3;
-var playerPowerBomb = 1;
+var playerNumBombs = 1;
 
 var playerVelocity = 200;
 var playerInvencibleTime = 5000;
 
-var Mod = Identifiable.Mod; //the mini factory is in Identifiable
-var playerInitialModsIds = [new Mod(1,2), new Mod (1,1), new Mod(1,0)];
+var Id = Identifiable.Id; //the mini factory is in Identifiable
+var playerInitialModsIds = [/*new Id(1,2), new Id (1,1), new Id(1,0)*/];
 
 
 function Player (game, level, numPlayer, tileData, groups) {
@@ -47,6 +46,7 @@ function Player (game, level, numPlayer, tileData, groups) {
     this.numBombs = playerNumBombs;
 
     this.inputs = new Inputs (game, numPlayer);
+    this.groups.player.add(this);
 
     this.mods = [];
     this.bombMods = [];
@@ -85,6 +85,9 @@ Player.prototype.update = function() {
     if(this.inputs.bomb.button.isDown && !this.inputs.bomb.ff && this.numBombs > 0){
 
         this.numBombs--;
+
+        console.log(this.groups.powerUp.children)
+
 
         var bombPosition = new Point(this.position.x, this.position.y)
             .getMapSquareValue(this.tileData, playerExtraOffset)

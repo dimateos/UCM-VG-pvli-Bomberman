@@ -58,15 +58,18 @@ var PlayScene = {
 
     //maybe in some object update?
     //collide players (works with groups but arrays too)
-    this.game.physics.arcade.collide(players, groups.wall);
+    this.game.physics.arcade.collide(groups.player, groups.wall);
     if (!gInputs.debug.state) {
-      this.game.physics.arcade.collide(players, groups.box);
-      this.game.physics.arcade.collide(players, groups.bomb);
+      this.game.physics.arcade.collide(groups.player, groups.box);
+      this.game.physics.arcade.collide(groups.player, groups.bomb);
     }
 
+    this.game.world.bringToTop(groups.flame);
+    this.game.world.bringToTop(groups.player);
+
     //but full array bringToTop doesnt work
-    for (var numPlayer = 0; numPlayer < players.length; numPlayer++)
-      this.game.world.bringToTop(players[numPlayer]);
+    //for (var numPlayer = 0; numPlayer < players.length; numPlayer++)
+      //this.game.world.bringToTop(players[numPlayer]);
 
     addPlayerControl(this.game);
     debugModeControl(this.game);

@@ -40,8 +40,6 @@ function Bomb (game, level, position, tileData, groups, player, bombMods) {
     this.player = player;
     this.tileData = tileData;
 
-    console.log(bombMods);
-
     this.mods = [];
     Identifiable.applyMods(bombMods, this);
 

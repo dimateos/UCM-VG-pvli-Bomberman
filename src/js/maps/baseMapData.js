@@ -18,7 +18,9 @@ var baseMapData = {
         wall: {value: 1, sprite: "wall"},
 
         free: {value: 0, sprite: "background"},
-        bombable: {value: 3, sprite: "bombable"}
+
+        bombable: {value: 3, sprite: "bombable"},
+        bombableDrop: {value: 4, sprite: "bombableDrop"}
     },
 
     squares:

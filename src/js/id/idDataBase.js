@@ -18,7 +18,7 @@ var idDataBase = [
     [ //tier 1 //maybe sprite more generic + add name?
         {   //0
             sprite: 'powerUpBombUp', pts: 10,
-            mods: [new Mod("number", "numBombs", -2)]
+            mods: [new Mod("number", "numBombs", 1)]
         },
         {   //1
             sprite: 'powerUpFlameUp', pts: 200,
@@ -27,7 +27,7 @@ var idDataBase = [
         },
         {   //2
             sprite: 'powerUpSpeedUp', pts: 400,
-            mods: [new Mod("number", "velocity", -50)]
+            mods: [new Mod("number", "velocity", 50)]
         }
     ]
 ];

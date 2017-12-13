@@ -7,15 +7,15 @@ var Identifiable = require('../id/identifiable.js');
 //default bombable values
 var bombableTimer = 500;
 
-var Mod = Identifiable.Mod; //the mini factory is in Identifiable
-//var bombableDropId = new Mod (1,1);
+//var Id = Identifiable.Id; //the mini factory is in Identifiable
+//var bombableDropId = new Id (1,1);
 
 
 function Bombable(game, groups, position, sprite, scale, bodySize, bodyOffSet, immovable, lives, invencible, dropId) {
 
     Physical.call(this, game, position, sprite, scale, bodySize, bodyOffSet, immovable);
 
-    this.flamesGroup = groups.flame;
+    this.groups = groups;
     this.tmpInven = false; //flip flop
 
     //not really needed atm, but allows special blocks
@@ -41,8 +41,7 @@ Bombable.prototype.update = function() {
 Bombable.prototype.checkFlames = function() {
 
     //console.log(this.flamesGroup);
-
-    this.game.physics.arcade.overlap(this, this.flamesGroup, onFire, checkVulnerability, this);
+    this.game.physics.arcade.overlap(this, this.groups.flame, onFire, checkVulnerability, this);
 
     function checkVulnerability () {
         //console.log("checkin vulv");
@@ -60,8 +59,8 @@ Bombable.prototype.checkFlames = function() {
 Bombable.prototype.die = function () {
     //console.log("checkin die");
 
-    if (this.dropId !== undefined) var drop = //not really needed atm
-        new Identifiable(this.game, this.position, this.scale, this.dropId);
+    if (this.dropId !== undefined) this.groups.powerUp.add(
+        new Identifiable(this.game, this.position, this.scale, this.dropId, this.groups.player))    ;
 
     this.lives--;
     if (this.lives === 0) this.destroy();
