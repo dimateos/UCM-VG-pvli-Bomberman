@@ -24,11 +24,11 @@ var bombSpritePath = 'bomb';
 var flameId = {tier: 0, num: 0};
 
 
-function Bomb (game, level, position, tileData, groups, player, mods) {
+function Bomb (game, level, position, tileData, groups, player, bombMods) {
 
     var bombPosition = position.add(bombExtraOffset.x, bombExtraOffset.y);
 
-    Bombable.call(this, game, groups.flame, bombPosition, bombSpritePath,
+    Bombable.call(this, game, groups, bombPosition, bombSpritePath,
         tileData.Scale, bombBodySize, bombBodyOffset, bombImmovable, bombLives, bombInvecible);
 
     this.timer = bombTimer;
@@ -40,13 +40,17 @@ function Bomb (game, level, position, tileData, groups, player, mods) {
     this.player = player;
     this.tileData = tileData;
 
-    this.mods = mods;
+    console.log(bombMods);
+
+    this.mods = [];
+    Identifiable.applyMods(bombMods, this);
 
     game.time.events.add(this.timer, this.xplode, this);
 };
 
 Bomb.prototype = Object.create(Bombable.prototype);
 Bomb.prototype.constructor = Bomb;
+
 
 //removes the bomb, spawns the fames and then removes them
 Bomb.prototype.xplode = function() {

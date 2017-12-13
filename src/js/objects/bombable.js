@@ -6,11 +6,11 @@ var Physical = require('./physical.js');
 var bombableTimer = 500;
 
 
-function Bombable(game, flamesGroup, position, sprite, scale, bodySize, bodyOffSet, immovable, lives, invencible) {
+function Bombable(game, groups, position, sprite, scale, bodySize, bodyOffSet, immovable, lives, invencible) {
 
     Physical.call(this, game, position, sprite, scale, bodySize, bodyOffSet, immovable);
 
-    this.flamesGroup = flamesGroup;
+    this.flamesGroup = groups.flame;
     this.tmpInven = false; //flip flop
 
     //not really needed atm, but allows special blocks

@@ -43,9 +43,7 @@ var PlayScene = {
 
     //player/s (initialPlayers) //maybe player group instead?
     for (var numPlayer = 0; numPlayer < initialPlayers; numPlayer++)
-      players.push(new Player(this.game, level, numPlayer, tileData, groups,{},{}));
-
-    level.players = players; //adds players reference to the map
+      players.push(new Player(this.game, level, numPlayer, tileData, groups));
 
     if (DEBUG) {
       console.log("Loaded...", Date.now()-this.startTime, "ms");
@@ -115,7 +113,7 @@ var addPlayerControl = function (game) {
         players[numPlayer].lives /= 2;
       }
     }
-    players.push(new Player (game, level, players.length, tileData, groups,{},{}))
+    players.push(new Player (game, level, players.length, tileData, groups))
     players[players.length-1].lives = players[0].lives;
     //new player's lives = player0; maybe a little unfair, but the real mode only allows 2 players
   }

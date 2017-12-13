@@ -1,12 +1,11 @@
 'use strict';
 
 var  Bombable = require('./bombable.js'); //father
-
 var Point = require('../point.js');
-var idData = require('../id/idData.js'); //all the database
 
 var Inputs = require('../inputs.js');
 var Bomb = require('./bomb.js');
+var Identifiable = require('../id/identifiable.js');
 
 //spawns are in baseMapData (the info is shared with the map)
 var playerSpawns = require("../maps/baseMapData.js").playerSpawns;
@@ -15,7 +14,7 @@ var playerSpawns = require("../maps/baseMapData.js").playerSpawns;
 var playerSpritePath = 'player_'; //partial, to complete with numPlayer
 
 var playerBodySize = new Point(60, 60); //little smaller
-var playerBodyOffset = new Point(-7,  32);
+var playerBodyOffset = new Point(-7, 32);
 var playerExtraOffset = new Point(6, -20); //reaquired because player body is not full res
 
 var playerImmovable = false;
@@ -28,9 +27,11 @@ var playerPowerBomb = 1;
 var playerVelocity = 200;
 var playerInvencibleTime = 5000;
 
-var playerModsIds = [{tier: 1, num: 2}, {tier: 1, num: 0}];
+function Mod (tier, num) {this.tier = tier; this.num = num;}
+var playerInitialModsIds = [new Mod(1,2), new Mod (1,1), new Mod(1,0)];
 
-function Player (game, level, numPlayer, tileData, groups, mods, bombMods) {
+
+function Player (game, level, numPlayer, tileData, groups) {
 
     this.level = level;
     this.groups = groups;
@@ -41,7 +42,7 @@ function Player (game, level, numPlayer, tileData, groups, mods, bombMods) {
     this.respawnPos = new Point(playerSpawns[numPlayer].x, playerSpawns[numPlayer].y)
         .applyTileData(this.tileData, playerExtraOffset);
 
-    Bombable.call(this, game, groups.flame, this.respawnPos, playerSpritePath + this.numPlayer,
+    Bombable.call(this, game, groups, this.respawnPos, playerSpritePath + this.numPlayer,
         tileData.Scale, playerBodySize, playerBodyOffset,
         playerImmovable, playerLives, playerInvecible);
 
@@ -52,7 +53,7 @@ function Player (game, level, numPlayer, tileData, groups, mods, bombMods) {
 
     this.mods = [];
     this.bombMods = [];
-    this.addPowerUps(playerModsIds, this);
+    Identifiable.addPowerUps(playerInitialModsIds, this);
 
     //Initial invencible time
     this.game.time.events.add(playerInvencibleTime, this.endInvencibility, this);
@@ -61,24 +62,6 @@ function Player (game, level, numPlayer, tileData, groups, mods, bombMods) {
 Player.prototype = Object.create(Bombable.prototype);
 Player.prototype.constructor = Player;
 
-//maybe move this to identifiable logic
-Player.prototype.addPowerUps = function(powerUpIds, target, reverseMode) {
-    //Adds the id of the mods to the player.mods (so we can reverse them, etc)
-    for (var i = 0; i < powerUpIds.length; i++) {
-        target.mods.push(powerUpIds[i]);
-
-        var mods = idData[powerUpIds[i].tier][powerUpIds[i].num].mods;
-        this.applyMods(mods, target, reverseMode);
-    }
-}
-
-Player.prototype.applyMods = function(mods, target, reverseMode) {
-    for (var i = 0; i < mods.length; i++) {
-        console.log(target[mods[i].key]);
-        console.log(mods[i].key, mods[i].mod);
-        target[mods[i].key] += mods[i].mod;
-    }
-}
 
 Player.prototype.update = function() {
 
@@ -111,7 +94,7 @@ Player.prototype.update = function() {
             .applyTileData(this.tileData);
 
         this.groups.bomb.add(new Bomb (this.game, this.level,
-            bombPosition, this.tileData, this.groups, this, {}));
+            bombPosition, this.tileData, this.groups, this, this.bombMods));
 
         this.inputs.bomb.ff = true;
     }
