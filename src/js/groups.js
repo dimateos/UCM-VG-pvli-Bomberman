@@ -9,7 +9,7 @@ function Groups(game) {
     //groups for tiles
     this.background = game.add.group();
     this.wall = game.add.group();
-    this.box = game.add.group();
+    this.bombable = game.add.group();
 
     this.bomb = game.add.group();
     this.flame = game.add.group();

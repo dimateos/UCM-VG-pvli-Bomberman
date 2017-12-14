@@ -94,10 +94,10 @@ Bomb.prototype.expandFlames = function(flames, positionMap) {
     for (var i = 0; i < directions.length; i++) {
 
         var expansion = 1;
-        var obstacle = false;
+        var obstacle = false, bombable = false;
         var tmpPositionMap = new Point (positionMap.x, positionMap.y);
 
-        while(expansion <= this.power && !obstacle) {
+        while(expansion <= this.power && !obstacle && !bombable) {
 
             //checks if the next square is free
             if (this.level.getNextSquare(tmpPositionMap, directions[i])) {
@@ -110,8 +110,19 @@ Bomb.prototype.expandFlames = function(flames, positionMap) {
                     .applyTileData(this.tileData);
 
                 //creates the flame
-                flames.push(new Flame(this.game, flamePos, this.scale));
+                var newFlame = new Flame(this.game, flamePos, this.scale)
+                flames.push(newFlame);
                 expansion++;
+
+                //if it touches a bombable it stops propagation
+                bombable = this.game.physics.arcade.overlap(newFlame, this.groups.bombable);
+                //Seems cleaner than updating the map each bombable is destroyed
+                //and then using getNextSquare to check for bombables.
+                //This seems worse for performance but doesnt feel like it;
+                //we could change it at any momment ofc
+
+                //not checking for other bombs cause atm flame sprite is static
+                //so there is no difference
             }
             else obstacle = true;
         }

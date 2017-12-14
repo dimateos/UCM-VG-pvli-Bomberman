@@ -21,7 +21,7 @@ var speedMin = 200;
 var speedLimit = speedMin + speedAdd*8;
 
 
-//contains the different powerUp's functions
+//contains the different powerUp's functions. Unordered.
 var modsFunctions = {
 
     bombUp: function (reverseMode) {

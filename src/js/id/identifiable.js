@@ -52,7 +52,9 @@ Identifiable.tierSize = function (tier) {return idDataBase[tier].length}
 Identifiable.addPowerUps = function(powerUpIds, target, reverseMode) {
   //Adds the id of the mods to the player.mods (so we can reverse them, etc)
   for (var i = 0; i < powerUpIds.length; i++) {
-      target.mods.push(powerUpIds[i]);
+      if (!reverseMode)target.mods.push(powerUpIds[i]);
+      //else target.mods.pop(); //ordered. NOT SURE if we should keep them
+      //we do not pop, we keep target.mods as a log of powerUps
 
       var mods = idDataBase[powerUpIds[i].tier][powerUpIds[i].num].mods;
       Identifiable.applyMods(mods, target, reverseMode);

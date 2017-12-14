@@ -170,7 +170,7 @@ Map.prototype.buildMap = function (groups, tileData) {
                     idPowerUp = this.idsPowerUps.pop(); //gets an Id
 
                 case this.types.bombable.value:
-                    groups.box.add(new Bombable (this.game, groups, squareIndex,
+                    groups.bombable.add(new Bombable (this.game, groups, squareIndex,
                         this.types.bombable.sprite, tileData.Scale, tileData.Res,
                         defaultBodyOffset, defaultImmovable,
                         defaultBombableLives, defaultBombableInvencible, idPowerUp));
@@ -198,13 +198,17 @@ Map.prototype.buildMap = function (groups, tileData) {
 
 
 //given a square position returns true if in given direction there is not a wall
+//return if there was a bombable too
 Map.prototype.getNextSquare = function (position, direction) {
 
     var x = position.x + direction.x;
     var y = position.y + direction.y;
 
-    return (this.map[y][x] !== 1
-        && this.map[y][x] !== 2);
+    //bombable = (this.map[y][x] === this.types.bombable.value);
+    //console.log(bombable);
+
+    return (this.map[y][x] !== this.types.wallSP.value
+        && this.map[y][x] !== this.types.wall.value);
 }
 
 
