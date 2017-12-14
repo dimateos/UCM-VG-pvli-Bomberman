@@ -1,12 +1,8 @@
 'use strict';
 
-//right now it's implemented that a power up can affect multiple player keys
-//maybe we need that feature, atm we do not need it (simple power ups)
-function Mod (type, key, mod) {
-    this.type = type; //number, bool, bomb, function
-    this.key = key;
-    this.mod = mod;
-}
+var modsFunctions = require('./modsFunctions.js'); //all the database
+//*A previous version with types of mods (instead of all functions)
+//*is in "unused" folder, but the fixed applyMods was removed directly
 
 //contains the different tiers, and inside the power ups
 var idDataBase = [
@@ -18,16 +14,15 @@ var idDataBase = [
     [ //tier 1 //maybe sprite more generic + add name?
         {   //0
             sprite: 'powerUpBombUp', pts: 10,
-            mods: [new Mod("number", "numBombs", 1)]
+            mods: [modsFunctions.bombUp]
         },
         {   //1
             sprite: 'powerUpFlameUp', pts: 200,
-            mods: [new Mod("bomb", null, new Mod("number", "power", 1))]
-            //bombs power ups work like this
+            mods: [modsFunctions.flameUp]
         },
         {   //2
             sprite: 'powerUpSpeedUp', pts: 400,
-            mods: [new Mod("number", "velocity", 50)]
+            mods: [modsFunctions.speedUp]
         }
     ]
 ];

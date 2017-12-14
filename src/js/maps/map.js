@@ -42,7 +42,7 @@ function Map (game, worldNum, levelNum, groups, tileData, maxPlayers) {
 
 //Adds all the extra bombables and walls
 Map.prototype.generateMap = function() {
-    var self = this;
+    var self = this; //instead of apply
     var freeSquares = this.getFreeSquares(this.maxPlayers);
 
     //first generates the ones with the drops

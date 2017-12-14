@@ -63,21 +63,7 @@ Identifiable.applyMods = function(mods, target, reverseMode) {
   for (var i = 0; i < mods.length; i++) {
       //console.log(target[mods[i].key]);
       //console.log(mods[i].key, mods[i].mod);
-
-      switch (mods[i].type) {
-        case "number":
-          target[mods[i].key] += mods[i].mod;
-          break;
-        case "bool":
-          target[mods[i].key] = mods[i].mod;
-          break;
-        case "function":
-          target[mods[i].key]();
-          break;
-        case "bomb":
-          target.bombMods.push(mods[i].mod);
-          break;
-      }
+      mods[i].call(target, reverseMode);
   }
   //console.log(target.mods);
 }

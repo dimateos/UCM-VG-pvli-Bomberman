@@ -18,7 +18,7 @@ var playerImmovable = false;
 var playerInvecible = true;
 
 var playerLives = 5;
-var playerNumBombs = 1;
+var playerNumBombs = 2;
 
 var playerVelocity = 200;
 var playerInvencibleTime = 5000;
@@ -60,6 +60,8 @@ Player.prototype = Object.create(Bombable.prototype);
 Player.prototype.constructor = Player;
 
 
+Player.prototype.hey = function() {console.log(this);};
+
 Player.prototype.update = function() {
 
     this.checkFlames(); //bombable method
@@ -85,9 +87,6 @@ Player.prototype.update = function() {
     if(this.inputs.bomb.button.isDown && !this.inputs.bomb.ff && this.numBombs > 0){
 
         this.numBombs--;
-
-        console.log(this.groups.powerUp.children)
-
 
         var bombPosition = new Point(this.position.x, this.position.y)
             .getMapSquareValue(this.tileData, playerExtraOffset)
