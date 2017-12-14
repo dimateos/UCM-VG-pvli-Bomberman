@@ -2,26 +2,48 @@
 
 const DEBUG = true;
 
-const winWith = 800;
+const winWidth = 800;
 const winHeight = 600;
+
+var mMenuBG;
+var mMenuButton;
+var buttonCount = 1;
 
 var MainMenu = {
     preload: function() {
         if (DEBUG) this.startTime = Date.now(); //to calculate booting time etc
         
-        this.game.load.image('mMenuBG', 'images/Sprites/Menu/title_background.jpg');
+        
 
-        var mMenuBG = this.game.add.sprite(winWith/2, winHeight/2, 'mMenuBG');
-        mMenuBG.anchor.setTo(0.5, 0.5);
-        mMenuBG.scale.x = 800;
-        mMenuBG.scale.y = 600;
+        
     },
 
-    create: function() {        
+    nextState: function() { this.game.state.start('play');  },
+
+    // over: function() { buttonCount++; },
+
+    // out: function() { buttonCount--; },
+
+    create: function() {      
+        mMenuBG = this.game.add.sprite(0, 0, 'mMenuBG');
+        mMenuButton = this.game.add.button(winWidth/2, winHeight/2 + 100, 'mMenuButton' + buttonCount, this.nextState, this);
+
+        
+        mMenuBG.width = winWidth;
+        mMenuBG.heigth = winHeight;
+        
+        mMenuButton.anchor.setTo(0.5, 0.5);
+        //mMenuButton.scale.x = 100;
+        //mMenuButton.scale.y = 75;
+
+        // mMenuButton.onInputOver.add(this.over, this);    
     },
 
     update: function() {
-        this.game.state.start('play');
+        
+        // if(this.game.input.mousePointer.leftButton.isDown && this.game.input.mousePointer.position.x == this.mMenuButton.x 
+        //     && this.game.input.mousePointer.position.y == this.mMenuButton.y)
+        //     this.game.state.start('play');
     }
 
 };
