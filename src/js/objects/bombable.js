@@ -31,10 +31,9 @@ function Bombable(game, groups, position, sprite, scale, bodySize, bodyOffSet, i
 Bombable.prototype = Object.create(Physical.prototype);
 Bombable.prototype.constructor = Bombable;
 
-Bombable.prototype.hey = function () {console.log("hey");};
 
 Bombable.prototype.update = function() {
-    this.checkFlames(); //player rewrites (extends) update
+    this.checkFlames(); //player and bomb rewrite (extend) update
 }
 
 //common for all bombables
@@ -58,12 +57,14 @@ Bombable.prototype.checkFlames = function() {
 //player, bomb, enemie, etc will extend this
 Bombable.prototype.die = function () {
     //console.log("checkin die");
-
-    if (this.dropId !== undefined) this.groups.powerUp.add(
-        new Identifiable(this.game, this.position, this.scale, this.dropId, this.groups.player))    ;
-
     this.lives--;
-    if (this.lives === 0) this.destroy();
+
+    if (this.lives <= 0) {
+        //if it has a power up, drops it
+        if (this.dropId !== undefined) this.groups.powerUp.add(
+            new Identifiable(this.game, this.position, this.scale, this.dropId, this.groups.player));
+        this.destroy(); //always destroy it
+    }
 
     this.tmpInven = false; //vulneable again
 }

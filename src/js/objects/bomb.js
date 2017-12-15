@@ -37,17 +37,34 @@ function Bomb (game, level, position, tileData, groups, player, bombMods) {
 
     this.level = level;
     this.groups = groups;
-    this.player = player;
+    this.player = player; //atm not really required
     this.tileData = tileData;
 
     this.mods = [];
     Identifiable.applyMods(bombMods, this);
 
-    game.time.events.add(this.timer, this.xplode, this);
+    //this.flamesEvent = undefined; //need to create it for die()
+    this.xplosionEvent =
+        game.time.events.add(this.timer, this.xplode, this);
 };
 
 Bomb.prototype = Object.create(Bombable.prototype);
 Bomb.prototype.constructor = Bomb;
+
+
+Bomb.prototype.die = function () {
+    //console.log("checkin bomb die");
+    this.lives--;
+
+    //cancels the standard callbacks
+    if (this.lives <= 0) {
+        this.game.time.events.remove(this.xplosionEvent);
+        //this.game.time.events.remove(this.flamesEvent);
+        this.destroy();
+    }
+
+    this.tmpInven = false; //vulneable again
+}
 
 
 //removes the bomb, spawns the fames and then removes them
@@ -64,6 +81,8 @@ Bomb.prototype.xplode = function() {
 
     //callback to destroy the flames
     this.game.time.events.add(this.flameTimer, removeFlames, this);
+    //this.game.time.events.remove(lul);
+
     function removeFlames () {
         //.destroy() removes them from the group too
         for(var i = 0; i < flames.length; i++) flames[i].destroy();
@@ -123,6 +142,8 @@ Bomb.prototype.expandFlames = function(flames, positionMap) {
 
                 //not checking for other bombs cause atm flame sprite is static
                 //so there is no difference
+
+                //we could add a timer to delay the expansions
             }
             else obstacle = true;
         }
