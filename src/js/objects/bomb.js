@@ -19,6 +19,7 @@ var bombLives = 1;
 var bombPower = 1;
 var bombTimer = 2000;
 var bombFlameTimer = 500;
+var bombDieTimer = 500; // > 500
 
 var bombSpritePath = 'bomb';
 var flameId = {tier: 0, num: 0};
@@ -54,21 +55,22 @@ Bomb.prototype.constructor = Bomb;
 
 
 Bomb.prototype.die = function () {
-    //console.log("checkin bomb die");
+    console.log("checkin bomb die");
     this.lives--;
 
     //cancels the standard callbacks
     if (this.lives <= 0) {
         if (!this.xploded) {
             this.game.time.events.remove(this.xplosionEvent);
-            console.log("hey");
             this.xplode();
             //this.game.time.events.remove(this.flamesEvent);
         }
-        this.destroy();
+        this.game.time.events.add(500, this.destroy, this);
     }
+    this.game.time.events.add(this.bombDieTimer, flipInven, this);
 
-    this.tmpInven = false; //vulneable again
+
+    function flipInven () { this.tmpInven = false; }
 }
 
 

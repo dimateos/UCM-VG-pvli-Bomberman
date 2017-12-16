@@ -54,7 +54,6 @@ function Player (game, level, numPlayer, tileData, groups) {
     Identifiable.addPowerUps(playerInitialModsIds, this);
 
     //Initial invencible time
-    this.dead = false;
     this.game.time.events.add(playerInvencibleTime, this.endInvencibility, this);
 };
 
@@ -99,8 +98,11 @@ Player.prototype.update = function() {
             .getMapSquareValue(this.tileData, playerExtraOffset)
             .applyTileData(this.tileData);
 
-        this.groups.bomb.add(new Bomb (this.game, this.level,
-            bombPosition, this.tileData, this.groups, this, this.bombMods));
+        var bombie = new Bomb (this.game, this.level,
+            bombPosition, this.tileData, this.groups, this, this.bombMods)
+        this.groups.bomb.add(bombie);
+
+        console.log(bombie)
 
         this.inputs.bomb.ff = true;
     }
@@ -114,7 +116,7 @@ Player.prototype.checkPowerUps = function() {
     this.game.physics.arcade.overlap(this, this.groups.powerUp, takePowerUp);
 
     function takePowerUp (player, powerUp) {
-        console.log("takin powerUp");
+        //console.log("takin powerUp");
         player.mods.push(powerUp.id);
 
         Identifiable.pickPowerUp(powerUp, player);
@@ -127,14 +129,15 @@ Player.prototype.checkPowerUps = function() {
 Player.prototype.die = function () {
     //console.log("checkin player die");
     this.lives--;
-    this.dead = true;
+    this.dead = true; //to disable movement
     this.game.time.events.add(playerDeathTimer, this.respawn, this);
 
     if (this.lives <= 0) {
         console.log("P" + this.numPlayer + ", you ded (0 lives)");
     }
 
-    this.tmpInven = false; //vulneable again
+    this.game.time.events.add(playerDeathTimer, flipInven, this);
+    function flipInven () { this.tmpInven = false; }
 }
 
 //needs improvements ofc, atm only moves the player
