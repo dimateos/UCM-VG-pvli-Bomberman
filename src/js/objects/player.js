@@ -87,7 +87,7 @@ Player.prototype.update = function() {
     if(this.inputs.bomb.button.isDown && !this.inputs.bomb.ff && this.numBombs > 0
         && !this.game.physics.arcade.overlap(this, this.groups.bomb)){
 
-        console.log(this.groups.bomb.children)
+        //console.log(this.groups.bomb.children)
         //console.log(this.groups.flame.children)
 
         this.numBombs--;

@@ -43,6 +43,7 @@ function Bomb (game, level, position, tileData, groups, player, bombMods) {
     this.mods = [];
     Identifiable.applyMods(bombMods, this);
 
+    this.xploded = false;
     //this.flamesEvent = undefined; //need to create it for die()
     this.xplosionEvent =
         game.time.events.add(this.timer, this.xplode, this);
@@ -58,8 +59,12 @@ Bomb.prototype.die = function () {
 
     //cancels the standard callbacks
     if (this.lives <= 0) {
-        this.game.time.events.remove(this.xplosionEvent);
-        //this.game.time.events.remove(this.flamesEvent);
+        if (!this.xploded) {
+            this.game.time.events.remove(this.xplosionEvent);
+            console.log("hey");
+            this.xplode();
+            //this.game.time.events.remove(this.flamesEvent);
+        }
         this.destroy();
     }
 
@@ -69,6 +74,8 @@ Bomb.prototype.die = function () {
 
 //removes the bomb, spawns the fames and then removes them
 Bomb.prototype.xplode = function() {
+    console.log("xploded");
+    this.xploded = true;
     this.groups.bomb.remove(this); //removes and destroys the bomb
     this.player.numBombs++; //adds a bomb back to the player
 
