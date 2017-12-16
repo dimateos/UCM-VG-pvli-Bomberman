@@ -12,7 +12,7 @@ var idExtraOffset = new Point(14, 10); //id body is not full res
 var idImmovable = true;
 
 
-function Identifiable(game, position, scale, id, playersGroup) {
+function Identifiable(game, position, scale, id) {
 
     var idPosition = position.add(idExtraOffset.x, idExtraOffset.y);
 
@@ -20,27 +20,16 @@ function Identifiable(game, position, scale, id, playersGroup) {
       scale, idBodySize, idBodyOffset, idImmovable);
 
     this.id = id;
-    this.playersGroup = playersGroup;
 }
 
 Identifiable.prototype = Object.create(Physical.prototype);
 Identifiable.prototype.constructor = Identifiable;
 
 
-//the powerUps themselves check if any player has picked them up
-Identifiable.prototype.update = function() {
-
-  this.game.physics.arcade.overlap(this, this.playersGroup, takePowerUp);
-
-      function takePowerUp (powerUp, player) {
-          console.log("takin powerUp");
-          player.mods.push(powerUp.id);
-
-          var mods = idDataBase[powerUp.id.tier][powerUp.id.num].mods;
-          Identifiable.applyMods(mods, player);
-
-          powerUp.destroy();
-      }
+//method used by players ti pick powerUps (so they do not need idDataBase)
+Identifiable.pickPowerUp = function(powerUp, player) {
+    var mods = idDataBase[powerUp.id.tier][powerUp.id.num].mods;
+    Identifiable.applyMods(mods, player);
 }
 
 

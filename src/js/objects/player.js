@@ -65,6 +65,7 @@ Player.prototype.hey = function() {console.log(this);};
 Player.prototype.update = function() {
 
     this.checkFlames(); //bombable method
+    this.checkPowerUps();
 
     this.body.velocity.x = 0; //stops the player
     this.body.velocity.y = 0;
@@ -104,6 +105,20 @@ Player.prototype.update = function() {
     else if(this.inputs.bomb.button.isUp) //deploy 1 bomb each time
         this.inputs.bomb.ff = false;
 
+}
+
+Player.prototype.checkPowerUps = function() {
+
+    this.game.physics.arcade.overlap(this, this.groups.powerUp, takePowerUp);
+
+    function takePowerUp (player, powerUp) {
+        console.log("takin powerUp");
+        player.mods.push(powerUp.id);
+
+        Identifiable.pickPowerUp(powerUp, player);
+
+        powerUp.destroy();
+    }
 }
 
 //player concrete logic for die

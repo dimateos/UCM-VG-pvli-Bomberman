@@ -62,7 +62,7 @@ Bombable.prototype.die = function () {
     if (this.lives <= 0) {
         //if it has a power up, drops it
         if (this.dropId !== undefined) this.groups.powerUp.add(
-            new Identifiable(this.game, this.position, this.scale, this.dropId, this.groups.player));
+            new Identifiable(this.game, this.position, this.scale, this.dropId));
         this.destroy(); //always destroy it
     }
 
