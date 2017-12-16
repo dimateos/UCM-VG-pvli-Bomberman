@@ -34,7 +34,8 @@ function Map (game, worldNum, levelNum, groups, tileData, maxPlayers) {
     this.types = baseMapData.squaresTypes;
     this.playerSpawns = baseMapData.playerSpawns;
 
-    this.idsPowerUps = this.generateIdsPowerUps();
+    this.bombableIdsPowerUps = this.generateIdsPowerUps(this.levelData.powerUps);
+    this.enemiesIdsPowerUps = this.generateIdsPowerUps(this.levelData.enemiesDrops);
 
     this.generateMap();
     this.buildMap(groups, tileData);
@@ -46,13 +47,17 @@ Map.prototype.generateMap = function() {
     var self = this; //instead of apply
     var freeSquares = this.getFreeSquares(this.maxPlayers);
 
-    //first generates the ones with the drops
-    var numDrops = this.idsPowerUps.length;
-    insertRnd(numDrops, this.types.bombableDrop.value);
+    //first generates the bombables with the drops
+    var bombableDrops = this.bombableIdsPowerUps.length;
+    insertRnd(bombableDrops, this.types.bombableDrop.value);
+    insertRnd(this.levelData.bombables-bombableDrops, this.types.bombable.value);
 
-    insertRnd(this.levelData.bombables-numDrops, this.types.bombable.value);
     insertRnd(this.levelData.extraWalls, this.types.wall.value);
-    insertRnd(this.levelData.enemies[0], this.types.enemy.value);
+
+    //last the enemies, staring with the drops
+    var enemiesDrops = this.enemiesIdsPowerUps.length;
+    insertRnd(enemiesDrops, this.types.enemyDrop.value);
+    insertRnd(this.levelData.enemies[0]-enemiesDrops, this.types.enemy.value);
 
     function insertRnd (numElem, type) {
         for (var i = 0; i < numElem; i++) {
@@ -102,9 +107,8 @@ Map.prototype.getFreeSquares = function(maxPlayers) {
 };
 
 //generates the array of random powerUps based on levelsDataBase info
-Map.prototype.generateIdsPowerUps = function () {
+Map.prototype.generateIdsPowerUps = function (powerUps) {
 
-    var powerUps = this.levelData.powerUps;
     var Ids = [];
 
     for (var tier = 0; tier < powerUps.length; tier++) {
@@ -164,20 +168,20 @@ Map.prototype.buildMap = function (groups, tileData) {
 
             //new point each time is bad? auto deletes trash?
             var squareIndexPos = new Point(i,j).applyTileData(tileData);
-            var idPowerUp;
+            var bombableIdPowerUp, enemyIdPowerUp;
 
             switch(this.map[j][i]) {
 
                 case this.types.bombableDrop.value:
-                    idPowerUp = this.idsPowerUps.pop(); //gets an Id
+                    bombableIdPowerUp = this.bombableIdsPowerUps.pop(); //gets an Id
 
                 case this.types.bombable.value:
                     groups.bombable.add(new Bombable (this.game, groups, squareIndexPos,
                         this.types.bombable.sprite, tileData.Scale, tileData.Res,
                         defaultBodyOffset, defaultImmovable,
-                        defaultBombableLives, defaultBombableInvencible, idPowerUp));
+                        defaultBombableLives, defaultBombableInvencible, bombableIdPowerUp));
 
-                    idPowerUp = undefined; //resets it
+                    bombableIdPowerUp = undefined; //resets the id
 
                     //no break so there is background underneath
                 case this.types.free.value:
@@ -186,16 +190,21 @@ Map.prototype.buildMap = function (groups, tileData) {
 
                     break;
 
-                case this.types.enemy.value: //TODO: not finished
 
-                    //adds floor too
+                case this.types.enemyDrop.value: //TODO: enemies type not based on level info
+                    enemyIdPowerUp = this.enemiesIdsPowerUps.pop(); //gets an Id
+
+                case this.types.enemy.value:
+                    //adding floor too
                     groups.background.add(new GameObject (this.game, squareIndexPos,
                         this.types.free.sprite, tileData.Scale));
 
                     groups.enemy.add(new Enemy (this.game, squareIndexPos,
-                        this, 0, tileData, groups));
+                        this, 0, tileData, groups, enemyIdPowerUp));
 
+                    enemyIdPowerUp = undefined; //resets the id
                     break;
+
 
                 case this.types.wallSP.value: //no special tile atm
                 case this.types.wall.value:

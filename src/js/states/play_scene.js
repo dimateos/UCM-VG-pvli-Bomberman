@@ -55,12 +55,12 @@ var PlayScene = {
 
 
   update: function(){
-
     //maybe in some object update?
-
     this.game.physics.arcade.collide(groups.enemy, groups.wall);
     this.game.physics.arcade.collide(groups.enemy, groups.bombable);
     this.game.physics.arcade.collide(groups.enemy, groups.bomb);
+
+    this.game.physics.arcade.collide(groups.player, groups.enemy);
 
     this.game.physics.arcade.collide(groups.player, groups.wall);
     if (!gInputs.debug.state) {
@@ -88,7 +88,9 @@ var PlayScene = {
     //only debugging stuff atm
     if (gInputs.debug.state) {
       this.game.debug.bodyInfo(players[0], 32, 32);
-      this.game.debug.body(players[0]);
+
+      for (let i = 0; i < groups.player.length; i++)
+        this.game.debug.body(groups.player.children[i]);
 
       for (let i = 0; i < groups.bomb.length; i++)
         this.game.debug.body(groups.bomb.children[i]);
@@ -101,6 +103,12 @@ var PlayScene = {
 
       for (let i = 0; i < groups.flame.length; i++)
         this.game.debug.body(groups.flame.children[i]);
+
+      for (let i = 0; i < groups.powerUp.length; i++)
+        this.game.debug.body(groups.powerUp.children[i]);
+
+      for (let i = 0; i < groups.enemy.length; i++)
+        this.game.debug.body(groups.enemy.children[i]);
     }
   }
 
@@ -113,6 +121,8 @@ var addPlayerControl = function (game) {
   if(gInputs.addPlayer.button.isDown && !gInputs.addPlayer.ff && players.length < maxPlayers)
   {
     gInputs.addPlayer.ff = true;
+
+    console.log(groups.enemy.children)
 
     //logic for new player
     for (var numPlayer = 0; numPlayer < players.length; numPlayer++) {

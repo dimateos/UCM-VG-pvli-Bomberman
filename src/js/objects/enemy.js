@@ -18,7 +18,7 @@ var enemyLives = 1;
 var enemyVelocity = 200;
 
 
-function Enemy (game, position, level, enemyType, tileData, groups) {
+function Enemy (game, position, level, enemyType, tileData, groups, dropId) {
 
     this.level = level;
     this.groups = groups;
@@ -29,7 +29,8 @@ function Enemy (game, position, level, enemyType, tileData, groups) {
 
     Bombable.call(this, game, groups, enemyPosition, enemySpritePath,
         tileData.Scale, enemyBodySize, enemyBodyOffset,
-        enemyImmovable, enemyLives, enemyInvecible);
+        enemyImmovable, enemyLives, enemyInvecible, dropId);
+
 
     this.velocity = enemyVelocity;
 };
@@ -43,8 +44,6 @@ Enemy.prototype.hey = function() {console.log(this);};
 Enemy.prototype.update = function() {
 
     this.checkFlames(); //bombable method
-
-    this.game.physics.arcade.collide(this.groups.player, this);
 
     this.body.velocity.x = 0;
     this.body.velocity.y = 0;
