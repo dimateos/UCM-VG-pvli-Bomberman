@@ -57,7 +57,11 @@ var PlayScene = {
   update: function(){
 
     //maybe in some object update?
-    //collide players (works with groups but arrays too)
+
+    this.game.physics.arcade.collide(groups.enemy, groups.wall);
+    this.game.physics.arcade.collide(groups.enemy, groups.bombable);
+    this.game.physics.arcade.collide(groups.enemy, groups.bomb);
+
     this.game.physics.arcade.collide(groups.player, groups.wall);
     if (!gInputs.debug.state) {
       this.game.physics.arcade.collide(groups.player, groups.bombable);
@@ -139,7 +143,7 @@ var debugModeControl = function (game) {
 
   else if(gInputs.debug.button.isUp)
     gInputs.debug.ff = false;
-  
+
 };
 
 // var pauseMenuControl = function (game) {

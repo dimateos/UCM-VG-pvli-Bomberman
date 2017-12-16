@@ -29,6 +29,7 @@ var PreloaderScene = {
 
         this.game.load.image('bomb', 'images/Sprites/Bomb/Bomb_f01.png');
         this.game.load.image('flame', 'images/Sprites/Flame/Flame_f00.png');
+        this.game.load.image('enemy', 'images/Sprites/Creep/Creep_F_f00.png');
 
         //Main Menu sprites
         this.game.load.image('mMenuBG', 'images/Sprites/Menu/title_background.jpg');

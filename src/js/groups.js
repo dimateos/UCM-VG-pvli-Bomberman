@@ -16,6 +16,7 @@ function Groups(game) {
 
     this.powerUp = game.add.group();
     this.player = game.add.group();
+    this.enemy = game.add.group();
 
 }
 Groups.prototype = Object.create(Phaser.Group.prototype);

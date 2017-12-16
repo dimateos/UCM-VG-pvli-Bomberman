@@ -3,6 +3,7 @@
 var GameObject = require('../objects/gameObject.js');
 var Physical = require('../objects/physical.js');
 var Bombable = require('../objects/bombable.js');
+var Enemy = require('../objects/enemy.js');
 
 var Id = require('../id/identifiable.js').Id; //for bombable id
 var tierSize = require('../id/identifiable.js').tierSize; //for the rnd gen
@@ -51,6 +52,7 @@ Map.prototype.generateMap = function() {
 
     insertRnd(this.levelData.bombables-numDrops, this.types.bombable.value);
     insertRnd(this.levelData.extraWalls, this.types.wall.value);
+    insertRnd(this.levelData.enemies[0], this.types.enemy.value);
 
     function insertRnd (numElem, type) {
         for (var i = 0; i < numElem; i++) {
@@ -161,7 +163,7 @@ Map.prototype.buildMap = function (groups, tileData) {
         for (var j = 0; j < this.fils; j++) {
 
             //new point each time is bad? auto deletes trash?
-            var squareIndex = new Point(i,j).applyTileData(tileData);
+            var squareIndexPos = new Point(i,j).applyTileData(tileData);
             var idPowerUp;
 
             switch(this.map[j][i]) {
@@ -170,7 +172,7 @@ Map.prototype.buildMap = function (groups, tileData) {
                     idPowerUp = this.idsPowerUps.pop(); //gets an Id
 
                 case this.types.bombable.value:
-                    groups.bombable.add(new Bombable (this.game, groups, squareIndex,
+                    groups.bombable.add(new Bombable (this.game, groups, squareIndexPos,
                         this.types.bombable.sprite, tileData.Scale, tileData.Res,
                         defaultBodyOffset, defaultImmovable,
                         defaultBombableLives, defaultBombableInvencible, idPowerUp));
@@ -179,14 +181,25 @@ Map.prototype.buildMap = function (groups, tileData) {
 
                     //no break so there is background underneath
                 case this.types.free.value:
-                    groups.background.add(new GameObject (this.game, squareIndex,
+                    groups.background.add(new GameObject (this.game, squareIndexPos,
                         this.types.free.sprite, tileData.Scale));
+
+                    break;
+
+                case this.types.enemy.value: //TODO: not finished
+
+                    //adds floor too
+                    groups.background.add(new GameObject (this.game, squareIndexPos,
+                        this.types.free.sprite, tileData.Scale));
+
+                    groups.enemy.add(new Enemy (this.game, squareIndexPos,
+                        this, 0, tileData, groups));
 
                     break;
 
                 case this.types.wallSP.value: //no special tile atm
                 case this.types.wall.value:
-                    groups.wall.add(new Physical (this.game, squareIndex,
+                    groups.wall.add(new Physical (this.game, squareIndexPos,
                         this.types.wall.sprite, tileData.Scale, tileData.Res,
                         defaultBodyOffset, defaultImmovable));
 
@@ -199,13 +212,13 @@ Map.prototype.buildMap = function (groups, tileData) {
 
 //given a square position returns true if in given direction there is not a wall
 //return if there was a bombable too
-Map.prototype.getNextSquare = function (position, direction) {
+Map.prototype.getNextSquare = function (position, direction, /*bombable*/) {
 
     var x = position.x + direction.x;
     var y = position.y + direction.y;
 
+    //not used atm, to use needs bombable to update map in die();
     //bombable = (this.map[y][x] === this.types.bombable.value);
-    //console.log(bombable);
 
     return (this.map[y][x] !== this.types.wallSP.value
         && this.map[y][x] !== this.types.wall.value);

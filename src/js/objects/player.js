@@ -30,9 +30,9 @@ var playerInitialModsIds = [/*new Id(1,2), new Id (1,1), new Id(1,0)*/];
 function Player (game, level, numPlayer, tileData, groups) {
 
     this.level = level;
-    this.groups = groups;
-    this.tileData = tileData;
     this.numPlayer = numPlayer;
+    this.tileData = tileData;
+    this.groups = groups;
 
     //produces respawn position based on playerSpawns[numPlayer]
     this.respawnPos = new Point(level.playerSpawns[numPlayer].x, level.playerSpawns[numPlayer].y)
@@ -45,8 +45,8 @@ function Player (game, level, numPlayer, tileData, groups) {
     this.velocity = playerVelocity;
     this.numBombs = playerNumBombs;
 
-    this.inputs = new Inputs (game, numPlayer);
-    this.groups.player.add(this);
+    this.inputs = new Inputs (game, numPlayer); //based on numPlayer
+    this.groups.player.add(this); //adds itself to the group
 
     this.mods = [];
     this.bombMods = [];

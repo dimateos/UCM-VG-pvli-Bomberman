@@ -20,7 +20,9 @@ var baseMapData = {
         free: {value: 0, sprite: "background"},
 
         bombable: {value: 3, sprite: "bombable"},
-        bombableDrop: {value: 4, sprite: "bombableDrop"}
+        bombableDrop: {value: 4, sprite: "bombableDrop"},
+
+        enemy: {value: 5, sprite: null}
     },
 
     squares:
