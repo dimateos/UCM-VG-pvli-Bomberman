@@ -22,6 +22,7 @@ var playerNumBombs = 2;
 
 var playerVelocity = 200;
 var playerInvencibleTime = 5000;
+var playerDeathTimer = 1500;
 
 var Id = Identifiable.Id; //the mini factory is in Identifiable
 var playerInitialModsIds = [/*new Id(1,2), new Id (1,1), new Id(1,0)*/];
@@ -53,14 +54,13 @@ function Player (game, level, numPlayer, tileData, groups) {
     Identifiable.addPowerUps(playerInitialModsIds, this);
 
     //Initial invencible time
+    this.dead = false;
     this.game.time.events.add(playerInvencibleTime, this.endInvencibility, this);
 };
 
 Player.prototype = Object.create(Bombable.prototype);
 Player.prototype.constructor = Player;
 
-
-Player.prototype.hey = function() {console.log(this);};
 
 Player.prototype.update = function() {
 
@@ -71,22 +71,24 @@ Player.prototype.update = function() {
     this.body.velocity.y = 0;
 
     //MOVEMENT
-    if (this.inputs.mov.left.isDown) {
-        this.body.velocity.x = -this.velocity;
-    }
-    else if (this.inputs.mov.right.isDown) {
-        this.body.velocity.x = this.velocity;
-    }
-    if (this.inputs.mov.up.isDown) {
-        this.body.velocity.y = -this.velocity;
-    }
-    else if (this.inputs.mov.down.isDown){
-        this.body.velocity.y = this.velocity;
+    if (!this.dead) {
+        if (this.inputs.mov.left.isDown) {
+            this.body.velocity.x = -this.velocity;
+        }
+        else if (this.inputs.mov.right.isDown) {
+            this.body.velocity.x = this.velocity;
+        }
+        if (this.inputs.mov.up.isDown) {
+            this.body.velocity.y = -this.velocity;
+        }
+        else if (this.inputs.mov.down.isDown){
+            this.body.velocity.y = this.velocity;
+        }
     }
 
     //BOMB
     if(this.inputs.bomb.button.isDown && !this.inputs.bomb.ff && this.numBombs > 0
-        && !this.game.physics.arcade.overlap(this, this.groups.bomb)){
+        && !this.game.physics.arcade.overlap(this, this.groups.bomb) && !this.dead){
 
         //console.log(this.groups.bomb.children)
         //console.log(this.groups.flame.children)
@@ -125,9 +127,12 @@ Player.prototype.checkPowerUps = function() {
 Player.prototype.die = function () {
     //console.log("checkin player die");
     this.lives--;
-    this.respawn();
+    this.dead = true;
+    this.game.time.events.add(playerDeathTimer, this.respawn, this);
 
-    if (this.lives <= 0) console.log("P" + this.numPlayer + ", you ded (0 lives)");
+    if (this.lives <= 0) {
+        console.log("P" + this.numPlayer + ", you ded (0 lives)");
+    }
 
     this.tmpInven = false; //vulneable again
 }
@@ -137,6 +142,7 @@ Player.prototype.respawn = function () {
     this.position = new Point (this.respawnPos.x, this.respawnPos.y);
     this.body.velocity = new Point(); //sometimes the player gets in the wall
     this.invencible = true;
+    this.dead = false;
 
     this.game.time.events.add(playerInvencibleTime, this.endInvencibility, this);
 }

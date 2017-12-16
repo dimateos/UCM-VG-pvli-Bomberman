@@ -56,9 +56,6 @@ var PlayScene = {
 
   update: function(){
     //maybe in some object update?
-    this.game.physics.arcade.collide(groups.enemy, groups.wall);
-    this.game.physics.arcade.collide(groups.enemy, groups.bombable);
-    this.game.physics.arcade.collide(groups.enemy, groups.bomb);
 
     this.game.physics.arcade.collide(groups.player, groups.enemy);
 

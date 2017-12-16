@@ -15,7 +15,7 @@ var enemyImmovable = false;
 var enemyInvecible = false;
 
 var enemyLives = 1;
-var enemyVelocity = 200;
+var enemyVelocity = 100;
 
 
 function Enemy (game, position, level, enemyType, tileData, groups, dropId) {
@@ -31,8 +31,8 @@ function Enemy (game, position, level, enemyType, tileData, groups, dropId) {
         tileData.Scale, enemyBodySize, enemyBodyOffset,
         enemyImmovable, enemyLives, enemyInvecible, dropId);
 
-
-    this.velocity = enemyVelocity;
+    this.body.bounce.setTo(1,1);
+    this.body.velocity.x = enemyVelocity;
 };
 
 Enemy.prototype = Object.create(Bombable.prototype);
@@ -45,8 +45,16 @@ Enemy.prototype.update = function() {
 
     this.checkFlames(); //bombable method
 
-    this.body.velocity.x = 0;
-    this.body.velocity.y = 0;
+    this.game.physics.arcade.collide(this, this.groups.wall, logic, null, this);
+    this.game.physics.arcade.collide(this, this.groups.bombable, logic, null, this);
+    this.game.physics.arcade.collide(this, this.groups.bomb, logic, null, this);
+    this.game.physics.arcade.collide(this, this.groups.enemy, logic, null, this);
+
+    //atm no logic nopie
+    function logic () {
+        //console.log("righty")
+        //this.body.velocity.x=-this.body.velocity.x;
+    }
 }
 
 module.exports = Enemy;
