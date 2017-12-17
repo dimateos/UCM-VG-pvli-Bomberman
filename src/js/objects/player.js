@@ -64,30 +64,62 @@ Player.prototype.constructor = Player;
 Player.prototype.update = function() {
 
     this.checkFlames(); //bombable method
-    this.checkPowerUps();
+    //if dead already no need to check
+    if (!this.dead) this.checkEnemy();
 
+    //if dead somehow yo do nothing
+    if (!this.dead) {
+        this.checkPowerUps();
+        this.movementLogic()
+        this.bombLogic();
+    }
+}
+
+Player.prototype.checkPowerUps = function() {
+
+    this.game.physics.arcade.overlap(this, this.groups.powerUp, takePowerUp);
+
+    function takePowerUp (player, powerUp) {
+        //console.log("takin powerUp");
+        player.mods.push(powerUp.id);
+
+        Identifiable.pickPowerUp(powerUp, player);
+
+        powerUp.destroy();
+    }
+}
+
+
+Player.prototype.checkEnemy = function() {
+
+    this.game.physics.arcade.overlap(this, this.groups.enemy, this.die, null, this);
+}
+
+
+Player.prototype.movementLogic = function() {
     this.body.velocity.x = 0; //stops the player
     this.body.velocity.y = 0;
 
-    //MOVEMENT
-    if (!this.dead) {
-        if (this.inputs.mov.left.isDown) {
-            this.body.velocity.x = -this.velocity;
-        }
-        else if (this.inputs.mov.right.isDown) {
-            this.body.velocity.x = this.velocity;
-        }
-        if (this.inputs.mov.up.isDown) {
-            this.body.velocity.y = -this.velocity;
-        }
-        else if (this.inputs.mov.down.isDown){
-            this.body.velocity.y = this.velocity;
-        }
+    //input controls
+    if (this.inputs.mov.left.isDown) {
+        this.body.velocity.x = -this.velocity;
     }
+    else if (this.inputs.mov.right.isDown) {
+        this.body.velocity.x = this.velocity;
+    }
+    if (this.inputs.mov.up.isDown) {
+        this.body.velocity.y = -this.velocity;
+    }
+    else if (this.inputs.mov.down.isDown){
+        this.body.velocity.y = this.velocity;
+    }
+}
 
-    //BOMB
+
+//all the bomb deploying logic
+Player.prototype.bombLogic = function() {
     if(this.inputs.bomb.button.isDown && !this.inputs.bomb.ff && this.numBombs > 0
-        && !this.game.physics.arcade.overlap(this, this.groups.bomb) && !this.dead){
+        && !this.game.physics.arcade.overlap(this, this.groups.bomb)){
 
         //console.log(this.groups.bomb.children)
         //console.log(this.groups.flame.children)
@@ -108,28 +140,16 @@ Player.prototype.update = function() {
     }
     else if(this.inputs.bomb.button.isUp) //deploy 1 bomb each time
         this.inputs.bomb.ff = false;
-
 }
 
-Player.prototype.checkPowerUps = function() {
-
-    this.game.physics.arcade.overlap(this, this.groups.powerUp, takePowerUp);
-
-    function takePowerUp (player, powerUp) {
-        //console.log("takin powerUp");
-        player.mods.push(powerUp.id);
-
-        Identifiable.pickPowerUp(powerUp, player);
-
-        powerUp.destroy();
-    }
-}
 
 //player concrete logic for die
 Player.prototype.die = function () {
     //console.log("checkin player die");
     this.lives--;
     this.dead = true; //to disable movement
+    this.body.velocity = new Point(); //stops the player
+
     this.game.time.events.add(playerDeathTimer, this.respawn, this);
 
     if (this.lives <= 0) {
@@ -140,7 +160,7 @@ Player.prototype.die = function () {
     function flipInven () { this.tmpInven = false; }
 }
 
-//needs improvements ofc, atm only moves the player
+//needs improvements, atm only moves the player
 Player.prototype.respawn = function () {
     this.position = new Point (this.respawnPos.x, this.respawnPos.y);
     this.body.velocity = new Point(); //sometimes the player gets in the wall
@@ -149,7 +169,6 @@ Player.prototype.respawn = function () {
 
     this.game.time.events.add(playerInvencibleTime, this.endInvencibility, this);
 }
-
 Player.prototype.endInvencibility  = function () {
     console.log("P" + this.numPlayer + " invencibility ended");
     this.invencible = false;

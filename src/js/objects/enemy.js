@@ -7,7 +7,7 @@ var Point = require('../point.js');
 //default enemy values
 var enemySpritePath = 'enemy';
 
-var enemyBodySize = new Point(64, 64);
+var enemyBodySize = new Point(64, 64); //TODO: should be smaller
 var enemyBodyOffset = new Point(0, 0);
 var enemyExtraOffset = new Point(0, 0); //to center it
 
@@ -54,6 +54,7 @@ Enemy.prototype.update = function() {
         this.game.physics.arcade.collide(this, this.groups.wall, logic, null, this);
         this.game.physics.arcade.collide(this, this.groups.bombable, logic, null, this);
         this.game.physics.arcade.collide(this, this.groups.bomb, logic, null, this);
+        //not sure in the original
         this.game.physics.arcade.collide(this, this.groups.enemy, logic, null, this);
     }
 

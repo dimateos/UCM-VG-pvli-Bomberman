@@ -61,13 +61,12 @@ var PlayScene = {
   update: function(){
     //maybe in some object update?
 
-    this.game.physics.arcade.collide(groups.player, groups.enemy);
-
     this.game.physics.arcade.collide(groups.player, groups.wall);
     if (!gInputs.debug.state) {
       this.game.physics.arcade.collide(groups.player, groups.bombable);
       this.game.physics.arcade.collide(groups.player, groups.bomb);
     }
+    else this.game.physics.arcade.collide(players[0], groups.enemy);
 
     this.game.world.bringToTop(groups.flame);
     this.game.world.bringToTop(groups.player);
@@ -146,7 +145,7 @@ var addPlayerControl = function (game) {
 var debugModeControl = function (game) {
   if(gInputs.debug.button.isDown && !gInputs.debug.ff)
   {
-    //while debug player 0 is invecible
+    //while debug player 0 is invecible and can push enemies
     players[0].invencible = true;
 
     gInputs.debug.state = !gInputs.debug.state; //toggle state

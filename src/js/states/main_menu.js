@@ -25,7 +25,7 @@ var MainMenu = {
 
     create: function() {
         mMenuBG = this.game.add.sprite(0, 0, 'mMenuBG');
-        mMenuBG.scale.y = 1.1; //a little bigger
+        mMenuBG.scale.y = 1.05; //just a little bigger
         mMenuButton = this.game.add.button(winWidth/2, winHeight/2 + 100, 'mMenuButton' + buttonCount, this.nextState, this);
 
         mMenuBG.width = winWidth;
