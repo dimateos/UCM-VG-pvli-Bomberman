@@ -49,7 +49,7 @@ function Bomb (game, level, position, tileData, groups, player, bombMods) {
     this.xplosionEvent =
         game.time.events.add(this.timer, this.xplode, this);
 
-    console.log(bombTimer, bombFlameTimer, bombPower, level, groups, player, tileData, bombMods, this.xploded, this.xplosionEvent);
+    //console.log(bombTimer, bombFlameTimer, bombPower, level, groups, player, tileData, bombMods, this.xploded, this.xplosionEvent);
 };
 
 Bomb.prototype = Object.create(Bombable.prototype);
@@ -87,7 +87,7 @@ Bomb.prototype.xplode = function() {
     //pushes the flames into map.flames
     for(var i = 0; i < flames.length; i++) this.groups.flame.add(flames[i]);
 
-    console.log("this.groups.flame.children");
+    //console.log(this.groups.flame.children);
 
     //callback to destroy the flames
     this.game.time.events.add(this.flameTimer, removeFlames, this);
@@ -121,11 +121,14 @@ Bomb.prototype.expandFlames = function(flames, positionMap) {
     var directions = [new Point(-1,0), new Point(1,0), new Point(0,-1), new Point(0,1)];
     for (var i = 0; i < directions.length; i++) {
 
-        var expansion = 1;
-        var obstacle = false, bombable = false;
-        var tmpPositionMap = new Point (positionMap.x, positionMap.y);
+        // var expansion = 1;
+        // //these all could be the same, but allow us to know exactly waht
+        // var obstacle = false, bombable = false, bomb = false, flame = false;
+        // var tmpPositionMap = new Point (positionMap.x, positionMap.y);
 
-        while(expansion <= this.power && !obstacle && !bombable) {
+        this.game.time.events.add(0, generateFlame, {self: this, index: i, expansion: 1});
+
+        /*while(expansion <= this.power && !obstacle && !bombable && !bomb && !flame) {
 
             //checks if the next square is free
             if (this.level.getNextSquare(tmpPositionMap, directions[i])) {
@@ -142,22 +145,64 @@ Bomb.prototype.expandFlames = function(flames, positionMap) {
                 flames.push(newFlame);
                 expansion++;
 
-                //if it touches a bombable it stops propagation
+                //if it touches a bombable or bomb (or a flame) it stops propagation
                 bombable = this.game.physics.arcade.overlap(newFlame, this.groups.bombable);
-                //Seems cleaner than updating the map each bombable is destroyed
-                //and then using getNextSquare to check for bombables.
-                //This seems worse for performance but doesnt feel like it;
-                //we could change it at any momment ofc
-
-                //not checking for other bombs cause atm flame sprite is static
-                //so there is no difference
+                bomb = this.game.physics.arcade.overlap(newFlame, this.groups.bomb);
+                flame = this.game.physics.arcade.overlap(newFlame, this.groups.flame);
 
                 //we could add a timer to delay the expansions
             }
             else obstacle = true;
-        }
+        }*/
     }
-    return flames;
+    console.log(flames)
+    return flames; //just need to delay this somehow
+
+    function generateFlame () {
+
+        var self = this.self;
+        var index = this.index;
+        var expansion = this.expansion;
+
+        //these all could be the same, but allow us to know exactly waht
+        var obstacle = false, bombable = false, bomb = false, flame = false;
+        var tmpPositionMap = new Point (positionMap.x, positionMap.y);
+
+        //checks if the next square is free
+        if (self.level.getNextSquare(tmpPositionMap, directions[index])) {
+
+            //updates tmp position
+            tmpPositionMap.add(directions[index].x, directions[index].y);
+
+            //creates the real one for the flame
+            var flamePos = new Point (tmpPositionMap.x, tmpPositionMap.y)
+                .applyTileData(self.tileData);
+
+            //creates the flame
+            var newFlame = new Flame(self.game, flamePos, self.scale)
+            flames.push(newFlame);
+            expansion++;
+
+            //if it touches a bombable or bomb (or a flame) it stops propagation
+            bombable = self.game.physics.arcade.overlap(newFlame, self.groups.bombable);
+            bomb = self.game.physics.arcade.overlap(newFlame, self.groups.bomb);
+            flame = self.game.physics.arcade.overlap(newFlame, self.groups.flame);
+
+            //we could add a timer to delay the expansions
+            console.log("bombable ", bombable);
+            console.log("bomb ", bomb);
+            console.log("flame ", flame);
+
+        }
+        else {
+            obstacle = true;
+            console.log("obstacle", obstacle);
+        }
+
+        if (expansion <= self.power && !obstacle && !bombable && !bomb && !flame)
+        self.game.time.events.add(100, generateFlame, this);
+    }
+
 }
 
 
