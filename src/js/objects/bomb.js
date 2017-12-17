@@ -47,6 +47,8 @@ function Bomb (game, level, position, tileData, groups, player, bombMods) {
     //this.flamesEvent = undefined; //need to create it for die()
     this.xplosionEvent =
         game.time.events.add(this.timer, this.xplode, this);
+
+    //console.log(bombTimer, bombFlameTimer, bombPower, level, groups, player, tileData, bombMods, this.xploded, this.xplosionEvent);
 };
 
 Bomb.prototype = Object.create(Bombable.prototype);
@@ -54,21 +56,21 @@ Bomb.prototype.constructor = Bomb;
 
 
 Bomb.prototype.die = function () {
-    //console.log("checkin bomb die");
+    console.log("checkin bomb die");
     this.lives--;
 
     //cancels the standard callbacks
     if (this.lives <= 0) {
         if (!this.xploded) {
             this.game.time.events.remove(this.xplosionEvent);
-            console.log("hey");
-            this.xplode();
-            //this.game.time.events.remove(this.flamesEvent);
+            //the bomb doesnt insta xplode but xplodes before the flames are gone
+            this.game.time.events.add(bombFlameTimer/2, this.xplode, this);
         }
-        this.destroy();
+        //no need to destroy because xplde already destroys
     }
 
-    this.tmpInven = false; //vulneable again
+    else this.game.time.events.add(this.bombDieTimer, flipInven, this);
+    function flipInven () { this.tmpInven = false; }
 }
 
 
@@ -88,7 +90,6 @@ Bomb.prototype.xplode = function() {
 
     //callback to destroy the flames
     this.game.time.events.add(this.flameTimer, removeFlames, this);
-    //this.game.time.events.remove(lul);
 
     function removeFlames () {
         //.destroy() removes them from the group too
@@ -120,10 +121,11 @@ Bomb.prototype.expandFlames = function(flames, positionMap) {
     for (var i = 0; i < directions.length; i++) {
 
         var expansion = 1;
-        var obstacle = false, bombable = false;
+        //these all could be the same, but allow us to know exactly waht
+        var obstacle = false, bombable = false, bomb = false, flame = false;
         var tmpPositionMap = new Point (positionMap.x, positionMap.y);
 
-        while(expansion <= this.power && !obstacle && !bombable) {
+        while(expansion <= this.power && !obstacle && !bombable && !bomb && !flame) {
 
             //checks if the next square is free
             if (this.level.getNextSquare(tmpPositionMap, directions[i])) {
@@ -140,22 +142,28 @@ Bomb.prototype.expandFlames = function(flames, positionMap) {
                 flames.push(newFlame);
                 expansion++;
 
-                //if it touches a bombable it stops propagation
+                //if it touches a bombable or bomb (or a flame) it stops propagation
                 bombable = this.game.physics.arcade.overlap(newFlame, this.groups.bombable);
-                //Seems cleaner than updating the map each bombable is destroyed
-                //and then using getNextSquare to check for bombables.
-                //This seems worse for performance but doesnt feel like it;
-                //we could change it at any momment ofc
+                bomb = this.game.physics.arcade.overlap(newFlame, this.groups.bomb);
 
-                //not checking for other bombs cause atm flame sprite is static
-                //so there is no difference
+                //but it case of the flame over flame, no new one is generated
+                /*flame = this.game.physics.arcade.overlap(newFlame, this.groups.flame);
+                if (!flame) flames.push(newFlame);
+                else newFlame.destroy();*/
 
                 //we could add a timer to delay the expansions
+                //console.log("bombable ", bombable);
+                //console.log("bomb ", bomb);
+                //console.log("flame ", flame);
             }
-            else obstacle = true;
+            else {
+                obstacle = true;
+                //console.log("obstacle", obstacle);
+            }
         }
     }
-    return flames;
+    console.log(flames)
+    return flames; //just need to delay this somehow
 }
 
 

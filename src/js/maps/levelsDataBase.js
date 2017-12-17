@@ -17,8 +17,8 @@ var levelDataBase = [
     [ //world 1, actually there is only 1 atm
         {}, //0 not used atm
         {   //1
-            extraWalls: 8,
-            bombables: 33,      //some bombables drop power ups
+            extraWalls: 0,
+            bombables: 0,      //some bombables drop power ups
             powerUps: [0,15],    //0 tier 0, and 2 tier 1
             enemies: [3],       //3 tier 0 enemies
             enemiesDrops: [0,2],//same as powerUps

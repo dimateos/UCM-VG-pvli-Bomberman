@@ -5,7 +5,7 @@ var Physical = require('./physical.js'); //father
 var Identifiable = require('../id/identifiable.js');
 
 //default bombable values
-var bombableTimer = 500;
+var bombableTimer = 500; //to sync with flames
 
 //var Id = Identifiable.Id; //the mini factory is in Identifiable
 //var bombableDropId = new Id (1,1);
@@ -22,10 +22,9 @@ function Bombable(game, groups, position, sprite, scale, bodySize, bodyOffSet, i
     //this could be handled in the player
     this.lives = lives;
     this.invencible = invencible;
+    this.dead = false;
 
     this.dropId = dropId;
-
-    this.dieTimer = bombableTimer;
 }
 
 Bombable.prototype = Object.create(Physical.prototype);
@@ -50,7 +49,11 @@ Bombable.prototype.checkFlames = function() {
     function onFire () {
         //console.log("on fire");
         this.tmpInven = true;
-        this.game.time.events.add(this.dieTimer, this.die, this);
+
+        //die should be insta and then in die handle sync
+        //so the player can die insta etc (block mov)
+        //this.game.time.events.aadd(bombableTimer, this.die, this);
+        this.die();
     }
 }
 
@@ -60,13 +63,24 @@ Bombable.prototype.die = function () {
     this.lives--;
 
     if (this.lives <= 0) {
-        //if it has a power up, drops it
-        if (this.dropId !== undefined) this.groups.powerUp.add(
-            new Identifiable(this.game, this.position, this.scale, this.dropId));
-        this.destroy(); //always destroy it
-    }
+        this.dead = true;
 
-    this.tmpInven = false; //vulneable again
+        //if it has a power up, drops it
+        if (this.dropId !== undefined)
+            this.game.time.events.add(bombableTimer, drop, this);
+
+        //the destroy the bombable
+        this.game.time.events.add(bombableTimer, this.destroy, this);
+    }
+    else this.game.time.events.add(bombableTimer, flipInven, this);
+
+
+    function flipInven () { this.tmpInven = false; }
+    function drop() {
+        this.groups.powerUp.add(
+            new Identifiable(this.game, this.position, this.scale, this.dropId));
+    }
 }
+
 
 module.exports = Bombable;

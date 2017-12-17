@@ -45,14 +45,21 @@ Enemy.prototype.update = function() {
 
     this.checkFlames(); //bombable method
 
-    this.game.physics.arcade.collide(this, this.groups.wall, logic, null, this);
-    this.game.physics.arcade.collide(this, this.groups.bombable, logic, null, this);
-    this.game.physics.arcade.collide(this, this.groups.bomb, logic, null, this);
-    this.game.physics.arcade.collide(this, this.groups.enemy, logic, null, this);
+    if (this.dead) {
+        this.body.immovable = true;
+        this.body.velocity.x = 0;
+        this.body.velocity.y = 0;
+    }
+    else {
+        this.game.physics.arcade.collide(this, this.groups.wall, logic, null, this);
+        this.game.physics.arcade.collide(this, this.groups.bombable, logic, null, this);
+        this.game.physics.arcade.collide(this, this.groups.bomb, logic, null, this);
+        this.game.physics.arcade.collide(this, this.groups.enemy, logic, null, this);
+    }
 
     //atm no logic nopie
     function logic () {
-        //console.log("righty")
+        //console.log("bounce")
         //this.body.velocity.x=-this.body.velocity.x;
     }
 }
