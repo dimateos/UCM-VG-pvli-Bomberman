@@ -35,6 +35,7 @@ var PreloaderScene = {
         this.game.load.image('mMenuBG', 'images/Sprites/Menu/title_background.jpg');
         this.game.load.image('mMenuButton1', 'images/Sprites/Menu/One_Player_Normal.png');
         this.game.load.image('mMenuButton2', 'images/Sprites/Menu/One_Player_Hover.png');
+        this.game.load.image('mMenuTitle', 'images/Sprites/Menu/title.png');
     },
 
     create: function () {
