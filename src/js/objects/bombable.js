@@ -42,38 +42,37 @@ Bombable.prototype.checkFlames = function() {
     this.game.physics.arcade.overlap(this, this.groups.flame, onFire, checkVulnerability, this);
 
     function checkVulnerability () {
-        //console.log("checkin vulv");
+        console.log("checkin vulv");
         return (!this.invencible && !this.tmpInven);
     }
 
     function onFire () {
-        //console.log("on fire");
+        console.log("on fire");
         this.tmpInven = true;
 
         //die should be insta and then in die handle sync
         //so the player can die insta etc (block mov)
-        //this.game.time.events.add(bombableTimer, this.die, this);
+        //this.game.time.events.aadd(bombableTimer, this.die, this);
         this.die();
     }
 }
 
 //player, bomb, enemie, etc will extend this
 Bombable.prototype.die = function () {
-    //console.log("checkin die");
+    console.log("checkin die");
     this.lives--;
 
     if (this.lives <= 0) {
-        this.body.velocity.x = 0;
-        this.body.velocity.y = 0;
         this.dead = true;
 
         //if it has a power up, drops it
         if (this.dropId !== undefined)
             this.game.time.events.add(bombableTimer, drop, this);
 
+        //the destroy the bombable
         this.game.time.events.add(bombableTimer, this.destroy, this);
     }
-    this.game.time.events.add(bombableTimer, flipInven, this);
+    else this.game.time.events.add(bombableTimer, flipInven, this);
 
 
     function flipInven () { this.tmpInven = false; }

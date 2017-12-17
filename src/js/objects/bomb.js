@@ -48,6 +48,8 @@ function Bomb (game, level, position, tileData, groups, player, bombMods) {
     //this.flamesEvent = undefined; //need to create it for die()
     this.xplosionEvent =
         game.time.events.add(this.timer, this.xplode, this);
+
+    console.log(bombTimer, bombFlameTimer, bombPower, level, groups, player, tileData, bombMods, this.xploded, this.xplosionEvent);
 };
 
 Bomb.prototype = Object.create(Bombable.prototype);
@@ -65,11 +67,10 @@ Bomb.prototype.die = function () {
             this.xplode();
             //this.game.time.events.remove(this.flamesEvent);
         }
-        this.game.time.events.add(500, this.destroy, this);
+        //no need to destroy because xplde already destroys
     }
-    this.game.time.events.add(this.bombDieTimer, flipInven, this);
 
-
+    else this.game.time.events.add(this.bombDieTimer, flipInven, this);
     function flipInven () { this.tmpInven = false; }
 }
 
@@ -86,11 +87,10 @@ Bomb.prototype.xplode = function() {
     //pushes the flames into map.flames
     for(var i = 0; i < flames.length; i++) this.groups.flame.add(flames[i]);
 
-    //console.log(this.groups.flame.children);
+    console.log("this.groups.flame.children");
 
     //callback to destroy the flames
     this.game.time.events.add(this.flameTimer, removeFlames, this);
-    //this.game.time.events.remove(lul);
 
     function removeFlames () {
         //.destroy() removes them from the group too

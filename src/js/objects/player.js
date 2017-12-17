@@ -102,7 +102,7 @@ Player.prototype.update = function() {
             bombPosition, this.tileData, this.groups, this, this.bombMods)
         this.groups.bomb.add(bombie);
 
-        console.log(bombie)
+        //console.log(bombie)
 
         this.inputs.bomb.ff = true;
     }
@@ -136,7 +136,7 @@ Player.prototype.die = function () {
         console.log("P" + this.numPlayer + ", you ded (0 lives)");
     }
 
-    this.game.time.events.add(playerDeathTimer, flipInven, this);
+    else this.game.time.events.add(playerDeathTimer, flipInven, this);
     function flipInven () { this.tmpInven = false; }
 }
 
