@@ -39,6 +39,7 @@ Bombable.prototype.update = function() {
 Bombable.prototype.checkFlames = function() {
 
     //console.log(this.flamesGroup);
+    if (!this.dead) //maybe a invencible player puts a bomb on just a bomb
     this.game.physics.arcade.overlap(this, this.groups.flame, onFire, checkVulnerability, this);
 
     function checkVulnerability () {
