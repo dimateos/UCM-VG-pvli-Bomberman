@@ -42,12 +42,12 @@ Bombable.prototype.checkFlames = function() {
     this.game.physics.arcade.overlap(this, this.groups.flame, onFire, checkVulnerability, this);
 
     function checkVulnerability () {
-        console.log("checkin vulv");
+        //console.log("checkin vulv");
         return (!this.invencible && !this.tmpInven);
     }
 
     function onFire () {
-        console.log("on fire");
+        //console.log("on fire");
         this.tmpInven = true;
 
         //die should be insta and then in die handle sync
@@ -59,7 +59,7 @@ Bombable.prototype.checkFlames = function() {
 
 //player, bomb, enemie, etc will extend this
 Bombable.prototype.die = function () {
-    console.log("checkin die");
+    //console.log("checkin die");
     this.lives--;
 
     if (this.lives <= 0) {

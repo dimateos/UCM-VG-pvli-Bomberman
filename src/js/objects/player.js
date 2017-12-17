@@ -18,14 +18,14 @@ var playerImmovable = false;
 var playerInvecible = true;
 
 var playerLives = 5;
-var playerNumBombs = 2;
+var playerNumBombs = 5;
 
 var playerVelocity = 200;
 var playerInvencibleTime = 5000;
 var playerDeathTimer = 1500;
 
 var Id = Identifiable.Id; //the mini factory is in Identifiable
-var playerInitialModsIds = [/*new Id(1,2), new Id (1,1), new Id(1,0)*/];
+var playerInitialModsIds = [/*new Id(1,2),*/ new Id (1,1), /*new Id(1,0)*/];
 
 
 function Player (game, level, numPlayer, tileData, groups) {
@@ -54,7 +54,7 @@ function Player (game, level, numPlayer, tileData, groups) {
     Identifiable.addPowerUps(playerInitialModsIds, this);
 
     //Initial invencible time
-    this.game.time.events.add(playerInvencibleTime, this.endInvencibility, this);
+    //this.game.time.events.add(playerInvencibleTime, this.endInvencibility, this);
 };
 
 Player.prototype = Object.create(Bombable.prototype);
