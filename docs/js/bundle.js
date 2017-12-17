@@ -403,9 +403,9 @@ var levelDataBase = [
     [ //world 1, actually there is only 1 atm
         {}, //0 not used atm
         {   //1
-            extraWalls: 0,
-            bombables: 0,      //some bombables drop power ups
-            powerUps: [0,15],    //0 tier 0, and 2 tier 1
+            extraWalls: 8,
+            bombables: 33,      //some bombables drop power ups
+            powerUps: [0,15],   //0 tier 0, and 2 tier 1
             enemies: [3],       //3 tier 0 enemies
             enemiesDrops: [0,2],//same as powerUps
             theme: "basic"
@@ -729,7 +729,7 @@ Bomb.prototype.constructor = Bomb;
 
 
 Bomb.prototype.die = function () {
-    console.log("checkin bomb die");
+    //console.log("checkin bomb die");
     this.lives--;
 
     //cancels the standard callbacks
@@ -749,7 +749,7 @@ Bomb.prototype.die = function () {
 
 //removes the bomb, spawns the fames and then removes them
 Bomb.prototype.xplode = function() {
-    console.log("xploded");
+    //console.log("xploded");
     this.xploded = true;
     this.groups.bomb.remove(this); //removes and destroys the bomb
     this.player.numBombs++; //adds a bomb back to the player
@@ -795,10 +795,10 @@ Bomb.prototype.expandFlames = function(flames, positionMap) {
 
         var expansion = 1;
         //these all could be the same, but allow us to know exactly waht
-        var obstacle = false, bombable = false, bomb = false, flame = false;
+        var obstacle = false, bombable = false, bomb = false/*, flame = false*/;
         var tmpPositionMap = new Point (positionMap.x, positionMap.y);
 
-        while(expansion <= this.power && !obstacle && !bombable && !bomb && !flame) {
+        while(expansion <= this.power && !obstacle && !bombable && !bomb/* && !flame*/) {
 
             //checks if the next square is free
             if (this.level.getNextSquare(tmpPositionMap, directions[i])) {
@@ -820,11 +820,11 @@ Bomb.prototype.expandFlames = function(flames, positionMap) {
                 bomb = this.game.physics.arcade.overlap(newFlame, this.groups.bomb);
 
                 //but it case of the flame over flame, no new one is generated
+                //In the original game yes, aswell as there is no delay
                 /*flame = this.game.physics.arcade.overlap(newFlame, this.groups.flame);
                 if (!flame) flames.push(newFlame);
                 else newFlame.destroy();*/
 
-                //we could add a timer to delay the expansions
                 //console.log("bombable ", bombable);
                 //console.log("bomb ", bomb);
                 //console.log("flame ", flame);
@@ -835,7 +835,7 @@ Bomb.prototype.expandFlames = function(flames, positionMap) {
             }
         }
     }
-    console.log(flames)
+    //console.log(flames)
     return flames; //just need to delay this somehow
 }
 
@@ -910,13 +910,14 @@ Bombable.prototype.die = function () {
 
     if (this.lives <= 0) {
         this.dead = true;
+        this.visible = false;
 
         //if it has a power up, drops it
         if (this.dropId !== undefined)
-            this.game.time.events.add(bombableTimer, drop, this);
+            this.game.time.events.add(bombableTimer-5, drop, this);
 
         //the destroy the bombable
-        this.game.time.events.add(bombableTimer, this.destroy, this);
+        this.game.time.events.add(bombableTimer+5, this.destroy, this);
     }
     else this.game.time.events.add(bombableTimer, flipInven, this);
 
@@ -941,7 +942,7 @@ var Point = require('../point.js');
 //default enemy values
 var enemySpritePath = 'enemy';
 
-var enemyBodySize = new Point(64, 64);
+var enemyBodySize = new Point(64, 64); //TODO: should be smaller
 var enemyBodyOffset = new Point(0, 0);
 var enemyExtraOffset = new Point(0, 0); //to center it
 
@@ -988,6 +989,7 @@ Enemy.prototype.update = function() {
         this.game.physics.arcade.collide(this, this.groups.wall, logic, null, this);
         this.game.physics.arcade.collide(this, this.groups.bombable, logic, null, this);
         this.game.physics.arcade.collide(this, this.groups.bomb, logic, null, this);
+        //not sure in the original
         this.game.physics.arcade.collide(this, this.groups.enemy, logic, null, this);
     }
 
@@ -1098,7 +1100,7 @@ function Player (game, level, numPlayer, tileData, groups) {
     Identifiable.addPowerUps(playerInitialModsIds, this);
 
     //Initial invencible time
-    //this.game.time.events.add(playerInvencibleTime, this.endInvencibility, this);
+    this.game.time.events.add(playerInvencibleTime, this.endInvencibility, this);
 };
 
 Player.prototype = Object.create(Bombable.prototype);
@@ -1108,30 +1110,62 @@ Player.prototype.constructor = Player;
 Player.prototype.update = function() {
 
     this.checkFlames(); //bombable method
-    this.checkPowerUps();
+    //if dead already no need to check
+    if (!this.dead) this.checkEnemy();
 
+    //if dead somehow yo do nothing
+    if (!this.dead) {
+        this.checkPowerUps();
+        this.movementLogic()
+        this.bombLogic();
+    }
+}
+
+Player.prototype.checkPowerUps = function() {
+
+    this.game.physics.arcade.overlap(this, this.groups.powerUp, takePowerUp);
+
+    function takePowerUp (player, powerUp) {
+        //console.log("takin powerUp");
+        player.mods.push(powerUp.id);
+
+        Identifiable.pickPowerUp(powerUp, player);
+
+        powerUp.destroy();
+    }
+}
+
+
+Player.prototype.checkEnemy = function() {
+
+    this.game.physics.arcade.overlap(this, this.groups.enemy, this.die, null, this);
+}
+
+
+Player.prototype.movementLogic = function() {
     this.body.velocity.x = 0; //stops the player
     this.body.velocity.y = 0;
 
-    //MOVEMENT
-    if (!this.dead) {
-        if (this.inputs.mov.left.isDown) {
-            this.body.velocity.x = -this.velocity;
-        }
-        else if (this.inputs.mov.right.isDown) {
-            this.body.velocity.x = this.velocity;
-        }
-        if (this.inputs.mov.up.isDown) {
-            this.body.velocity.y = -this.velocity;
-        }
-        else if (this.inputs.mov.down.isDown){
-            this.body.velocity.y = this.velocity;
-        }
+    //input controls
+    if (this.inputs.mov.left.isDown) {
+        this.body.velocity.x = -this.velocity;
     }
+    else if (this.inputs.mov.right.isDown) {
+        this.body.velocity.x = this.velocity;
+    }
+    if (this.inputs.mov.up.isDown) {
+        this.body.velocity.y = -this.velocity;
+    }
+    else if (this.inputs.mov.down.isDown){
+        this.body.velocity.y = this.velocity;
+    }
+}
 
-    //BOMB
+
+//all the bomb deploying logic
+Player.prototype.bombLogic = function() {
     if(this.inputs.bomb.button.isDown && !this.inputs.bomb.ff && this.numBombs > 0
-        && !this.game.physics.arcade.overlap(this, this.groups.bomb) && !this.dead){
+        && !this.game.physics.arcade.overlap(this, this.groups.bomb)){
 
         //console.log(this.groups.bomb.children)
         //console.log(this.groups.flame.children)
@@ -1152,28 +1186,16 @@ Player.prototype.update = function() {
     }
     else if(this.inputs.bomb.button.isUp) //deploy 1 bomb each time
         this.inputs.bomb.ff = false;
-
 }
 
-Player.prototype.checkPowerUps = function() {
-
-    this.game.physics.arcade.overlap(this, this.groups.powerUp, takePowerUp);
-
-    function takePowerUp (player, powerUp) {
-        //console.log("takin powerUp");
-        player.mods.push(powerUp.id);
-
-        Identifiable.pickPowerUp(powerUp, player);
-
-        powerUp.destroy();
-    }
-}
 
 //player concrete logic for die
 Player.prototype.die = function () {
     //console.log("checkin player die");
     this.lives--;
     this.dead = true; //to disable movement
+    this.body.velocity = new Point(); //stops the player
+
     this.game.time.events.add(playerDeathTimer, this.respawn, this);
 
     if (this.lives <= 0) {
@@ -1184,7 +1206,7 @@ Player.prototype.die = function () {
     function flipInven () { this.tmpInven = false; }
 }
 
-//needs improvements ofc, atm only moves the player
+//needs improvements, atm only moves the player
 Player.prototype.respawn = function () {
     this.position = new Point (this.respawnPos.x, this.respawnPos.y);
     this.body.velocity = new Point(); //sometimes the player gets in the wall
@@ -1193,7 +1215,6 @@ Player.prototype.respawn = function () {
 
     this.game.time.events.add(playerInvencibleTime, this.endInvencibility, this);
 }
-
 Player.prototype.endInvencibility  = function () {
     console.log("P" + this.numPlayer + " invencibility ended");
     this.invencible = false;
@@ -1324,13 +1345,12 @@ var mMenuBG;
 var mMenuButton;
 var buttonCount = 1;
 
+var mMenuTitle; //super bomboooooozle man
+
 var MainMenu = {
     preload: function() {
         if (DEBUG) this.startTime = Date.now(); //to calculate booting time etc
-        
-        
 
-        
     },
 
     nextState: function() { this.game.state.start('play');  },
@@ -1339,24 +1359,26 @@ var MainMenu = {
 
     // out: function() { buttonCount--; },
 
-    create: function() {      
+    create: function() {
         mMenuBG = this.game.add.sprite(0, 0, 'mMenuBG');
+        mMenuBG.scale.y = 1.05; //just a little bigger
         mMenuButton = this.game.add.button(winWidth/2, winHeight/2 + 100, 'mMenuButton' + buttonCount, this.nextState, this);
 
-        
         mMenuBG.width = winWidth;
         mMenuBG.heigth = winHeight;
-        
+
         mMenuButton.anchor.setTo(0.5, 0.5);
         //mMenuButton.scale.x = 100;
         //mMenuButton.scale.y = 75;
 
-        // mMenuButton.onInputOver.add(this.over, this);    
+        // mMenuButton.onInputOver.add(this.over, this);
+
+        mMenuTitle = this.game.add.sprite(50,100, 'mMenuTitle');
     },
 
     update: function() {
-        
-        // if(this.game.input.mousePointer.leftButton.isDown && this.game.input.mousePointer.position.x == this.mMenuButton.x 
+
+        // if(this.game.input.mousePointer.leftButton.isDown && this.game.input.mousePointer.position.x == this.mMenuButton.x
         //     && this.game.input.mousePointer.position.y == this.mMenuButton.y)
         //     this.game.state.start('play');
     }
@@ -1394,6 +1416,8 @@ const tileData = {
   Offset: new Point(40, 80), //space for hud
 };
 
+var mMenuTitle;
+
 var PlayScene = {
 
   preload: function () {
@@ -1402,6 +1426,8 @@ var PlayScene = {
   },
 
   create: function () {
+    mMenuTitle = this.game.add.sprite(50,0, 'mMenuTitle'); //vital for life on earth
+    mMenuTitle.scale = new Point(0.9, 0.75); //nah just for presentation
 
     //map
     groups = new Groups (this.game); //first need the groups
@@ -1425,13 +1451,12 @@ var PlayScene = {
   update: function(){
     //maybe in some object update?
 
-    this.game.physics.arcade.collide(groups.player, groups.enemy);
-
     this.game.physics.arcade.collide(groups.player, groups.wall);
     if (!gInputs.debug.state) {
       this.game.physics.arcade.collide(groups.player, groups.bombable);
       this.game.physics.arcade.collide(groups.player, groups.bomb);
     }
+    else this.game.physics.arcade.collide(players[0], groups.enemy);
 
     this.game.world.bringToTop(groups.flame);
     this.game.world.bringToTop(groups.player);
@@ -1510,10 +1535,16 @@ var addPlayerControl = function (game) {
 var debugModeControl = function (game) {
   if(gInputs.debug.button.isDown && !gInputs.debug.ff)
   {
+    //while debug player 0 is invecible and can push enemies
+    players[0].invencible = true;
+
     gInputs.debug.state = !gInputs.debug.state; //toggle state
     gInputs.debug.ff = true;
 
-    if (!gInputs.debug.state) game.debug.reset(); //reset debug
+    if (!gInputs.debug.state) {
+      players[0].endInvencibility();
+      game.debug.reset(); //reset whole debug render
+    }
   }
 
   else if(gInputs.debug.button.isUp)
@@ -1573,6 +1604,7 @@ var PreloaderScene = {
         this.game.load.image('mMenuBG', 'images/Sprites/Menu/title_background.jpg');
         this.game.load.image('mMenuButton1', 'images/Sprites/Menu/One_Player_Normal.png');
         this.game.load.image('mMenuButton2', 'images/Sprites/Menu/One_Player_Hover.png');
+        this.game.load.image('mMenuTitle', 'images/Sprites/Menu/title.png');
     },
 
     create: function () {
