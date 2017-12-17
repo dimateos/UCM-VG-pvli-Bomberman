@@ -56,7 +56,7 @@ Bomb.prototype.constructor = Bomb;
 
 
 Bomb.prototype.die = function () {
-    console.log("checkin bomb die");
+    //console.log("checkin bomb die");
     this.lives--;
 
     //cancels the standard callbacks
@@ -76,7 +76,7 @@ Bomb.prototype.die = function () {
 
 //removes the bomb, spawns the fames and then removes them
 Bomb.prototype.xplode = function() {
-    console.log("xploded");
+    //console.log("xploded");
     this.xploded = true;
     this.groups.bomb.remove(this); //removes and destroys the bomb
     this.player.numBombs++; //adds a bomb back to the player
@@ -122,10 +122,10 @@ Bomb.prototype.expandFlames = function(flames, positionMap) {
 
         var expansion = 1;
         //these all could be the same, but allow us to know exactly waht
-        var obstacle = false, bombable = false, bomb = false, flame = false;
+        var obstacle = false, bombable = false, bomb = false/*, flame = false*/;
         var tmpPositionMap = new Point (positionMap.x, positionMap.y);
 
-        while(expansion <= this.power && !obstacle && !bombable && !bomb && !flame) {
+        while(expansion <= this.power && !obstacle && !bombable && !bomb/* && !flame*/) {
 
             //checks if the next square is free
             if (this.level.getNextSquare(tmpPositionMap, directions[i])) {
@@ -147,11 +147,11 @@ Bomb.prototype.expandFlames = function(flames, positionMap) {
                 bomb = this.game.physics.arcade.overlap(newFlame, this.groups.bomb);
 
                 //but it case of the flame over flame, no new one is generated
+                //In the original game yes, aswell as there is no delay
                 /*flame = this.game.physics.arcade.overlap(newFlame, this.groups.flame);
                 if (!flame) flames.push(newFlame);
                 else newFlame.destroy();*/
 
-                //we could add a timer to delay the expansions
                 //console.log("bombable ", bombable);
                 //console.log("bomb ", bomb);
                 //console.log("flame ", flame);
@@ -162,7 +162,7 @@ Bomb.prototype.expandFlames = function(flames, positionMap) {
             }
         }
     }
-    console.log(flames)
+    //console.log(flames)
     return flames; //just need to delay this somehow
 }
 

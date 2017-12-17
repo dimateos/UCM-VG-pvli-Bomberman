@@ -65,13 +65,14 @@ Bombable.prototype.die = function () {
 
     if (this.lives <= 0) {
         this.dead = true;
+        this.visible = false;
 
         //if it has a power up, drops it
         if (this.dropId !== undefined)
-            this.game.time.events.add(bombableTimer, drop, this);
+            this.game.time.events.add(bombableTimer-5, drop, this);
 
         //the destroy the bombable
-        this.game.time.events.add(bombableTimer, this.destroy, this);
+        this.game.time.events.add(bombableTimer+5, this.destroy, this);
     }
     else this.game.time.events.add(bombableTimer, flipInven, this);
 
