@@ -54,7 +54,7 @@ function Player (game, level, numPlayer, tileData, groups) {
     Identifiable.addPowerUps(playerInitialModsIds, this);
 
     //Initial invencible time
-    //this.game.time.events.add(playerInvencibleTime, this.endInvencibility, this);
+    this.game.time.events.add(playerInvencibleTime, this.endInvencibility, this);
 };
 
 Player.prototype = Object.create(Bombable.prototype);

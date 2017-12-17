@@ -25,6 +25,7 @@ var MainMenu = {
 
     create: function() {
         mMenuBG = this.game.add.sprite(0, 0, 'mMenuBG');
+        mMenuBG.scale.y = 1.1; //a little bigger
         mMenuButton = this.game.add.button(winWidth/2, winHeight/2 + 100, 'mMenuButton' + buttonCount, this.nextState, this);
 
         mMenuBG.width = winWidth;
@@ -36,7 +37,7 @@ var MainMenu = {
 
         // mMenuButton.onInputOver.add(this.over, this);
 
-        mMenuTitle = this.game.add.button(50,100, 'mMenuTitle');
+        mMenuTitle = this.game.add.sprite(50,100, 'mMenuTitle');
     },
 
     update: function() {

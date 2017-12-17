@@ -26,6 +26,8 @@ const tileData = {
   Offset: new Point(40, 80), //space for hud
 };
 
+var mMenuTitle;
+
 var PlayScene = {
 
   preload: function () {
@@ -34,6 +36,8 @@ var PlayScene = {
   },
 
   create: function () {
+    mMenuTitle = this.game.add.sprite(50,0, 'mMenuTitle'); //vital for life on earth
+    mMenuTitle.scale = new Point(0.9, 0.75); //nah just for presentation
 
     //map
     groups = new Groups (this.game); //first need the groups
@@ -142,10 +146,16 @@ var addPlayerControl = function (game) {
 var debugModeControl = function (game) {
   if(gInputs.debug.button.isDown && !gInputs.debug.ff)
   {
+    //while debug player 0 is invecible
+    players[0].invencible = true;
+
     gInputs.debug.state = !gInputs.debug.state; //toggle state
     gInputs.debug.ff = true;
 
-    if (!gInputs.debug.state) game.debug.reset(); //reset debug
+    if (!gInputs.debug.state) {
+      players[0].endInvencibility();
+      game.debug.reset(); //reset whole debug render
+    }
   }
 
   else if(gInputs.debug.button.isUp)
