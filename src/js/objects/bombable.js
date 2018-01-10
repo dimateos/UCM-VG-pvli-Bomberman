@@ -71,7 +71,7 @@ Bombable.prototype.die = function () {
         if (this.dropId !== undefined)
             this.game.time.events.add(bombableTimer-5, drop, this);
 
-        //the destroy the bombable
+        //then destroy the bombable
         this.game.time.events.add(bombableTimer+5, this.destroy, this);
     }
     else this.game.time.events.add(bombableTimer, flipInven, this);

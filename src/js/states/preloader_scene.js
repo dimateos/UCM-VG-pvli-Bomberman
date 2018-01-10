@@ -22,6 +22,7 @@ var PreloaderScene = {
         this.game.load.image('background', 'images/Sprites/Blocks/BackgroundTile.png');
         this.game.load.image('bombable', 'images/Sprites/Blocks/ExplodableBlock.png');
         this.game.load.image('wall', 'images/Sprites/Blocks/SolidBlock.png');
+        this.game.load.image('portal', 'images/Sprites/Blocks/Portal.png');
 
         this.game.load.image('powerUpBombUp', 'images/Sprites/Powerups/BombPowerup.png');
         this.game.load.image('powerUpFlameUp', 'images/Sprites/Powerups/FlamePowerup.png');

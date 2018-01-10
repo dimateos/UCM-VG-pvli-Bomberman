@@ -63,7 +63,7 @@ var PlayScene = {
 
     this.game.physics.arcade.collide(groups.player, groups.wall);
     if (!gInputs.debug.state) {
-      this.game.physics.arcade.collide(groups.player, groups.bombable);
+      this.game.physics.arcade.collide(groups.player, groups.box);
       this.game.physics.arcade.collide(groups.player, groups.bomb);
     }
     else this.game.physics.arcade.collide(players[0], groups.enemy);
@@ -98,8 +98,8 @@ var PlayScene = {
       for (let i = 0; i < groups.wall.length; i++)
         this.game.debug.body(groups.wall.children[i]);
 
-      for (let i = 0; i < groups.bombable.length; i++)
-        this.game.debug.body(groups.bombable.children[i]);
+      for (let i = 0; i < groups.box.length; i++)
+        this.game.debug.body(groups.box.children[i]);
 
       for (let i = 0; i < groups.flame.length; i++)
         this.game.debug.body(groups.flame.children[i]);

@@ -24,6 +24,10 @@ var speedLimit = speedMin + speedAdd*8;
 //contains the different powerUp's functions. Unordered.
 var modsFunctions = {
 
+    // levelUp: function () {
+    //     console.log("Next level!");
+    // },
+
     bombUp: function (reverseMode) {
         basicStatChange.call(this,
             reverseMode, bombsKey, bombsAdd, bombsMin, bombsMax);
@@ -49,7 +53,7 @@ var bombMods = {
     }
 }
 
-//very common power up behavior
+//very common power up behavior (add, sub with min max and reverse mode)
 function basicStatChange (reverseMode, stat, value, min, max) {
     if (!reverseMode) basicAddition.call(this, stat, value, max)
     else basicSubtraction.call(this, stat, value, min)

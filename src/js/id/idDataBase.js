@@ -8,7 +8,11 @@ var modsFunctions = require('./modsFunctions.js'); //all the database
 var idDataBase = [
 
     [ //tier 0 (special for next level ladder etc)
-
+        //portal object so we can add it more logic (not just id)
+        /*{   //0
+            sprite: 'portal', pts: 0,
+            mods: [modsFunctions.levelUp]
+        },*/
     ],
 
     [ //tier 1 //maybe sprite more generic + add name?

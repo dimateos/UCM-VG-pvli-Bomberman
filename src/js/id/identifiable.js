@@ -6,7 +6,7 @@ var Point = require('../point.js');
 var idDataBase = require('./idDataBase.js'); //all the database
 
 //default identifiable values
-var idBodySize = new Point(48, 48); //little smaller
+var idBodySize = new Point(32, 32); //little smaller
 var idBodyOffset = new Point(0, 0);
 var idExtraOffset = new Point(14, 10); //id body is not full res
 var idImmovable = true;

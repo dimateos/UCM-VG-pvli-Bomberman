@@ -7,6 +7,8 @@ var Enemy = require('../objects/enemy.js');
 
 var Id = require('../id/identifiable.js').Id; //for bombable id
 var tierSize = require('../id/identifiable.js').tierSize; //for the rnd gen
+var Portal = require('../id/portal.js'); //next level portal
+var portalId = new Id(0,0); //specific id for the portal
 
 var Point = require('../point.js');
 var baseMapData = require("./baseMapData.js"); //base map and spawns
@@ -176,7 +178,9 @@ Map.prototype.buildMap = function (groups, tileData) {
                     bombableIdPowerUp = this.bombableIdsPowerUps.pop(); //gets an Id
 
                 case this.types.bombable.value:
-                    groups.bombable.add(new Bombable (this.game, groups, squareIndexPos,
+                    //exception for the nextlevel portal creation -> Id tier 0 num 0
+                    if (!checkPortal.call(this))
+                        groups.box.add(new Bombable (this.game, groups, squareIndexPos,
                         this.types.bombable.sprite, tileData.Scale, tileData.Res,
                         defaultBodyOffset, defaultImmovable,
                         defaultBombableLives, defaultBombableInvencible, bombableIdPowerUp));
@@ -215,6 +219,21 @@ Map.prototype.buildMap = function (groups, tileData) {
                     break;
             }
         }
+    }
+
+    //checks and creates
+    function checkPortal () {
+        var portal = (bombableIdPowerUp !== undefined
+            && bombableIdPowerUp.tier === portalId.tier
+            && bombableIdPowerUp.num === portalId.num);
+
+        if (portal) //creates the portal too
+            groups.box.add(new Portal (this.game, groups, squareIndexPos,
+            this.types.bombable.sprite, tileData.Scale, tileData.Res,
+            defaultBodyOffset, defaultImmovable,
+            defaultBombableLives, defaultBombableInvencible));
+
+        return portal;
     }
 };
 

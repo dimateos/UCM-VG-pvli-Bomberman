@@ -75,6 +75,7 @@ Player.prototype.update = function() {
     }
 }
 
+//checks for the next level portal too
 Player.prototype.checkPowerUps = function() {
 
     this.game.physics.arcade.overlap(this, this.groups.powerUp, takePowerUp);

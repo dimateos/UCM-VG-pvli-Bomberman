@@ -142,8 +142,8 @@ Bomb.prototype.expandFlames = function(flames, positionMap) {
                 flames.push(newFlame);
                 expansion++;
 
-                //if it touches a bombable or bomb (or a flame) it stops propagation
-                bombable = this.game.physics.arcade.overlap(newFlame, this.groups.bombable);
+                //if it touches a box or bomb (or a flame) it stops propagation
+                bombable = this.game.physics.arcade.overlap(newFlame, this.groups.box);
                 bomb = this.game.physics.arcade.overlap(newFlame, this.groups.bomb);
 
                 //but it case of the flame over flame, no new one is generated
