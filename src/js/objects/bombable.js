@@ -89,7 +89,6 @@ Bombable.prototype.die = function () {
 
 //the player extends this (just adds a log)
 Bombable.prototype.endInvencibility  = function () {
-    console.log(this)
     this.invencible = false;
 }
 

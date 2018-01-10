@@ -84,7 +84,10 @@ var PlayScene = {
 
 
   render: function(){
-    if (gInputs.debug.state) groups.drawDebug();
+    if (gInputs.debug.state) {
+      groups.drawDebug();
+      this.game.debug.bodyInfo(players[0], 32, 32);
+    }
   }
 
 };
