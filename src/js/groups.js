@@ -1,17 +1,14 @@
 'use strict';
 
-//Creates a super group to contain all of the game's groups
-//and it's a group itself (extends Phaser.Group) - not really used now
+//Creates all the games's group
 function Groups(game) {
 
-    Phaser.Group.call(this, game);
+    this.game = game;
 
     //groups for tiles
     this.background = game.add.group();
     this.wall = game.add.group();
     this.box = game.add.group();
-
-    //this.bombable = game.add.group();
 
     this.portal = game.add.group();
     this.bomb = game.add.group();
@@ -21,8 +18,19 @@ function Groups(game) {
     this.player = game.add.group();
     this.enemy = game.add.group();
 
+    console.log(Object.keys(this))
 }
-Groups.prototype = Object.create(Phaser.Group.prototype);
-Groups.prototype.constructor = Groups;
+
+//draws all elemnts bodies
+Groups.prototype.drawDebug = function () {
+
+    var keys = Object.keys(this); //gets all the groups
+
+    for (let i = 0; i < keys.length; i++) {
+
+        for (let j = 0; j < this[keys[i]].length; j++)
+            this.game.debug.body(this[keys[i]].children[j]);
+    }
+}
 
 module.exports = Groups;

@@ -84,32 +84,7 @@ var PlayScene = {
 
 
   render: function(){
-
-    //only debugging stuff atm
-    if (gInputs.debug.state) {
-      this.game.debug.bodyInfo(players[0], 32, 32);
-
-      for (let i = 0; i < groups.player.length; i++)
-        this.game.debug.body(groups.player.children[i]);
-
-      for (let i = 0; i < groups.bomb.length; i++)
-        this.game.debug.body(groups.bomb.children[i]);
-
-      for (let i = 0; i < groups.wall.length; i++)
-        this.game.debug.body(groups.wall.children[i]);
-
-      for (let i = 0; i < groups.box.length; i++)
-        this.game.debug.body(groups.box.children[i]);
-
-      for (let i = 0; i < groups.flame.length; i++)
-        this.game.debug.body(groups.flame.children[i]);
-
-      for (let i = 0; i < groups.powerUp.length; i++)
-        this.game.debug.body(groups.powerUp.children[i]);
-
-      for (let i = 0; i < groups.enemy.length; i++)
-        this.game.debug.body(groups.enemy.children[i]);
-    }
+    if (gInputs.debug.state) groups.drawDebug();
   }
 
 };
