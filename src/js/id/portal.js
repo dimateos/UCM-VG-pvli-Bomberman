@@ -2,6 +2,8 @@
 
 var Bombable = require('../objects/bombable.js');
 var Point = require('../point.js');
+var Enemy = require('../objects/enemy.js'); //to spawn them
+var defaultEnemyType = 0;
 
 // sprite: 'portal', pts: 0,
 // mods: [modsFunctions.levelUp]
@@ -24,22 +26,20 @@ var portalDropId = undefined; //always
 var portalBombTimer = 500; //to sync with flames
 var portalSpawnTimer = 1500; //to sync with flames
 
-function Portal (game, groups, position, sprite, scale, bodySize, bodyOffSet, immovable, lives, invencible) {
+function Portal (game, level, groups, position, sprite, tileData, bodyOffSet, immovable, lives, invencibleTime) {
 
     //var portalPosition = position.add(portalExtraOffset.x, portalExtraOffset.y);
 
     //var portalBodySize = new Point(bodySize.x/2, bodySize.y/2); //so you get to the center
     //var bodyOffSet = portalBodySize; //the half too
-
+    this.level = level;
+    this.tileData = tileData;
 
     Bombable.call(this, game, groups, position, sprite,
-        scale, bodySize, bodyOffSet, immovable,
-        lives, invencible, portalDropId)
-
+        this.tileData.Scale, this.tileData.Res, bodyOffSet, immovable,
+        lives, invencibleTime, portalDropId)
 
     this.spawned = false;
-
-    console.log(this.groups.portal.children);
 }
 
 Portal.prototype = Object.create(Bombable.prototype);
@@ -49,7 +49,8 @@ Portal.prototype.constructor = Portal;
 Portal.prototype.update = function() {
     this.checkFlames(); //player and bomb rewrite (extend) update
 
-    // if (this.spawned) console.log("portalaso");
+    if (this.spawned && this.groups.enemy.children.length === 0)
+        this.game.physics.arcade.overlap(this, this.groups.player, this.nextLevel, null, this);
 }
 
 //player, bomb, enemie, etc will extend this
@@ -61,9 +62,8 @@ Portal.prototype.die = function () {
     else {
         this.lives--;
 
-        if (this.lives <= 0) { //spawn the portal
+        if (this.lives <= 0) //spawn the portal
             this.game.time.events.add(portalBombTimer+5, this.spawnPortal, this);
-        }
     }
     this.game.time.events.add(portalSpawnTimer, flipInven, this);
 
@@ -82,7 +82,16 @@ Portal.prototype.spawnPortal = function () {
 
 //spawns an enemie
 Portal.prototype.spawnEnemie = function () {
-    console.log("spaaaawn enemie");
+    console.log(this.groups.enemy.children);
+
+    var enemyPos = new Point(this.position.x, this.position.y);
+
+    this.groups.enemy.add(new Enemy (this.game, enemyPos,
+        this.level, defaultEnemyType, this.tileData, this.groups, portalDropId));
+}
+
+Portal.prototype.nextLevel = function () {
+    console.log("too the nexttttt");
 }
 
 module.exports = Portal;

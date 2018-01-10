@@ -41,7 +41,7 @@ function Player (game, level, numPlayer, tileData, groups) {
 
     Bombable.call(this, game, groups, this.respawnPos, playerSpritePath + this.numPlayer,
         tileData.Scale, playerBodySize, playerBodyOffset,
-        playerImmovable, playerLives, playerInvecible);
+        playerImmovable, playerLives, playerInvencibleTime);
 
     this.velocity = playerVelocity;
     this.numBombs = playerNumBombs;
@@ -52,9 +52,6 @@ function Player (game, level, numPlayer, tileData, groups) {
     this.mods = [];
     this.bombMods = [];
     Identifiable.addPowerUps(playerInitialModsIds, this);
-
-    //Initial invencible time
-    this.game.time.events.add(playerInvencibleTime, this.endInvencibility, this);
 };
 
 Player.prototype = Object.create(Bombable.prototype);
@@ -170,6 +167,8 @@ Player.prototype.respawn = function () {
 
     this.game.time.events.add(playerInvencibleTime, this.endInvencibility, this);
 }
+
+//just extended to see the player number
 Player.prototype.endInvencibility  = function () {
     console.log("P" + this.numPlayer + " invencibility ended");
     this.invencible = false;

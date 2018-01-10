@@ -12,7 +12,7 @@ var enemyBodyOffset = new Point(0, 0);
 var enemyExtraOffset = new Point(0, 0); //to center it
 
 var enemyImmovable = false;
-var enemyInvecible = false;
+var enemyInvecibleTime = 1500;
 
 var enemyLives = 1;
 var enemyVelocity = 100;
@@ -29,7 +29,7 @@ function Enemy (game, position, level, enemyType, tileData, groups, dropId) {
 
     Bombable.call(this, game, groups, enemyPosition, enemySpritePath,
         tileData.Scale, enemyBodySize, enemyBodyOffset,
-        enemyImmovable, enemyLives, enemyInvecible, dropId);
+        enemyImmovable, enemyLives, enemyInvecibleTime, dropId);
 
     this.body.bounce.setTo(1,1);
     this.body.velocity.x = enemyVelocity;

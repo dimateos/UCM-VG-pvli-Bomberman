@@ -13,7 +13,7 @@ var bombBodyOffset = new Point(0, 0);
 var bombExtraOffset = new Point(5, 5); //reaquired because bomb body is not full res
 
 var bombImmovable = true;
-var bombInvecible = false;
+var bombInvecibleTime = 0;
 
 var bombLives = 1;
 var bombPower = 1;
@@ -29,7 +29,8 @@ function Bomb (game, level, position, tileData, groups, player, bombMods) {
     var bombPosition = position.add(bombExtraOffset.x, bombExtraOffset.y);
 
     Bombable.call(this, game, groups, bombPosition, bombSpritePath,
-        tileData.Scale, bombBodySize, bombBodyOffset, bombImmovable, bombLives, bombInvecible);
+        tileData.Scale, bombBodySize, bombBodyOffset, bombImmovable,
+        bombLives, bombInvecibleTime);
 
     this.timer = bombTimer;
     this.flameTimer = bombFlameTimer;

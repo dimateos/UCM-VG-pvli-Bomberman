@@ -11,7 +11,7 @@ var bombableTimer = 500; //to sync with flames
 //var bombableDropId = new Id (1,1);
 
 
-function Bombable(game, groups, position, sprite, scale, bodySize, bodyOffSet, immovable, lives, invencible, dropId) {
+function Bombable(game, groups, position, sprite, scale, bodySize, bodyOffSet, immovable, lives, invencibleTime, dropId) {
 
     Physical.call(this, game, position, sprite, scale, bodySize, bodyOffSet, immovable);
 
@@ -21,8 +21,11 @@ function Bombable(game, groups, position, sprite, scale, bodySize, bodyOffSet, i
     //not really needed atm, but allows special blocks
     //this could be handled in the player
     this.lives = lives;
-    this.invencible = invencible;
     this.dead = false;
+
+    //Initial invencible time or not
+    if (invencibleTime === 0) this.invencible = false;
+    else this.game.time.events.add(invencibleTime, this.endInvencibility, this);
 
     this.dropId = dropId;
 }
@@ -84,5 +87,10 @@ Bombable.prototype.die = function () {
     }
 }
 
+//the player extends this (just adds a log)
+Bombable.prototype.endInvencibility  = function () {
+    console.log(this)
+    this.invencible = false;
+}
 
 module.exports = Bombable;

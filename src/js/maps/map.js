@@ -18,7 +18,8 @@ var levelsDataBase = require("./levelsDataBase.js"); //base map and spawns
 var defaultBodyOffset = new Point();
 var defaultImmovable = true;
 var defaultBombableLives = 1;
-var defaultBombableInvencible = false;
+var defaultBombableInvencibleTime = 0;
+var defaultEnemyType = 0;
 
 
 function Map (game, worldNum, levelNum, groups, tileData, maxPlayers) {
@@ -179,11 +180,11 @@ Map.prototype.buildMap = function (groups, tileData) {
 
                 case this.types.bombable.value:
                     //exception for the nextlevel portal creation -> Id tier 0 num 0
-                    if (!checkPortal.call(this))
+                    if (!checkPortal.call(this, tileData))
                         groups.box.add(new Bombable (this.game, groups, squareIndexPos,
                         this.types.bombable.sprite, tileData.Scale, tileData.Res,
                         defaultBodyOffset, defaultImmovable,
-                        defaultBombableLives, defaultBombableInvencible, bombableIdPowerUp));
+                        defaultBombableLives, defaultBombableInvencibleTime, bombableIdPowerUp));
 
                     bombableIdPowerUp = undefined; //resets the id
 
@@ -204,7 +205,7 @@ Map.prototype.buildMap = function (groups, tileData) {
                         this.types.free.sprite, tileData.Scale));
 
                     groups.enemy.add(new Enemy (this.game, squareIndexPos,
-                        this, 0, tileData, groups, enemyIdPowerUp));
+                        this, defaultEnemyType, tileData, groups, enemyIdPowerUp));
 
                     enemyIdPowerUp = undefined; //resets the id
                     break;
@@ -222,16 +223,16 @@ Map.prototype.buildMap = function (groups, tileData) {
     }
 
     //checks and creates
-    function checkPortal () {
+    function checkPortal (tileData) {
         var portal = (bombableIdPowerUp !== undefined
             && bombableIdPowerUp.tier === portalId.tier
             && bombableIdPowerUp.num === portalId.num);
 
         if (portal) //creates the portal too
-            groups.box.add(new Portal (this.game, groups, squareIndexPos,
-            this.types.bombable.sprite, tileData.Scale, tileData.Res,
+            groups.box.add(new Portal (this.game, this, groups,
+            squareIndexPos, this.types.bombable.sprite, tileData,
             defaultBodyOffset, defaultImmovable,
-            defaultBombableLives, defaultBombableInvencible));
+            defaultBombableLives, defaultBombableInvencibleTime));
 
         return portal;
     }
