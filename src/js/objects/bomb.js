@@ -108,13 +108,10 @@ Bomb.prototype.xplode = function() {
 Bomb.prototype.spawnFlames = function() {
 
     //initial flame postion (corrected offset even though then is the same)
-    var cleanPosition = new Point (this.position.x, this.position.y)
+    var positionMap = new Point (this.position.x, this.position.y)
         .subtract(bombExtraOffset.x, bombExtraOffset.y);
 
-    var flames = [new Flame(this.game, cleanPosition, this.scale)];
-
-    //get the virtual map position
-    var positionMap = cleanPosition.reverseTileData(this.tileData, bombExtraOffset);
+    var flames = [new Flame(this.game, positionMap, this.scale)];
 
     return this.expandFlames(flames, positionMap);
 }
@@ -127,14 +124,17 @@ Bomb.prototype.expandFlames = function(flames, positionMap) {
     for (var i = 0; i < directions.length; i++) {
 
         var expansion = 1;
-        //these all could be the same, but allow us to know exactly waht
+        //these all could be the same, but allow us to know exactly what fails
         var obstacle = false, bombable = false, bomb = false/*, flame = false*/;
-        var tmpPositionMap = new Point (positionMap.x, positionMap.y);
+
+        //tmp Position for the initial expanded flame
+        var tmpPositionMap = new Point (positionMap.x, positionMap.y)
+            .reverseTileData(this.tileData, bombExtraOffset);
 
         while(expansion <= this.power && !obstacle && !bombable && !bomb/* && !flame*/) {
 
             //checks if the next square is free
-            if (this.level.getNextSquare(tmpPositionMap, directions[i])) {
+            if (this.level.isNextSquareNotWall(tmpPositionMap, directions[i])) {
 
                 //updates tmp position
                 tmpPositionMap.add(directions[i].x, directions[i].y);

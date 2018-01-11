@@ -123,8 +123,11 @@ Player.prototype.bombLogic = function() {
         this.numBombs--;
 
         var bombPosition = new Point(this.position.x, this.position.y)
-            .getMapSquareValue(this.tileData, playerExtraOffset)
+            .getMapSquarePos(this.tileData, playerExtraOffset)
             .applyTileData(this.tileData);
+
+        var lolPos = new Point (this.position.x, this.position.y)
+            .getMapSquareExtraPos(this.tileData, playerExtraOffset);
 
         var bombie = new Bomb (this.game, this.level,
             bombPosition, this.tileData, this.groups, this, this.bombMods)

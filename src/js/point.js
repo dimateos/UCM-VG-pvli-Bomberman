@@ -63,7 +63,7 @@ Point.prototype.getReversedTileData = function (tileData, extraOffset) {
 }
 
 //gets rounded map square value
-Point.prototype.getMapSquareValue = function (tileData, extraOffset) {
+Point.prototype.getMapSquarePos = function (tileData, extraOffset) {
 
     var exactMapValue = this.getReversedTileData(tileData, extraOffset);
     //console.log(exactMapValue);
@@ -78,6 +78,35 @@ Point.prototype.getMapSquareValue = function (tileData, extraOffset) {
 
     //console.log(exactMapValue);
     return exactMapValue;
+}
+
+//gets the relative normalized dir of the extra square the player is touching
+//compares the real position and the calculated by getMapSquarePos
+Point.prototype.getMapSquareExtraPos = function (tileData, extraOffset) {
+
+    var exactMapValue = this.getReversedTileData(tileData, extraOffset);
+    var virtualMapValue = this.getMapSquarePos(tileData, extraOffset);
+    var extraDir = new Point();
+    // console.log(exactMapValue);
+    // console.log(virtualMapValue);
+
+    var difX = exactMapValue.x - virtualMapValue.x;
+    if (difX < 0) extraDir.x = -1;
+    else if (difX > 0) extraDir.x = 1;
+
+    var difY = exactMapValue.y - virtualMapValue.y;
+    if (difY < 0) extraDir.y = -1;
+    else if (difY > 0) extraDir.y = 1;
+
+    //console.log(extraDir);
+    //return extraDir;
+}
+
+//returns true if the directions are parallel (only normalized dirs)
+Point.prototype.isParallel = function (dir) {
+
+    return (this.x === dir.x && this.y === dir.y)
+        || (this.x === -dir.x && this.y === -dir.y);
 }
 
 module.exports = Point;

@@ -239,27 +239,38 @@ Map.prototype.buildMap = function (groups, tileData) {
     }
 };
 
-
-//given a square position returns true if in given direction there is not a wall
-Map.prototype.getNextSquare = function (position, direction) {
-
-    var x = position.x + direction.x;
-    var y = position.y + direction.y;
-
-    return (this.map[y][x] !== this.types.wallSP.value
-        && this.map[y][x] !== this.types.wall.value);
-}
-
+//updates the virtual map data of a static object*
 Map.prototype.updateSquare = function (position, squareType, extraOffset) {
     // console.log(position);
     // console.log(squareType);
     // console.log(extraOffset);
 
-    var mapPosition = new Point (position.x, position.y).reverseTileData(this.tileData);
-    if (extraOffset !== undefined) mapPosition.subtract(extraOffset.x, extraOffset.y);
+    //calculate the map position
+    var mapPosition = new Point (position.x, position.y);
+    mapPosition.reverseTileData(this.tileData, extraOffset);
 
     this.map[mapPosition.y][mapPosition.x] = squareType;
     // console.log(this.map);
+}
+
+//given a square position returns true if given direction is free
+Map.prototype.isNextSquareFree = function (positionMap, direction) {
+
+        var x = positionMap.x + direction.x;
+        var y = positionMap.y + direction.y;
+
+        return this.map[y][x] === this.types.free.value;
+    }
+
+//given a square position returns true if in given direction there is not a wall
+//not merged with nextPos or isNextFree because the flame expansion is partucular
+Map.prototype.isNextSquareNotWall = function (positionMap, direction) {
+
+    var x = positionMap.x + direction.x;
+    var y = positionMap.y + direction.y;
+
+    return (this.map[y][x] !== this.types.wallSP.value
+        && this.map[y][x] !== this.types.wall.value);
 }
 
 module.exports = Map;
