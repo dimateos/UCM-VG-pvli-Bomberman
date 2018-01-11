@@ -11,9 +11,6 @@ function Physical(game, position, sprite, scale, bodySize, bodyOffSet, immovable
     this.body.collideWorldBounds = true;
 
     this.body.immovable = immovable; //if static then immovable
-
-    //vel y dir?
-
 }
 
 Physical.prototype = Object.create(GameObject.prototype);

@@ -36,12 +36,13 @@ function Map (game, worldNum, levelNum, groups, tileData, maxPlayers) {
     this.fils = baseMapData.fils;
     this.types = baseMapData.squaresTypes;
     this.playerSpawns = baseMapData.playerSpawns;
+    this.tileData = tileData;
 
     this.bombableIdsPowerUps = this.generateIdsPowerUps(this.levelData.powerUps);
     this.enemiesIdsPowerUps = this.generateIdsPowerUps(this.levelData.enemiesDrops);
 
     this.generateMap();
-    this.buildMap(groups, tileData);
+    this.buildMap(groups, this.tileData); //shorter with this.tileData
 };
 
 
@@ -181,7 +182,7 @@ Map.prototype.buildMap = function (groups, tileData) {
                 case this.types.bombable.value:
                     //exception for the nextlevel portal creation -> Id tier 0 num 0
                     if (!checkPortal.call(this, tileData))
-                        groups.box.add(new Bombable (this.game, groups, squareIndexPos,
+                        groups.box.add(new Bombable (this.game, this, groups, squareIndexPos,
                         this.types.bombable.sprite, tileData.Scale, tileData.Res,
                         defaultBodyOffset, defaultImmovable,
                         defaultBombableLives, defaultBombableInvencibleTime, bombableIdPowerUp));
@@ -240,18 +241,25 @@ Map.prototype.buildMap = function (groups, tileData) {
 
 
 //given a square position returns true if in given direction there is not a wall
-//return if there was a bombable too
-Map.prototype.getNextSquare = function (position, direction, /*bombable*/) {
+Map.prototype.getNextSquare = function (position, direction) {
 
     var x = position.x + direction.x;
     var y = position.y + direction.y;
-
-    //not used atm, to use needs bombable to update map in die();
-    //bombable = (this.map[y][x] === this.types.bombable.value);
 
     return (this.map[y][x] !== this.types.wallSP.value
         && this.map[y][x] !== this.types.wall.value);
 }
 
+Map.prototype.updateSquare = function (position, squareType, extraOffset) {
+    // console.log(position);
+    // console.log(squareType);
+    // console.log(extraOffset);
+
+    var mapPosition = new Point (position.x, position.y).reverseTileData(this.tileData);
+    if (extraOffset !== undefined) mapPosition.subtract(extraOffset.x, extraOffset.y);
+
+    this.map[mapPosition.y][mapPosition.x] = squareType;
+    // console.log(this.map);
+}
 
 module.exports = Map;

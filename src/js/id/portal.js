@@ -21,10 +21,9 @@ function Portal (game, level, groups, position, sprite, tileData, bodyOffSet, im
 
     //var portalBodySize = new Point(bodySize.x/2, bodySize.y/2); //so you get to the center
     //var bodyOffSet = portalBodySize; //the half too
-    this.level = level;
     this.tileData = tileData;
 
-    Bombable.call(this, game, groups, position, sprite,
+    Bombable.call(this, game, level, groups, position, sprite,
         this.tileData.Scale, this.tileData.Res, bodyOffSet, immovable,
         lives, invencibleTime, portalDropId)
 
@@ -68,7 +67,7 @@ Portal.prototype.spawnPortal = function () {
 
     this.spawned = true; //bool for the state
     this.groups.portal.add(this); //changes its group
-
+    this.level.updateSquare(this.position, this.level.types.free.value); //update map
 
     this.body.width /= 2; //changes its body (smaller)
     this.body.height /= 2;

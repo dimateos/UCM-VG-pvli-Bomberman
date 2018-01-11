@@ -12,7 +12,7 @@ var enemyBodyOffset = new Point(0, 0);
 var enemyExtraOffset = new Point(0, 0); //to center it
 
 var enemyImmovable = false;
-var enemyInvecibleTime = 1500;
+var enemyInvecibleTime = 2500;
 
 var enemyLives = 1;
 var enemyVelocity = 100;
@@ -20,19 +20,21 @@ var enemyVelocity = 100;
 
 function Enemy (game, position, level, enemyType, tileData, groups, dropId) {
 
-    this.level = level;
     this.groups = groups;
     this.tileData = tileData;
-    this.enemyType = enemyType;
+    this.level = level;
 
+    this.enemyType = enemyType;
     var enemyPosition = position.add(enemyExtraOffset.x, enemyExtraOffset.y);
 
-    Bombable.call(this, game, groups, enemyPosition, enemySpritePath,
+    Bombable.call(this, game, level, groups, enemyPosition, enemySpritePath,
         tileData.Scale, enemyBodySize, enemyBodyOffset,
         enemyImmovable, enemyLives, enemyInvecibleTime, dropId);
 
     this.body.bounce.setTo(1,1);
     this.body.velocity.x = enemyVelocity;
+
+    level.updateSquare(position, level.types.free.value);
 };
 
 Enemy.prototype = Object.create(Bombable.prototype);
@@ -63,6 +65,7 @@ Enemy.prototype.update = function() {
         //console.log("bounce")
         //this.body.velocity.x=-this.body.velocity.x;
     }
+
 }
 
 module.exports = Enemy;

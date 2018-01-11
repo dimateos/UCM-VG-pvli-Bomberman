@@ -26,9 +26,10 @@ var flameId = {tier: 0, num: 0};
 
 function Bomb (game, level, position, tileData, groups, player, bombMods) {
 
-    var bombPosition = position.add(bombExtraOffset.x, bombExtraOffset.y);
+    var bombPosition = new Point (position.x, position.y)
+        .add(bombExtraOffset.x, bombExtraOffset.y); //add extra offset
 
-    Bombable.call(this, game, groups, bombPosition, bombSpritePath,
+    Bombable.call(this, game, level, groups, bombPosition, bombSpritePath,
         tileData.Scale, bombBodySize, bombBodyOffset, bombImmovable,
         bombLives, bombInvecibleTime);
 
@@ -36,9 +37,9 @@ function Bomb (game, level, position, tileData, groups, player, bombMods) {
     this.flameTimer = bombFlameTimer;
     this.power = bombPower;
 
-    this.level = level;
     this.groups = groups;
     this.player = player; //atm not really required
+    this.level = level;
     this.tileData = tileData;
 
     this.mods = [];
@@ -49,6 +50,7 @@ function Bomb (game, level, position, tileData, groups, player, bombMods) {
     this.xplosionEvent =
         game.time.events.add(this.timer, this.xplode, this);
 
+    level.updateSquare(position, level.types.bomb.value);
     //console.log(bombTimer, bombFlameTimer, bombPower, level, groups, player, tileData, bombMods, this.xploded, this.xplosionEvent);
 };
 
@@ -95,6 +97,9 @@ Bomb.prototype.xplode = function() {
     function removeFlames () {
         //.destroy() removes them from the group too
         for(var i = 0; i < flames.length; i++) flames[i].destroy();
+
+        //update map
+        this.level.updateSquare(this.position, this.level.types.free.value, bombExtraOffset);
         this.destroy();
     }
 }

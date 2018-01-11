@@ -15,7 +15,6 @@ var playerBodyOffset = new Point(-7, 32);
 var playerExtraOffset = new Point(6, -20); //reaquired because player body is not full res
 
 var playerImmovable = false;
-var playerInvecible = true;
 
 var playerLives = 5;
 var playerNumBombs = 5;
@@ -30,7 +29,6 @@ var playerInitialModsIds = [/*new Id(1,2),*/ new Id (1,1), /*new Id(1,0)*/];
 
 function Player (game, level, numPlayer, tileData, groups) {
 
-    this.level = level;
     this.numPlayer = numPlayer;
     this.tileData = tileData;
     this.groups = groups;
@@ -39,7 +37,7 @@ function Player (game, level, numPlayer, tileData, groups) {
     this.respawnPos = new Point(level.playerSpawns[numPlayer].x, level.playerSpawns[numPlayer].y)
         .applyTileData(this.tileData, playerExtraOffset);
 
-    Bombable.call(this, game, groups, this.respawnPos, playerSpritePath + this.numPlayer,
+    Bombable.call(this, game, level, groups, this.respawnPos, playerSpritePath + this.numPlayer,
         tileData.Scale, playerBodySize, playerBodyOffset,
         playerImmovable, playerLives, playerInvencibleTime);
 
@@ -61,8 +59,8 @@ Player.prototype.constructor = Player;
 Player.prototype.update = function() {
 
     this.checkFlames(); //bombable method
-    //if dead already no need to check
-    if (!this.dead) this.checkEnemy();
+    //if dead or invencible already no need to check
+    if (!this.dead && !this.invencible) this.checkEnemy();
 
     //if dead somehow yo do nothing
     if (!this.dead) {
@@ -143,7 +141,7 @@ Player.prototype.bombLogic = function() {
 
 //player concrete logic for die
 Player.prototype.die = function () {
-    //console.log("checkin player die");
+    console.log("checkin player die");
     this.lives--;
     this.dead = true; //to disable movement
     this.body.velocity = new Point(); //stops the player

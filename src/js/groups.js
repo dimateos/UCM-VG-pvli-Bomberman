@@ -18,7 +18,6 @@ function Groups(game) {
     this.player = game.add.group();
     this.enemy = game.add.group();
 
-    console.log(Object.keys(this))
 }
 
 //draws all elemnts bodies

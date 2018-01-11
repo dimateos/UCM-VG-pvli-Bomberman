@@ -23,7 +23,9 @@ var baseMapData = {
         bombableDrop: {value: 4, sprite: "bombableDrop"},
 
         enemy: {value: 5, sprite: null},
-        enemyDrop: {value: 6, sprite: null}
+        enemyDrop: {value: 6, sprite: null},
+
+        bomb: {value: 7, sprite: null},
     },
 
     squares:
