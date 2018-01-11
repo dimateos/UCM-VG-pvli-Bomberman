@@ -66,6 +66,7 @@ Player.prototype.update = function() {
     if (!this.dead) {
         this.checkPowerUps();
         this.movementLogic()
+        this.movementLogic2()
         this.bombLogic();
     }
 }
@@ -112,6 +113,52 @@ Player.prototype.movementLogic = function() {
 }
 
 
+Player.prototype.movementLogic2 = function() {
+    // this.body.velocity.x = 0; //stops the player
+    // this.body.velocity.y = 0;
+
+    var dir = new Point();
+
+    //input defines dir
+    if (this.inputs.mov.left.isDown) dir.x = -1;
+    else if (this.inputs.mov.right.isDown) dir.x = 1;
+    else if (this.inputs.mov.up.isDown) dir.y = -1;
+    else if (this.inputs.mov.down.isDown) dir.y = 1;
+
+    //virtual map pos and extra pos
+    var positionMap = new Point(this.position.x, this.position.y)
+    .getMapSquarePos(this.tileData, playerExtraOffset);
+    var extraPosMap = new Point (this.position.x, this.position.y)
+    .getMapSquareExtraPos(this.tileData, playerExtraOffset);
+
+    //only if there is any input
+    if (dir.x !== 0 || dir.y !== 0) {
+        //first chechs if the virtual map pos + dir is free
+        if (this.level.isNextSquareFree(positionMap, dir)) {
+
+            //if the player is perfectly aligned
+            if (extraPosMap.x === 0 && extraPosMap.y === 0) {
+                console.log("1");
+            }
+            //then if dir and extra pos are parallel
+            else if (extraPosMap.isParallel(dir)) {
+                console.log("2");
+            }
+            else console.log("3");
+        }
+        else {
+            if (extraPosMap.x === 0 && extraPosMap.y === 0) {
+                console.log("4");
+            }
+            else if (extraPosMap.isParallel(dir)) {
+                console.log("5");
+            }
+            else console.log("6");
+        }
+    }
+}
+
+
 //all the bomb deploying logic
 Player.prototype.bombLogic = function() {
     if(this.inputs.bomb.button.isDown && !this.inputs.bomb.ff && this.numBombs > 0
@@ -125,9 +172,6 @@ Player.prototype.bombLogic = function() {
         var bombPosition = new Point(this.position.x, this.position.y)
             .getMapSquarePos(this.tileData, playerExtraOffset)
             .applyTileData(this.tileData);
-
-        var lolPos = new Point (this.position.x, this.position.y)
-            .getMapSquareExtraPos(this.tileData, playerExtraOffset);
 
         var bombie = new Bomb (this.game, this.level,
             bombPosition, this.tileData, this.groups, this, this.bombMods)

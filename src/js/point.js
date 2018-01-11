@@ -99,7 +99,7 @@ Point.prototype.getMapSquareExtraPos = function (tileData, extraOffset) {
     else if (difY > 0) extraDir.y = 1;
 
     //console.log(extraDir);
-    //return extraDir;
+    return extraDir;
 }
 
 //returns true if the directions are parallel (only normalized dirs)
