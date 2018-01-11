@@ -15,7 +15,7 @@ var enemyImmovable = false;
 var enemyInvecibleTime = 2500;
 
 var enemyLives = 1;
-var enemyVelocity = 100;
+var enemyVelocity = 90;
 
 
 function Enemy (game, position, level, enemyType, tileData, groups, dropId) {

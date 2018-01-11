@@ -82,6 +82,7 @@ Point.prototype.getMapSquarePos = function (tileData, extraOffset) {
 
 //gets the relative normalized dir of the extra square the player is touching
 //compares the real position and the calculated by getMapSquarePos
+//there is some margin to detect being centered
 Point.prototype.getMapSquareExtraPos = function (tileData, extraOffset) {
 
     var exactMapValue = this.getReversedTileData(tileData, extraOffset);
@@ -90,13 +91,19 @@ Point.prototype.getMapSquareExtraPos = function (tileData, extraOffset) {
     // console.log(exactMapValue);
     // console.log(virtualMapValue);
 
+    //margin to consider the center wider (not just a point)
+    var margin = (tileData.Res.x*tileData.Scale.x+tileData.Res.y*tileData.Scale.y)/2;
+    margin *= 0.001
+    console.log(margin);
+
     var difX = exactMapValue.x - virtualMapValue.x;
-    if (difX < 0) extraDir.x = -1;
-    else if (difX > 0) extraDir.x = 1;
+    console.log(difX);
+    if (difX < 0-margin) extraDir.x = -1;
+    else if (difX > 0+margin) extraDir.x = 1;
 
     var difY = exactMapValue.y - virtualMapValue.y;
-    if (difY < 0) extraDir.y = -1;
-    else if (difY > 0) extraDir.y = 1;
+    if (difY < 0-margin) extraDir.y = -1;
+    else if (difY > 0+margin) extraDir.y = 1;
 
     //console.log(extraDir);
     return extraDir;

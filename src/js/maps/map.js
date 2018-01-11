@@ -256,11 +256,11 @@ Map.prototype.updateSquare = function (position, squareType, extraOffset) {
 //given a square position returns true if given direction is free
 Map.prototype.isNextSquareFree = function (positionMap, direction) {
 
-        var x = positionMap.x + direction.x;
-        var y = positionMap.y + direction.y;
+    var x = positionMap.x + direction.x;
+    var y = positionMap.y + direction.y;
 
-        return this.map[y][x] === this.types.free.value;
-    }
+    return this.map[y][x] === this.types.free.value;
+}
 
 //given a square position returns true if in given direction there is not a wall
 //not merged with nextPos or isNextFree because the flame expansion is partucular
