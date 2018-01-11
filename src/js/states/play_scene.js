@@ -59,14 +59,14 @@ var PlayScene = {
 
 
   update: function(){
-    //maybe in some object update?
 
-    this.game.physics.arcade.collide(groups.player, groups.wall);
-    if (!gInputs.debug.state) {
-      this.game.physics.arcade.collide(groups.player, groups.box);
-      this.game.physics.arcade.collide(groups.player, groups.bomb);
-    }
-    else this.game.physics.arcade.collide(players[0], groups.enemy);
+    //No longer needed
+    // this.game.physics.arcade.collide(groups.player, groups.wall);
+    // if (!gInputs.debug.state) {
+    //   this.game.physics.arcade.collide(groups.player, groups.box);
+    //   this.game.physics.arcade.collide(groups.player, groups.bomb);
+    // }
+    // else this.game.physics.arcade.collide(players[0], groups.enemy);
 
     this.game.world.bringToTop(groups.flame);
     this.game.world.bringToTop(groups.player);
@@ -78,8 +78,6 @@ var PlayScene = {
     addPlayerControl(this.game);
     debugModeControl(this.game);
     // pauseMenuControl(this.game);
-
-    //rest in player and id etc
   },
 
 

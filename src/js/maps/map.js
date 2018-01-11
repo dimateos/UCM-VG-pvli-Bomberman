@@ -66,7 +66,7 @@ Map.prototype.generateMap = function() {
     function insertRnd (numElem, type) {
         for (var i = 0; i < numElem; i++) {
             //between and including min and max (Phaser)
-            var rnd = self.game.rnd.integerInRange(0,freeSquares.length-1)
+            var rnd = self.game.rnd.integerInRange(0,freeSquares.length-1);
             var x = freeSquares[rnd].x;
             var y = freeSquares[rnd].y;
 
@@ -261,6 +261,21 @@ Map.prototype.isNextSquareFree = function (positionMap, direction) {
 
     return this.map[y][x] === this.types.free.value;
 }
+
+//given a square position returns an array of the surrounding free ones
+Map.prototype.getSurroundingFreeSquares = function (positionMap) {
+
+        var surroundings = [];
+        const dirs = [new Point(1,0),new Point(-1,0),new Point(0,1),new Point(0,-1)];
+
+        //checks all the dirs
+        for (var i = 0; i < dirs.length; i++)
+            if (this.isNextSquareFree(positionMap, dirs[i]))
+                surroundings.push(dirs[i]);
+
+        // console.log(surroundings);
+        return surroundings;
+    }
 
 //given a square position returns true if in given direction there is not a wall
 //not merged with nextPos or isNextFree because the flame expansion is partucular

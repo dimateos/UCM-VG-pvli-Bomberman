@@ -94,10 +94,10 @@ Point.prototype.getMapSquareExtraPos = function (tileData, extraOffset) {
     //margin to consider the center wider (not just a point)
     var margin = (tileData.Res.x*tileData.Scale.x+tileData.Res.y*tileData.Scale.y)/2;
     margin *= 0.001
-    console.log(margin);
+    //console.log(margin);
 
     var difX = exactMapValue.x - virtualMapValue.x;
-    console.log(difX);
+    //console.log(difX);
     if (difX < 0-margin) extraDir.x = -1;
     else if (difX > 0+margin) extraDir.x = 1;
 

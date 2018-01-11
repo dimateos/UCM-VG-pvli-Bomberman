@@ -12,7 +12,7 @@ var enemyBodyOffset = new Point(0, 0);
 var enemyExtraOffset = new Point(0, 0); //to center it
 
 var enemyImmovable = false;
-var enemyInvecibleTime = 2500;
+var enemyInvecibleTime = 2500; //maybe reduce
 
 var enemyLives = 1;
 var enemyVelocity = 90;
@@ -31,7 +31,7 @@ function Enemy (game, position, level, enemyType, tileData, groups, dropId) {
         tileData.Scale, enemyBodySize, enemyBodyOffset,
         enemyImmovable, enemyLives, enemyInvecibleTime, dropId);
 
-    this.body.bounce.setTo(1,1);
+    this.body.bounce.setTo(1,1); //provisional
     this.body.velocity.x = enemyVelocity;
 
     level.updateSquare(position, level.types.free.value);
@@ -40,8 +40,6 @@ function Enemy (game, position, level, enemyType, tileData, groups, dropId) {
 Enemy.prototype = Object.create(Bombable.prototype);
 Enemy.prototype.constructor = Enemy;
 
-
-Enemy.prototype.hey = function() {console.log(this);};
 
 Enemy.prototype.update = function() {
 
@@ -52,19 +50,25 @@ Enemy.prototype.update = function() {
         this.body.velocity.x = 0;
         this.body.velocity.y = 0;
     }
-    else {
-        this.game.physics.arcade.collide(this, this.groups.wall, logic, null, this);
-        this.game.physics.arcade.collide(this, this.groups.box, logic, null, this);
-        this.game.physics.arcade.collide(this, this.groups.bomb, logic, null, this);
-        //not sure in the original
-        this.game.physics.arcade.collide(this, this.groups.enemy, logic, null, this);
-    }
+    else this.logicMovement();
 
-    //atm no logic nopie
-    function logic () {
-        //console.log("bounce")
-        //this.body.velocity.x=-this.body.velocity.x;
-    }
+    // else {
+    //     // this.game.physics.arcade.collide(this, this.groups.wall, logic, null, this);
+    //     // this.game.physics.arcade.collide(this, this.groups.box, logic, null, this);
+    //     // this.game.physics.arcade.collide(this, this.groups.bomb, logic, null, this);
+    //     // //not sure in the original
+    //     // this.game.physics.arcade.collide(this, this.groups.enemy, logic, null, this);
+    // }
+}
+
+Enemy.prototype.logicMovement = function() {
+
+    var positionMap = new Point(this.position.x, this.position.y)
+        .getMapSquarePos(this.tileData, enemyExtraOffset);
+
+    var freeSurroungings = this.level.getSurroundingFreeSquares(positionMap);
+
+    var rnd = this.game.rnd.integerInRange(0,freeSurroungings.length-1);
 
 }
 

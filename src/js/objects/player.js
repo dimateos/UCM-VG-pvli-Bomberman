@@ -72,7 +72,7 @@ Player.prototype.update = function() {
     }
 }
 
-//checks for the next level portal too
+//checks for powerUps and takes them
 Player.prototype.checkPowerUps = function() {
 
     this.game.physics.arcade.overlap(this, this.groups.powerUp, takePowerUp);
@@ -118,7 +118,7 @@ Player.prototype.movementLogic = function() {
     }
 }
 
-//so moving is not anoying...
+//very important, and documented... fixes the player movement
 Player.prototype.fixedDirMovement = function(dir) {
 
     var fixedDir;
@@ -179,7 +179,7 @@ Player.prototype.fixedDirMovement = function(dir) {
             else fixedDir = new Point(); //if diagonal is blocked too, do nothing
         }
     }
-    console.log(fixedDir);
+    //console.log(fixedDir);
     return fixedDir;
 }
 
@@ -187,6 +187,7 @@ Player.prototype.fixedDirMovement = function(dir) {
 Player.prototype.bombLogic = function() {
     if(this.inputs.bomb.button.isDown && !this.inputs.bomb.ff && this.numBombs > 0
         && !this.game.physics.arcade.overlap(this, this.groups.bomb)){
+        //checks if the player is over a bomb
 
         //console.log(this.groups.bomb.children)
         //console.log(this.groups.flame.children)
