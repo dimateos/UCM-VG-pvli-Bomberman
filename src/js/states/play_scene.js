@@ -27,6 +27,9 @@ const tileData = {
 };
 
 var mMenuTitle;
+var pausePanel;
+var flipflop = false;
+var unpauseButton;
 
 var PlayScene = {
 
@@ -39,6 +42,8 @@ var PlayScene = {
     mMenuTitle = this.game.add.sprite(50,0, 'mMenuTitle'); //vital for life on earth
     mMenuTitle.scale = new Point(0.9, 0.75); //nah just for presentation
 
+    
+    
     //map
     groups = new Groups (this.game); //first need the groups
     level = new Map(this.game, initialMap.world, initialMap.level, groups, tileData, maxPlayers);
@@ -55,6 +60,8 @@ var PlayScene = {
       console.log("\n PLAYER: ", players[0]);
       console.log("\n MAP: ", level.map);
     }
+
+    
   },
 
 
@@ -77,19 +84,80 @@ var PlayScene = {
 
     addPlayerControl(this.game);
     debugModeControl(this.game);
-    // pauseMenuControl(this.game);
+    offPauseMenuControl(this.game);
   },
 
+  paused: function(){
+    gInputs.pMenu.ff = true;    
+    this.game.input.onDown.add(unPause, this);
+    pausePanel = this.game.add.sprite(width/2, height/2, 'pausePanel');
+    pausePanel.anchor.setTo(0.5, 0.5);
+    pausePanel.alpha = 0.5;
+
+    unpauseButton = this.game.add.sprite(width/2, height/2, 'mMenuButton2');
+    unpauseButton.anchor.setTo(0.5, 0.5);
+
+    function unPause(){
+      if(this.game.paused){
+        if(this.game.input.mousePointer.position.x > unpauseButton.position.x - unpauseButton.texture.width/2 
+          && this.game.input.mousePointer.position.x < unpauseButton.position.x + unpauseButton.texture.width/2 
+          && this.game.input.mousePointer.position.y > unpauseButton.position.y - unpauseButton.texture.height/2 
+          && this.game.input.mousePointer.position.y < unpauseButton.position.y + unpauseButton.texture.height/2)
+          this.game.paused = false;
+      }
+    };
+
+  },
+
+  pauseUpdate: function () {
+   // console.log(this);
+    
+    //if(gInputs)
+      // console.log(gInputs);
+      // gInputs.pMenu.ff = false;
+    // onPauseMenuControl(this.game);
+    
+    // console.log(gInputs.pMenu.ff)
+  },
+
+  resumed: function () {
+    gInputs.pMenu.ff = false;
+    pausePanel.destroy();
+    unpauseButton.destroy();
+  },
 
   render: function(){
     if (gInputs.debug.state) {
       groups.drawDebug();
       this.game.debug.bodyInfo(players[0], 32, 32);
     }
-  }
-
+  },
 };
 
+
+
+var onPauseMenuControl = function (game){
+  if(gInputs.pMenu.isUp)
+    gInputs.pMenu.ff = false;
+
+  else if(gInputs.pMenu.button.isDown && !gInputs.pMenu.ff)
+  {
+    gInputs.pMenu.ff = true;
+    game.paused = false;
+  }
+}
+
+var offPauseMenuControl = function (game) {
+  if(gInputs.pMenu.button.isDown && !gInputs.pMenu.ff)
+  {
+    gInputs.pMenu.ff = true;
+    game.paused = true;
+  }
+//MIRAR DOCUMENTACION DE PHASER.SIGNAL
+  else if(gInputs.pMenu.isUp)
+    gInputs.pMenu.ff = false;
+  console.log(gInputs.pMenu.ff)
+}
 
 //this two methods may could go into some globalInputs.js update? but seems good
 //allow to add extra players
@@ -138,16 +206,5 @@ var debugModeControl = function (game) {
 
 };
 
-// var pauseMenuControl = function (game) {
-//   if(gInputs.pMenu.button.isDown && !gInputs.pMenu.ff)
-//   {
-//     gInputs.pMenu.ff = true;
-//     game.paused = !game.paused;
-//   }
-// //MIRAR DOCUMENTACION DE PHASER.SIGNAL
-//   else if(game.onPause || game.onResume)
-//     gInputs.pMenu.ff = false;
-//   console.log(gInputs.pMenu.ff)
-// }
 
 module.exports = PlayScene;
