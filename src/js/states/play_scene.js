@@ -30,6 +30,7 @@ var mMenuTitle;
 var pausePanel;
 var flipflop = false;
 var unpauseButton;
+var gotoMenuButton;
 
 var PlayScene = {
 
@@ -88,14 +89,18 @@ var PlayScene = {
   },
 
   paused: function(){
-    gInputs.pMenu.ff = true;    
+    this.game.stage.disableVisibilityChange = true;
     this.game.input.onDown.add(unPause, this);
+
     pausePanel = this.game.add.sprite(width/2, height/2, 'pausePanel');
     pausePanel.anchor.setTo(0.5, 0.5);
     pausePanel.alpha = 0.5;
 
-    unpauseButton = this.game.add.sprite(width/2, height/2, 'mMenuButton2');
+    unpauseButton = this.game.add.sprite(width/2, height/2 - 50, 'mMenuButton2');
     unpauseButton.anchor.setTo(0.5, 0.5);
+
+    gotoMenuButton = this.game.add.sprite(width/2, height/2 + 50, 'quitToMenu');
+    gotoMenuButton.anchor.setTo(0.5, 0.5);    
 
     function unPause(){
       if(this.game.paused){
@@ -104,24 +109,34 @@ var PlayScene = {
           && this.game.input.mousePointer.position.y > unpauseButton.position.y - unpauseButton.texture.height/2 
           && this.game.input.mousePointer.position.y < unpauseButton.position.y + unpauseButton.texture.height/2)
           this.game.paused = false;
+        
+        //We need to fix the remake of maps before this fully works. But it does what it has to.
+        else if(this.game.input.mousePointer.position.x > gotoMenuButton.position.x - gotoMenuButton.texture.width/2 
+          && this.game.input.mousePointer.position.x < gotoMenuButton.position.x + gotoMenuButton.texture.width/2 
+          && this.game.input.mousePointer.position.y > gotoMenuButton.position.y - gotoMenuButton.texture.height/2 
+          && this.game.input.mousePointer.position.y < gotoMenuButton.position.y + gotoMenuButton.texture.height/2)
+          { console.log("caca"); this.game.state.start('mainMenu'); this.game.paused = false;}
       }
     };
 
   },
 
-  pauseUpdate: function () {
-   // console.log(this);
+  //NOT FULLY NECESSARY BUT MAY BE USEFUL IN THE FUTURE
+  // pauseUpdate: function () {
+  //  // console.log(this);
     
-    //if(gInputs)
-      // console.log(gInputs);
-      // gInputs.pMenu.ff = false;
-    // onPauseMenuControl(this.game);
+  //   //if(gInputs)
+  //     // console.log(gInputs);
+  //     // gInputs.pMenu.ff = false;
+  //   // onPauseMenuControl(this.game);
     
-    // console.log(gInputs.pMenu.ff)
-  },
+  //   // console.log(gInputs.pMenu.ff)
+  // },
 
   resumed: function () {
+    this.game.stage.disableVisibilityChange = false;
     gInputs.pMenu.ff = false;
+
     pausePanel.destroy();
     unpauseButton.destroy();
   },
@@ -133,19 +148,6 @@ var PlayScene = {
     }
   },
 };
-
-
-
-var onPauseMenuControl = function (game){
-  if(gInputs.pMenu.isUp)
-    gInputs.pMenu.ff = false;
-
-  else if(gInputs.pMenu.button.isDown && !gInputs.pMenu.ff)
-  {
-    gInputs.pMenu.ff = true;
-    game.paused = false;
-  }
-}
 
 var offPauseMenuControl = function (game) {
   if(gInputs.pMenu.button.isDown && !gInputs.pMenu.ff)

@@ -39,6 +39,8 @@ var PreloaderScene = {
         this.game.load.image('mMenuTitle', 'images/Sprites/Menu/title.png');
 
         this.game.load.image('pausePanel', 'images/Sprites/Menu/White_Panel.png');
+        this.game.load.image('quitToMenu', 'images/Sprites/Menu/Two_Players_Hover.png');
+        
     },
 
     create: function () {
