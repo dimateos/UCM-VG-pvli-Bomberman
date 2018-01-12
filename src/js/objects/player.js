@@ -12,8 +12,8 @@ var playerSpritePath = 'player_'; //partial, to complete with numPlayer
 
 // var playerBodySize = new Point(48, 48); //little smaller
 // var playerBodyOffset = new Point(0, 40);
-var playerBodySize = new Point(40, 40); //little smaller
-var playerBodyOffset = new Point(3, 44);
+var playerBodySize = new Point(40, 32); //little smaller
+var playerBodyOffset = new Point(3, 48);
 var playerExtraOffset = new Point(6, -20); //reaquired because player body is not full res
 
 var playerImmovable = false;
