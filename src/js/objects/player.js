@@ -21,8 +21,11 @@ var playerImmovable = false;
 var playerLives = 5;
 var playerNumBombs = 5;
 
-var playerVelocity = 140; //max=playerVelocity+5*10
-var playerVelocityTurning = 115;
+var playerVelocity = 140; //max=playerVelocity+5*10 (depends on powerUps)
+//reduced velocity for the turn so the alignment is much smoother
+//does not change with playerVelocity, so what changes is the relative reduction
+//a starting -25% playerVelocity, and a max of ~45% (or less)
+var playerVelocityTurning = 105;
 
 var playerInvencibleTime = 5000;
 var playerDeathTimer = 1500;
@@ -49,6 +52,10 @@ function Player (game, level, numPlayer, tileData, groups) {
     this.numBombs = playerNumBombs;
 
     this.inputs = new Inputs (game, numPlayer); //based on numPlayer
+    this.dirs = {dirX: new Point(), dirY: new Point};
+    this.prioritizedDirs = {first: undefined, second: undefined};
+    this.blockedBacktrack = {x: false, y: false};
+
     this.groups.player.add(this); //adds itself to the group
 
     this.mods = [];
@@ -59,7 +66,7 @@ function Player (game, level, numPlayer, tileData, groups) {
 Player.prototype = Object.create(Bombable.prototype);
 Player.prototype.constructor = Player;
 
-
+//Calls all methods
 Player.prototype.update = function() {
 
     this.checkFlames(); //bombable method
@@ -100,27 +107,96 @@ Player.prototype.movementLogic = function() {
     this.body.velocity.x = 0; //stops the player
     this.body.velocity.y = 0;
 
-    var dir = new Point();
-
-    //input defines dir
-    if (this.inputs.mov.left.isDown) dir.x = -1;
-    else if (this.inputs.mov.right.isDown) dir.x = 1;
-    else if (this.inputs.mov.up.isDown) dir.y = -1;
-    else if (this.inputs.mov.down.isDown) dir.y = 1;
+    this.readInput();
 
     //fixes the dir only if not null
-    if (dir.x !== 0 || dir.y !== 0) {
-        var fixedDir = this.fixedDirMovement(dir);
+    // if (dir.x !== 0 || dir.y !== 0) {
+        var fixedDir = this.fixedDirMovement(this.prioritizedDirs.first);
 
         //moves the player
         if (fixedDir.x ===1) this.body.velocity.x = this.velocity;
         else if (fixedDir.x ===-1) this.body.velocity.x = -this.velocity;
         else if (fixedDir.y ===1) this.body.velocity.y = this.velocity;
         else if (fixedDir.y ===-1) this.body.velocity.y = -this.velocity;
-    }
+    // }
 }
 
-//very important, and documented... fixes the player movement
+//reads the input, handles multiple keys
+//prioritizes keys of the same axis them (last key pressed rules)
+Player.prototype.readInput = function() {
+
+    var nextDirX = new Point(); //sparate axis
+    var nextDirY = new Point();
+    var inputX = [];
+    var inputY = [];
+
+    //inputs are stored
+    if (this.inputs.mov.left.isDown) inputX.push(-1);
+    if (this.inputs.mov.right.isDown) inputX.push(1);
+    if (this.inputs.mov.up.isDown) inputY.push(-1);
+    if (this.inputs.mov.down.isDown) inputY.push(1);
+
+    //handle double inputX (no backtracking)
+    if (inputX.length === 2) { //if two inputs, reverse direction once
+        if (this.blockedBacktrack.x) nextDirX = this.dirs.dirX;
+        else {
+            nextDirX = new Point(-this.dirs.dirX.x, 0);
+            this.blockedBacktrack.x = true;
+        }
+    } //only 1 input, remove blockedBacktrack
+    else if (inputX.length === 1) {
+        this.blockedBacktrack.x = false;
+        nextDirX = new Point(inputX.pop(), 0);
+    }
+
+    //handle double inputY (no backtracking)
+    if (inputY.length === 2) {
+        if (this.blockedBacktrack.y) nextDirY = this.dirs.dirY;
+        else {
+            nextDirY = new Point(0, -this.dirs.dirY.y);
+            this.blockedBacktrack.y = true;
+        }
+    }
+    else if (inputY.length === 1) {
+        this.blockedBacktrack.y = false;
+        nextDirY = new Point(0, inputY.pop());
+    }
+
+    //console.log("X ", nextDirX);
+    //console.log("Y ", nextDirY);
+    this.prioritizeInputs(nextDirX, nextDirY);
+}
+
+Player.prototype.prioritizeInputs = function(nextDirX, nextDirY) {
+
+    //reset dirs now (had to compare with previous)
+    //we do not reset prioritized dirs
+    this.dirs = {dirX: new Point(), dirY: new Point()};
+
+    //if there has been only one input
+    if (nextDirX.x === 0 || nextDirY.y === 0) {
+        if (nextDirX.x !== 0) {
+            this.dirs.dirX = nextDirX;
+            this.prioritizedDirs.first = this.dirs.dirX;
+            this.prioritizedDirs.second = undefined;
+        }
+        else {
+            this.dirs.dirY = nextDirY;
+            this.prioritizedDirs.first = this.dirs.dirY;
+            this.prioritizedDirs.second = undefined;
+        }
+    }
+    //but if both are defined...
+    else if (nextDirX.x !== 0 && nextDirY.y !== 0) {
+        this.dirs.dirX = nextDirX;
+        this.dirs.dirY = nextDirY;
+    }
+
+    // console.log(this.dirs.dirX.x, this.dirs.dirY.y);
+    // console.log(this.prioritizedDirs.first.x, this.prioritizedDirs.first.y);
+}
+
+//very important, and documented... makes the player movement fixed
 Player.prototype.fixedDirMovement = function(dir) {
 
     var fixedDir;

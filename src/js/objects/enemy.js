@@ -115,7 +115,7 @@ Enemy.prototype.checkCollision = function(positionMap, extraPosMap) {
     //checks if the next square is free and if the enemy is in the center
     if ((!this.level.isNextSquareFree(positionMap, this.dir))
     && (extraPosMap.x === 0 && extraPosMap.y === 0)) {
-        console.log("Enemy turning");
+        // console.log("Enemy turning");
         blocked = true;
     }
 
@@ -145,7 +145,7 @@ Enemy.prototype.checkEnemyOverlap = function(positionMap) {
                 .add(thisEnemy.dir.x, thisEnemy.dir.y)
 
             var positionsToCheck = getPositionsToCheck (nextPos, thisEnemy);
-            console.log(positionMap, positionsToCheck);
+            // console.log(positionMap, positionsToCheck);
 
             for (var i = 0; i < positionsToCheck.length; i++) {
 
