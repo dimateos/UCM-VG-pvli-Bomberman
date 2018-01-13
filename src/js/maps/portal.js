@@ -41,7 +41,11 @@ Portal.prototype.update = function() {
         this.rotation+= portalSpinVel;
 
         if (this.groups.enemy.children.length === 0)
-            this.game.physics.arcade.overlap(this, this.groups.player, this.nextLevel, null, this);
+            this.game.physics.arcade.overlap(this, this.groups.player, nextLevel);
+    }
+
+    function nextLevel(portal, player) {
+        player.level.generateNextMap();
     }
 }
 
@@ -95,8 +99,5 @@ Portal.prototype.spawnEnemie = function () {
         this.level, defaultEnemyType, this.tileData, this.groups, portalDropId));
 }
 
-Portal.prototype.nextLevel = function () {
-    console.log("too the nexttttt");
-}
 
 module.exports = Portal;

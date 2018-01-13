@@ -27,7 +27,7 @@ var levelDataBase = [
         {   //1
             extraWalls: 2,
             bombables: 2,      //some bombables drop power ups
-            powerUps: [0],   //1 tier 0 (always stairs), and 2 tier 1
+            powerUps: [1],   //1 tier 0 (always stairs), and 2 tier 1
             enemies: [2],       //3 tier 0 enemies
             enemiesDrops: [0],//same as powerUps
             theme: "basic"

@@ -26,30 +26,53 @@ var defaultEnemyType = 0;
 function Map (game, worldNum, levelNum, groups, tileData, maxPlayers) {
 
     this.game = game;
-    this.mapNumber = {world: worldNum, level: levelNum};
-    this.levelData = levelsDataBase[worldNum][levelNum];
-
-    this.maxPlayers = maxPlayers;
     this.groups = groups;
     this.tileData = tileData;
+    this.maxPlayers = maxPlayers;
 
-    //Always same base map
+    //Always same base map values
     this.cols = baseMapData.cols;
     this.fils = baseMapData.fils;
     this.types = baseMapData.squaresTypes;
     this.playerSpawns = baseMapData.playerSpawns;
+
+    this.generateMap(worldNum, levelNum);
+};
+
+//gets data of specified map from levelsDataBase and then cooks+build
+Map.prototype.generateMap = function(worldNum, levelNum) {
+
     this.map = baseMapData.copyMap(baseMapData.squares); //copy
+
+    this.mapNumber = {world: worldNum, level: levelNum};
+    this.levelData = levelsDataBase[worldNum][levelNum];
 
     this.bombableIdsPowerUps = this.generateIdsPowerUps(this.levelData.powerUps);
     this.enemiesIdsPowerUps = this.generateIdsPowerUps(this.levelData.enemiesDrops);
 
-    this.generateMap();
+    this.cookMap();
     this.buildMap(this.groups, this.tileData); //shorter with this.
+}
+
+//generates a new map (resets groups and players'positions)
+Map.prototype.generateNewMap = function(worldNum, levelNum) {
+    this.groups.clearGroups(this.game); //clears all grups but player
+    this.groups.player.callAll('respawn'); //resets players' pos
+
+    this.mapNumber = {world: worldNum, level: levelNum};
+    this.levelData = levelsDataBase[worldNum][levelNum];
+
+    this.generateMap(worldNum, levelNum);
+};
+Map.prototype.regenerateMap = function() {
+    this.generateNewMap(this.mapNumber.world, this.mapNumber.level)
+};
+Map.prototype.generateNextMap = function() { //TODO: adapt to world numbers
+    this.generateNewMap(this.mapNumber.world, this.mapNumber.level+1)
 };
 
-
-//Adds all the extra bombables and walls
-Map.prototype.generateMap = function() {
+//Adds all the extra bombables (drop too) and walls into the map
+Map.prototype.cookMap = function() {
     var self = this; //instead of apply
     var freeSquares = this.getFreeSquares(this.maxPlayers);
 

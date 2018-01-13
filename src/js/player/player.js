@@ -32,11 +32,10 @@ function Player(game, level, numPlayer, tileData, groups) {
 
     this.numPlayer = numPlayer;
     this.inputs = new Inputs(game, numPlayer); //based on numPlayer
-    this.tileData = tileData;
 
     //produces respawn position based on playerSpawns[numPlayer]
     this.respawnPos = new Point(level.playerSpawns[numPlayer].x, level.playerSpawns[numPlayer].y)
-        .applyTileData(this.tileData, playerExtraOffset);
+    .applyTileData(tileData, playerExtraOffset);
 
     Bombable.call(this, game, level, groups, this.respawnPos, playerSpritePath + this.numPlayer,
         tileData.Scale, playerBodySize, playerBodyOffset,
@@ -49,6 +48,8 @@ function Player(game, level, numPlayer, tileData, groups) {
     this.prioritizedDirs = { first: this.dirs.dirX, second: this.dirs.dirY };
     this.blockedBacktrack = { x: false, y: false, turn: false };
 
+    this.tileData = tileData;
+    this.level = level;
     this.groups = groups;
     this.groups.player.add(this); //adds itself to the group
 
@@ -75,7 +76,6 @@ Player.prototype.update = function () {
         this.bombLogic();
     }
 }
-
 
 //checks for powerUps and takes them
 Player.prototype.checkPowerUps = function () {
