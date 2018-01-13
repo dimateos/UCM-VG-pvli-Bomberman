@@ -99,7 +99,7 @@ Player.prototype.checkEnemy = function () {
 }
 
 
-//reads inputs, fixes direction and moves
+//reads inputs, fixes direction and then moves
 Player.prototype.movementLogic = playerMovAndInputs.movementLogic;
 //reads the input, handles multiple keys
 //prioritizes keys of the same axis them (last key pressed rules)

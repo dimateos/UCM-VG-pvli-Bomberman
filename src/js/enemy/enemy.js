@@ -36,6 +36,7 @@ function Enemy (game, position, level, enemyType, tileData, groups, dropId) {
 
     level.updateSquare(position, level.types.free.value); //clears the map
 
+    this.dir = new Point();
     this.pickDirection(); //starting the movement
     this.setSpeed(this.dir);
 };
@@ -149,10 +150,8 @@ Enemy.prototype.checkEnemyOverlap = function(positionMap) {
 
             for (var i = 0; i < positionsToCheck.length; i++) {
 
-                if (positionsToCheck[i].x === otherEnemyPos.x
-                    && positionsToCheck[i].y === otherEnemyPos.y) {
+                if (positionsToCheck[i].isEqual(otherEnemyPos))
                         enemyBlocking = true;
-                    }
             }
         }
     }

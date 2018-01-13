@@ -11,6 +11,7 @@ function Point(x, y) {
 Point.prototype = Object.create(Phaser.Point.prototype);
 Point.prototype.constructor = Point;
 
+
 //calculates real position of a map point based on tileData
 Point.prototype.applyTileData = function (tileData, extraOffset) {
 
@@ -64,6 +65,7 @@ Point.prototype.getReversedTileData = function (tileData, extraOffset) {
     return tmp;
 }
 
+
 //gets rounded map square value
 Point.prototype.getMapSquarePos = function (tileData, extraOffset) {
 
@@ -111,11 +113,10 @@ Point.prototype.getMapSquareExtraPos = function (tileData, extraOffset) {
     return extraDir;
 }
 
+
 //returns true if the directions are parallel (only normalized dirs)
 Point.prototype.isParallel = function (dir) {
-
-    return (this.x === dir.x && this.y === dir.y)
-        || (this.x === -dir.x && this.y === -dir.y);
+    return (this.isEqual(dir)) || (this.isEqual(dir.inversed()));
 }
 
 //return true if the points are equal

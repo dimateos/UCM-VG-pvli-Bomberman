@@ -2,6 +2,7 @@
 const DEBUG = true;
 
 var Point = require('../general/point.js');
+var globalControls = require('../general/globalControls.js');
 
 var Groups = require('../general/groups.js')
 var groups;
@@ -19,6 +20,7 @@ var maxPlayers = 4; //needed for the map generation
 
 const width = 800;
 const height = 600;
+const debugPos = new Point(32, height-96);
 
 const tileData = {
   Res: new Point(64, 64),
@@ -40,10 +42,9 @@ var PlayScene = {
   },
 
   create: function () {
+    //menu stuff
     mMenuTitle = this.game.add.sprite(50, 0, 'mMenuTitle'); //vital for life on earth
     mMenuTitle.scale = new Point(0.9, 0.75); //nah just for presentation
-
-
 
     //map
     groups = new Groups(this.game); //first need the groups
@@ -57,11 +58,10 @@ var PlayScene = {
       players.push(new Player(this.game, level, numPlayer, tileData, groups));
 
     if (DEBUG) {
-      console.log("Loaded...", Date.now() - this.startTime, "ms");
       console.log("\n PLAYER: ", players[0]);
       console.log("\n MAP: ", level.map);
+      console.log("Loaded...", Date.now() - this.startTime, "ms");
     }
-
 
   },
 
@@ -77,14 +77,11 @@ var PlayScene = {
     // else this.game.physics.arcade.collide(players[0], groups.enemy);
 
     this.game.world.bringToTop(groups.flame);
-    this.game.world.bringToTop(groups.player);
+    this.game.world.bringToTop(groups.player); //array doesnt work
 
-    //but full array bringToTop doesnt work
-    //for (var numPlayer = 0; numPlayer < players.length; numPlayer++)
-    //this.game.world.bringToTop(players[numPlayer]);
-
-    addPlayerControl(this.game);
-    debugModeControl(this.game);
+    globalControls.addPlayerControl(gInputs, players, maxPlayers);
+    globalControls.debugModeControl(gInputs, this.game);
+    globalControls.resetLevelControl(gInputs, level);
     offPauseMenuControl(this.game);
   },
 
@@ -141,12 +138,15 @@ var PlayScene = {
   },
 
   render: function () {
+
     if (gInputs.debug.state) {
-      groups.drawDebug();
-      this.game.debug.bodyInfo(players[0], 32, 32);
+      groups.drawDebug(this.game);
+      this.game.debug.bodyInfo(players[0], debugPos.x, debugPos.y);
     }
+
   },
 };
+
 
 var offPauseMenuControl = function (game) {
   if (gInputs.pMenu.button.isDown && !gInputs.pMenu.ff) {
@@ -158,51 +158,5 @@ var offPauseMenuControl = function (game) {
     gInputs.pMenu.ff = false;
   //console.log(gInputs.pMenu.ff)
 }
-
-//this two methods may could go into some globalInputs.js update? but seems good
-//allow to add extra players
-var addPlayerControl = function (game) {
-  if (gInputs.addPlayer.button.isDown && !gInputs.addPlayer.ff && players.length < maxPlayers) {
-    gInputs.addPlayer.ff = true;
-
-    console.log(groups.enemy.children)
-
-    //logic for new player
-    for (var numPlayer = 0; numPlayer < players.length; numPlayer++) {
-      //divides by 2 all players' lives (integers) but only down to 1
-      if (players[numPlayer].lives > 1) {
-        players[numPlayer].lives -= players[numPlayer].lives % 2;
-        players[numPlayer].lives /= 2;
-      }
-    }
-    players.push(new Player(game, level, players.length, tileData, groups))
-    players[players.length - 1].lives = players[0].lives;
-    //new player's lives = player0; maybe a little unfair, but the real mode only allows 2 players
-  }
-
-  else if (gInputs.addPlayer.button.isUp)
-    gInputs.addPlayer.ff = false;
-};
-
-//shows hitboxes and allows movement through the boxes
-var debugModeControl = function (game) {
-  if (gInputs.debug.button.isDown && !gInputs.debug.ff) {
-    //while debug player 0 is invecible and can push enemies
-    players[0].invencible = true;
-
-    gInputs.debug.state = !gInputs.debug.state; //toggle state
-    gInputs.debug.ff = true;
-
-    if (!gInputs.debug.state) {
-      players[0].endInvencibility();
-      game.debug.reset(); //reset whole debug render
-    }
-  }
-
-  else if (gInputs.debug.button.isUp)
-    gInputs.debug.ff = false;
-
-};
-
 
 module.exports = PlayScene;
