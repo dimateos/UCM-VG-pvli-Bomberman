@@ -1,7 +1,7 @@
 'use strict';
 
 var GameObject = require('../objects/gameObject.js');
-var Physical = require('../objects/physical.js');
+//var Physical = require('../objects/physical.js'); //no more needed
 var Bombable = require('../objects/bombable.js');
 var Enemy = require('../enemy/enemy.js');
 
@@ -26,24 +26,25 @@ var defaultEnemyType = 0;
 function Map (game, worldNum, levelNum, groups, tileData, maxPlayers) {
 
     this.game = game;
+    this.mapNumber = {world: worldNum, level: levelNum};
     this.levelData = levelsDataBase[worldNum][levelNum];
 
     this.maxPlayers = maxPlayers;
-    //this.groups = groups; //no need to extra atributes?
+    this.groups = groups;
+    this.tileData = tileData;
 
     //Always same base map
-    this.map = baseMapData.squares;
     this.cols = baseMapData.cols;
     this.fils = baseMapData.fils;
     this.types = baseMapData.squaresTypes;
     this.playerSpawns = baseMapData.playerSpawns;
-    this.tileData = tileData;
+    this.map = baseMapData.copyMap(baseMapData.squares); //copy
 
     this.bombableIdsPowerUps = this.generateIdsPowerUps(this.levelData.powerUps);
     this.enemiesIdsPowerUps = this.generateIdsPowerUps(this.levelData.enemiesDrops);
 
     this.generateMap();
-    this.buildMap(groups, this.tileData); //shorter with this.tileData
+    this.buildMap(this.groups, this.tileData); //shorter with this.
 };
 
 
@@ -215,9 +216,11 @@ Map.prototype.buildMap = function (groups, tileData) {
 
                 case this.types.wallSP.value: //no special tile atm
                 case this.types.wall.value:
-                    groups.wall.add(new Physical (this.game, squareIndexPos,
-                        this.types.wall.sprite, tileData.Scale, tileData.Res,
-                        defaultBodyOffset, defaultImmovable));
+                    // groups.wall.add(new Physical (this.game, squareIndexPos,
+                    //     this.types.wall.sprite, tileData.Scale, tileData.Res,
+                    //     defaultBodyOffset, defaultImmovable)); //no more needed
+                    groups.wall.add(new GameObject (this.game, squareIndexPos,
+                        this.types.wall.sprite, tileData.Scale));
 
                     break;
             }
