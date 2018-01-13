@@ -1,7 +1,7 @@
 'use strict';
 
-var Bombable = require('./bombable.js'); //father
-var Point = require('../point.js');
+var Bombable = require('../objects/bombable.js'); //father
+var Point = require('../general/point.js');
 
 
 //default enemy values
@@ -114,7 +114,7 @@ Enemy.prototype.checkCollision = function(positionMap, extraPosMap) {
 
     //checks if the next square is free and if the enemy is in the center
     if ((!this.level.isNextSquareFree(positionMap, this.dir))
-    && (extraPosMap.x === 0 && extraPosMap.y === 0)) {
+    && extraPosMap.isNull()) {
         // console.log("Enemy turning");
         blocked = true;
     }

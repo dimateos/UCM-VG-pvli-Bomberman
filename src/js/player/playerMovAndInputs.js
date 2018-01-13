@@ -1,111 +1,24 @@
 'use strict';
 
-var Bombable = require('./bombable.js'); //father
-var Point = require('../point.js');
+var Point = require('../general/point.js'); //required
 
-var Inputs = require('../inputs.js');
-var Bomb = require('./bomb.js');
-var Identifiable = require('../id/identifiable.js');
-
-//default player values
-var playerSpritePath = 'player_'; //partial, to complete with numPlayer
-
-// var playerBodySize = new Point(48, 48); //little smaller
-// var playerBodyOffset = new Point(0, 40);
-var playerBodySize = new Point(40, 32); //little smaller
-var playerBodyOffset = new Point(3, 48);
-var playerExtraOffset = new Point(6, -20); //reaquired because player body is not full res
-
-var playerImmovable = false;
-
-var playerLives = 5;
-var playerNumBombs = 5;
-
-//140 105
+//default movement values
 var playerVelocity = 140; //max=playerVelocity+5*10 (depends on powerUps)
+var playerVelocityTurning = 105; //140 105
 //reduced velocity for the turn so the alignment is much smoother
 //does not change with playerVelocity, so what changes is the relative reduction
 //a starting -25% playerVelocity, and a max of ~45% (or less)
-var playerVelocityTurning = 105;
 
-var playerInvencibleTime = 5000;
-var playerDeathTimer = 1500;
+var playerExtraOffset = new Point(6, -20); //need to took from config file
 
-var Id = Identifiable.Id; //the mini factory is in Identifiable
-var playerInitialModsIds = [/*new Id(1,2),*/ new Id(1, 1), /*new Id(1,0)*/];
+//big chunk of code imported by the player
+var playerMoveAndInputs = {
 
-
-function Player(game, level, numPlayer, tileData, groups) {
-
-    this.numPlayer = numPlayer;
-    this.inputs = new Inputs(game, numPlayer); //based on numPlayer
-    this.tileData = tileData;
-
-    //produces respawn position based on playerSpawns[numPlayer]
-    this.respawnPos = new Point(level.playerSpawns[numPlayer].x, level.playerSpawns[numPlayer].y)
-        .applyTileData(this.tileData, playerExtraOffset);
-
-    Bombable.call(this, game, level, groups, this.respawnPos, playerSpritePath + this.numPlayer,
-        tileData.Scale, playerBodySize, playerBodyOffset,
-        playerImmovable, playerLives, playerInvencibleTime);
-
-    this.velocity = playerVelocity;
-    this.numBombs = playerNumBombs;
-
-    this.dirs = { dirX: new Point(), dirY: new Point };
-    this.prioritizedDirs = { first: this.dirs.dirX, second: this.dirs.dirY };
-    this.fixedDir = new Point();
-    this.blockedBacktrack = { x: false, y: false, turn: false };
-
-    this.groups = groups;
-    this.groups.player.add(this); //adds itself to the group
-
-    this.mods = [];
-    this.bombMods = [];
-    Identifiable.addPowerUps(playerInitialModsIds, this);
-};
-
-Player.prototype = Object.create(Bombable.prototype);
-Player.prototype.constructor = Player;
-
-//Calls all methods
-Player.prototype.update = function () {
-
-    this.checkFlames(); //bombable method
-    //if dead or invencible already no need to check
-    if (!this.dead && !this.invencible) this.checkEnemy();
-
-    //if dead somehow yo do nothing
-    if (!this.dead) {
-        this.checkPowerUps();
-        this.movementLogic();
-        this.bombLogic();
-    }
-}
-
-//checks for powerUps and takes them
-Player.prototype.checkPowerUps = function () {
-
-    this.game.physics.arcade.overlap(this, this.groups.powerUp, takePowerUp);
-
-    function takePowerUp(player, powerUp) {
-        //console.log("takin powerUp");
-        player.mods.push(powerUp.id);
-
-        Identifiable.pickPowerUp(powerUp, player);
-
-        powerUp.destroy();
-    }
-}
-
-//atm simply checks overlapping
-Player.prototype.checkEnemy = function () {
-
-    this.game.physics.arcade.overlap(this, this.groups.enemy, this.die, null, this);
-}
+//Information required by the player
+getVel: function () {return playerVelocity},
 
 //reads inputs, fixes direction and moves
-Player.prototype.movementLogic = function () {
+movementLogic: function () {
     this.body.velocity.x = 0; //stops the player
     this.body.velocity.y = 0;
 
@@ -113,19 +26,18 @@ Player.prototype.movementLogic = function () {
     var fixedFinalDir = new Point(), fixedExtraDir = new Point();
 
     //proceed to fix the dir of the first dir
-    if (this.prioritizedDirs.first.x !== 0 || this.prioritizedDirs.first.y !== 0) {
+    if (!this.prioritizedDirs.first.isNull()) {
         fixedFinalDir = this.fixedDirMovement(this.prioritizedDirs.first);
 
         //if turning is not blocked we check the second dir
         //if it is not null ofc; we treat it as the extra
-        if (!this.blockedBacktrack.turn && (this.prioritizedDirs.second.x !== 0 || this.prioritizedDirs.second.y !== 0)) {
+        if (!this.blockedBacktrack.turn && !this.prioritizedDirs.second.isNull()) {
             fixedExtraDir = this.fixedDirMovement(this.prioritizedDirs.second);
 
             //now if the second fixed dir is different and not null or reversed
             //it is going to substitute the finalDir plus changes the preference
-            if ((fixedExtraDir.x !== -fixedFinalDir.x || fixedExtraDir.y !== -fixedFinalDir.y)
-                && (fixedExtraDir.x !== fixedFinalDir.x || fixedExtraDir.y !== fixedFinalDir.y)
-                && (fixedExtraDir.x !== 0 || fixedExtraDir.y !== 0)) {
+            if (!fixedExtraDir.isEqual(fixedFinalDir) && !fixedExtraDir.isNull()
+                && !fixedExtraDir.isEqual(fixedFinalDir.inversed())) {
 
                 fixedFinalDir.x = fixedExtraDir.x;
                 fixedFinalDir.y = fixedExtraDir.y;
@@ -147,34 +59,23 @@ Player.prototype.movementLogic = function () {
         }
     }
 
-    this.fixedDir.x = fixedFinalDir.x;
-    this.fixedDir.y = fixedFinalDir.y;
-
-    // if (fixedFinalDir.x !== 0 && fixedFinalDir.y !== 0)
-    //     console.log(fixedFinalDir,fixedExtraDir,this.prioritizedDirs);
-
-    console.log(fixedFinalDir.x, fixedFinalDir.y, " - ", fixedExtraDir.x, fixedExtraDir.y);
+    //console.log(fixedFinalDir.x, fixedFinalDir.y, " - ", fixedExtraDir.x, fixedExtraDir.y);
     //console.log(this.dirs.dirX.x, this.dirs.dirX.y, " - ", this.dirs.dirY.x, this.dirs.dirY.y);
     //console.log(this.prioritizedDirs.first.x, this.prioritizedDirs.first.y, " - ", this.prioritizedDirs.second.x, this.prioritizedDirs.second.y);
 
-    //fixes the dir only if not null
-    if ((fixedFinalDir.x !== 0 || fixedFinalDir.y !== 0)) {
-        // console.log(fixedFinalDir.x, fixedFinalDir.y);
+    //moves the player (only if dir is not null)
+    if (fixedFinalDir.x === 1) this.body.velocity.x = this.velocity;
+    else if (fixedFinalDir.x === -1) this.body.velocity.x = -this.velocity;
+    else if (fixedFinalDir.y === 1) this.body.velocity.y = this.velocity;
+    else if (fixedFinalDir.y === -1) this.body.velocity.y = -this.velocity;
 
-        //moves the player
-        if (fixedFinalDir.x === 1) this.body.velocity.x = this.velocity;
-        else if (fixedFinalDir.x === -1) this.body.velocity.x = -this.velocity;
-        else if (fixedFinalDir.y === 1) this.body.velocity.y = this.velocity;
-        else if (fixedFinalDir.y === -1) this.body.velocity.y = -this.velocity;
-    }
-
-    function unlockTurning() {this.blockedBacktrack.turn = false}
-
-}
+    //callback
+    function unlockTurning() { this.blockedBacktrack.turn = false }
+},
 
 //reads the input, handles multiple keys
 //prioritizes keys of the same axis them (last key pressed rules)
-Player.prototype.readInput = function () {
+readInput: function () {
 
     var nextDirX = new Point(); //sparate axis
     var nextDirY = new Point();
@@ -215,9 +116,9 @@ Player.prototype.readInput = function () {
 
     // console.log("X ", nextDirX.x, nextDirX.y, " - ", "Y ", nextDirY.x, nextDirY.y);
     this.prioritizeInputs(nextDirX, nextDirY);
-}
+},
 
-Player.prototype.prioritizeInputs = function (nextDirX, nextDirY) {
+prioritizeInputs: function (nextDirX, nextDirY) {
 
     //reset dirs now (had to compare with previous)
     //we do not reset prioritized dirs
@@ -225,8 +126,9 @@ Player.prototype.prioritizeInputs = function (nextDirX, nextDirY) {
     this.dirs.dirY.y = 0;
 
     //if there has been only one input
-    if (nextDirX.x === 0 || nextDirY.y === 0) {
-        if (nextDirX.x !== 0) {
+    //(only really need to compare x or y not both)
+    if (nextDirX.isNull() || nextDirY.isNull()) {
+        if (!nextDirX.isNull()) {
             this.dirs.dirX.x = nextDirX.x;
             this.prioritizedDirs.first = this.dirs.dirX;
             this.prioritizedDirs.second = this.dirs.dirY;
@@ -238,17 +140,17 @@ Player.prototype.prioritizeInputs = function (nextDirX, nextDirY) {
         }
     }
     //but if both are defined...
-    else if (nextDirX.x !== 0 && nextDirY.y !== 0) {
+    else if (!nextDirX.isNull() && !nextDirY.isNull()) {
         this.dirs.dirX.x = nextDirX.x;
         this.dirs.dirY.y = nextDirY.y;
     }
 
     // console.log(this.dirs.dirX.x, this.dirs.dirX.y, " - ", this.dirs.dirY.x, this.dirs.dirY.y);
     // console.log(this.prioritizedDirs.first.x, this.prioritizedDirs.first.y, " - ", this.prioritizedDirs.second.x, this.prioritizedDirs.second.y);
-}
+},
 
 //very important, and documented... makes the player movement fixed
-Player.prototype.fixedDirMovement = function (dir) {
+fixedDirMovement: function (dir) {
 
     var fixedDir;
     this.velocity = playerVelocity; //mey be slowed down
@@ -263,7 +165,7 @@ Player.prototype.fixedDirMovement = function (dir) {
     if (this.level.isNextSquareFree(positionMap, dir)) {
 
         //if the player is perfectly aligned, moves along
-        if (extraPosMap.x === 0 && extraPosMap.y === 0) {
+        if (extraPosMap.isNull()) {
             // console.log("1"); //all cases
             fixedDir = new Point(dir.x, dir.y);
         }
@@ -281,7 +183,7 @@ Player.prototype.fixedDirMovement = function (dir) {
     }
     else { //the next square is blocked
         //if the player is perfectly aligned, does nothing
-        if (extraPosMap.x === 0 && extraPosMap.y === 0) {
+        if (extraPosMap.isNull()) {
             // console.log("4");
             fixedDir = new Point();
         }
@@ -312,65 +214,6 @@ Player.prototype.fixedDirMovement = function (dir) {
     return fixedDir;
 }
 
-//all the bomb deploying logic
-Player.prototype.bombLogic = function () {
-    if (this.inputs.bomb.button.isDown && !this.inputs.bomb.ff && this.numBombs > 0
-        && !this.game.physics.arcade.overlap(this, this.groups.bomb)) {
-        //checks if the player is over a bomb
-
-        //console.log(this.groups.bomb.children)
-        //console.log(this.groups.flame.children)
-
-        this.numBombs--;
-
-        var bombPosition = new Point(this.position.x, this.position.y)
-            .getMapSquarePos(this.tileData, playerExtraOffset)
-            .applyTileData(this.tileData);
-
-        var bombie = new Bomb(this.game, this.level,
-            bombPosition, this.tileData, this.groups, this, this.bombMods)
-        this.groups.bomb.add(bombie);
-
-        //console.log(bombie)
-
-        this.inputs.bomb.ff = true;
-    }
-    else if (this.inputs.bomb.button.isUp) //deploy 1 bomb each time
-        this.inputs.bomb.ff = false;
 }
 
-
-//player concrete logic for die
-Player.prototype.die = function () {
-    console.log("checkin player die");
-    this.lives--;
-    this.dead = true; //to disable movement
-    this.body.velocity = new Point(); //stops the player
-
-    this.game.time.events.add(playerDeathTimer, this.respawn, this);
-
-    if (this.lives <= 0) {
-        console.log("P" + this.numPlayer + ", you ded (0 lives)");
-    }
-
-    else this.game.time.events.add(playerDeathTimer, flipInven, this);
-    function flipInven() { this.tmpInven = false; }
-}
-
-//needs improvements, atm only moves the player
-Player.prototype.respawn = function () {
-    this.position = new Point(this.respawnPos.x, this.respawnPos.y);
-    this.body.velocity = new Point(); //sometimes the player gets in the wall
-    this.invencible = true;
-    this.dead = false;
-
-    this.game.time.events.add(playerInvencibleTime, this.endInvencibility, this);
-}
-
-//just extended to see the player number
-Player.prototype.endInvencibility = function () {
-    console.log("P" + this.numPlayer + " invencibility ended");
-    this.invencible = false;
-}
-
-module.exports = Player;
+module.exports = playerMoveAndInputs;

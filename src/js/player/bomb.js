@@ -1,9 +1,9 @@
 'use strict';
 
-var Bombable = require('./bombable.js'); //father
-var Flame = require('../id/flame.js');
+var Bombable = require('../objects/bombable.js'); //father
+var Flame = require('../enemy/flame.js');
 
-var Point = require('../point.js');
+var Point = require('../general/point.js');
 var Identifiable = require('../id/identifiable.js');
 
 

@@ -1,5 +1,8 @@
 'use strict';
 
+//Used at aligment calculation, makes the center wide (instead of puntual)
+var centerMarginPercentage = 0.001; //Will be multiplied for the square size
+
 //Extends Phaser.Point
 function Point(x, y) {
 
@@ -14,7 +17,6 @@ Point.prototype.applyTileData = function (tileData, extraOffset) {
     this.multiply(tileData.Res.x,tileData.Res.y)
     .multiply(tileData.Scale.x,tileData.Scale.y)
     .add(tileData.Offset.x, tileData.Offset.y);
-
 
     if (extraOffset !== undefined)
         return this.add(extraOffset.x, extraOffset.y);
@@ -91,9 +93,9 @@ Point.prototype.getMapSquareExtraPos = function (tileData, extraOffset) {
     // console.log(exactMapValue);
     // console.log(virtualMapValue);
 
-    //margin to consider the center wider (not just a point)
+    //margin to consider the center wide (not just a point)
     var margin = (tileData.Res.x*tileData.Scale.x+tileData.Res.y*tileData.Scale.y)/2;
-    margin *= 0.001
+    margin *= centerMarginPercentage;
     //console.log(margin);
 
     var difX = exactMapValue.x - virtualMapValue.x;
@@ -114,6 +116,21 @@ Point.prototype.isParallel = function (dir) {
 
     return (this.x === dir.x && this.y === dir.y)
         || (this.x === -dir.x && this.y === -dir.y);
+}
+
+//return true if the points are equal
+Point.prototype.isEqual = function (otherPoint) {
+    return (this.x === otherPoint.x && this.y === otherPoint.y)
+}
+
+//returns the inverse of the point
+Point.prototype.inversed = function (otherPoint) {
+    return new Point(-this.x, -this.y);
+}
+
+//returns true if the point is null
+Point.prototype.isNull = function () {
+    return this.isEqual(new Point());
 }
 
 module.exports = Point;

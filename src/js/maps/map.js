@@ -3,14 +3,15 @@
 var GameObject = require('../objects/gameObject.js');
 var Physical = require('../objects/physical.js');
 var Bombable = require('../objects/bombable.js');
-var Enemy = require('../objects/enemy.js');
+var Enemy = require('../enemy/enemy.js');
 
 var Id = require('../id/identifiable.js').Id; //for bombable id
 var tierSize = require('../id/identifiable.js').tierSize; //for the rnd gen
-var Portal = require('../id/portal.js'); //next level portal
+
+var Portal = require('./portal.js'); //next level portal
 var portalId = new Id(0,0); //specific id for the portal
 
-var Point = require('../point.js');
+var Point = require('../general/point.js');
 var baseMapData = require("./baseMapData.js"); //base map and spawns
 var levelsDataBase = require("./levelsDataBase.js"); //base map and spawns
 

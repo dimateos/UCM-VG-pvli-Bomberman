@@ -1,18 +1,18 @@
 'use strict';
 const DEBUG = true;
 
-var Point = require('../point.js');
+var Point = require('../general/point.js');
 
-var Groups = require('../groups.js')
+var Groups = require('../general/groups.js')
 var groups;
 var Map = require('../maps/map.js');
 var level;
-var initialMap = {world: 1, level: 1};
+var initialMap = { world: 1, level: 1 };
 
-var Inputs = require('../inputs.js');
+var Inputs = require('../general/inputs.js');
 var gInputs; //global inputs
 
-var Player = require('../objects/player.js');
+var Player = require('../player/player.js');
 var players = []; //2 max for this mode but meh
 var initialPlayers = 1;
 var maxPlayers = 4; //needed for the map generation
@@ -40,33 +40,33 @@ var PlayScene = {
   },
 
   create: function () {
-    mMenuTitle = this.game.add.sprite(50,0, 'mMenuTitle'); //vital for life on earth
+    mMenuTitle = this.game.add.sprite(50, 0, 'mMenuTitle'); //vital for life on earth
     mMenuTitle.scale = new Point(0.9, 0.75); //nah just for presentation
 
-    
-    
+
+
     //map
-    groups = new Groups (this.game); //first need the groups
+    groups = new Groups(this.game); //first need the groups
     level = new Map(this.game, initialMap.world, initialMap.level, groups, tileData, maxPlayers);
 
     //global controls
-    gInputs = new Inputs (this.game, -1);
+    gInputs = new Inputs(this.game, -1);
 
     //player/s (initialPlayers) //maybe player group instead?
     for (var numPlayer = 0; numPlayer < initialPlayers; numPlayer++)
       players.push(new Player(this.game, level, numPlayer, tileData, groups));
 
     if (DEBUG) {
-      console.log("Loaded...", Date.now()-this.startTime, "ms");
+      console.log("Loaded...", Date.now() - this.startTime, "ms");
       console.log("\n PLAYER: ", players[0]);
       console.log("\n MAP: ", level.map);
     }
 
-    
+
   },
 
 
-  update: function(){
+  update: function () {
 
     //No longer needed
     // this.game.physics.arcade.collide(groups.player, groups.wall);
@@ -81,41 +81,40 @@ var PlayScene = {
 
     //but full array bringToTop doesnt work
     //for (var numPlayer = 0; numPlayer < players.length; numPlayer++)
-      //this.game.world.bringToTop(players[numPlayer]);
+    //this.game.world.bringToTop(players[numPlayer]);
 
     addPlayerControl(this.game);
     debugModeControl(this.game);
     offPauseMenuControl(this.game);
   },
 
-  paused: function(){
+  paused: function () {
     this.game.stage.disableVisibilityChange = true;
     this.game.input.onDown.add(unPause, this);
 
-    pausePanel = this.game.add.sprite(width/2, height/2, 'pausePanel');
+    pausePanel = this.game.add.sprite(width / 2, height / 2, 'pausePanel');
     pausePanel.anchor.setTo(0.5, 0.5);
     pausePanel.alpha = 0.5;
 
-    unpauseButton = this.game.add.sprite(width/2, height/2 - 50, 'mMenuButton2');
+    unpauseButton = this.game.add.sprite(width / 2, height / 2 - 50, 'mMenuButton2');
     unpauseButton.anchor.setTo(0.5, 0.5);
 
-    gotoMenuButton = this.game.add.sprite(width/2, height/2 + 50, 'quitToMenu');
-    gotoMenuButton.anchor.setTo(0.5, 0.5);    
+    gotoMenuButton = this.game.add.sprite(width / 2, height / 2 + 50, 'quitToMenu');
+    gotoMenuButton.anchor.setTo(0.5, 0.5);
 
-    function unPause(){
-      if(this.game.paused){
-        if(this.game.input.mousePointer.position.x > unpauseButton.position.x - unpauseButton.texture.width/2 
-          && this.game.input.mousePointer.position.x < unpauseButton.position.x + unpauseButton.texture.width/2 
-          && this.game.input.mousePointer.position.y > unpauseButton.position.y - unpauseButton.texture.height/2 
-          && this.game.input.mousePointer.position.y < unpauseButton.position.y + unpauseButton.texture.height/2)
+    function unPause() {
+      if (this.game.paused) {
+        if (this.game.input.mousePointer.position.x > unpauseButton.position.x - unpauseButton.texture.width / 2
+          && this.game.input.mousePointer.position.x < unpauseButton.position.x + unpauseButton.texture.width / 2
+          && this.game.input.mousePointer.position.y > unpauseButton.position.y - unpauseButton.texture.height / 2
+          && this.game.input.mousePointer.position.y < unpauseButton.position.y + unpauseButton.texture.height / 2)
           this.game.paused = false;
-        
+
         //We need to fix the remake of maps before this fully works. But it does what it has to.
-        else if(this.game.input.mousePointer.position.x > gotoMenuButton.position.x - gotoMenuButton.texture.width/2 
-          && this.game.input.mousePointer.position.x < gotoMenuButton.position.x + gotoMenuButton.texture.width/2 
-          && this.game.input.mousePointer.position.y > gotoMenuButton.position.y - gotoMenuButton.texture.height/2 
-          && this.game.input.mousePointer.position.y < gotoMenuButton.position.y + gotoMenuButton.texture.height/2)
-          { console.log("caca"); this.game.state.start('mainMenu'); this.game.paused = false;}
+        else if (this.game.input.mousePointer.position.x > gotoMenuButton.position.x - gotoMenuButton.texture.width / 2
+          && this.game.input.mousePointer.position.x < gotoMenuButton.position.x + gotoMenuButton.texture.width / 2
+          && this.game.input.mousePointer.position.y > gotoMenuButton.position.y - gotoMenuButton.texture.height / 2
+          && this.game.input.mousePointer.position.y < gotoMenuButton.position.y + gotoMenuButton.texture.height / 2) { console.log("caca"); this.game.state.start('mainMenu'); this.game.paused = false; }
       }
     };
 
@@ -124,12 +123,12 @@ var PlayScene = {
   //NOT FULLY NECESSARY BUT MAY BE USEFUL IN THE FUTURE
   // pauseUpdate: function () {
   //  // console.log(this);
-    
+
   //   //if(gInputs)
   //     // console.log(gInputs);
   //     // gInputs.pMenu.ff = false;
   //   // onPauseMenuControl(this.game);
-    
+
   //   // console.log(gInputs.pMenu.ff)
   // },
 
@@ -141,7 +140,7 @@ var PlayScene = {
     unpauseButton.destroy();
   },
 
-  render: function(){
+  render: function () {
     if (gInputs.debug.state) {
       groups.drawDebug();
       this.game.debug.bodyInfo(players[0], 32, 32);
@@ -150,22 +149,20 @@ var PlayScene = {
 };
 
 var offPauseMenuControl = function (game) {
-  if(gInputs.pMenu.button.isDown && !gInputs.pMenu.ff)
-  {
+  if (gInputs.pMenu.button.isDown && !gInputs.pMenu.ff) {
     gInputs.pMenu.ff = true;
     game.paused = true;
   }
-//MIRAR DOCUMENTACION DE PHASER.SIGNAL
-  else if(gInputs.pMenu.isUp)
+  //MIRAR DOCUMENTACION DE PHASER.SIGNAL
+  else if (gInputs.pMenu.isUp)
     gInputs.pMenu.ff = false;
-  console.log(gInputs.pMenu.ff)
+  //console.log(gInputs.pMenu.ff)
 }
 
 //this two methods may could go into some globalInputs.js update? but seems good
 //allow to add extra players
 var addPlayerControl = function (game) {
-  if(gInputs.addPlayer.button.isDown && !gInputs.addPlayer.ff && players.length < maxPlayers)
-  {
+  if (gInputs.addPlayer.button.isDown && !gInputs.addPlayer.ff && players.length < maxPlayers) {
     gInputs.addPlayer.ff = true;
 
     console.log(groups.enemy.children)
@@ -178,19 +175,18 @@ var addPlayerControl = function (game) {
         players[numPlayer].lives /= 2;
       }
     }
-    players.push(new Player (game, level, players.length, tileData, groups))
-    players[players.length-1].lives = players[0].lives;
+    players.push(new Player(game, level, players.length, tileData, groups))
+    players[players.length - 1].lives = players[0].lives;
     //new player's lives = player0; maybe a little unfair, but the real mode only allows 2 players
   }
 
-  else if(gInputs.addPlayer.button.isUp)
+  else if (gInputs.addPlayer.button.isUp)
     gInputs.addPlayer.ff = false;
 };
 
 //shows hitboxes and allows movement through the boxes
 var debugModeControl = function (game) {
-  if(gInputs.debug.button.isDown && !gInputs.debug.ff)
-  {
+  if (gInputs.debug.button.isDown && !gInputs.debug.ff) {
     //while debug player 0 is invecible and can push enemies
     players[0].invencible = true;
 
@@ -203,7 +199,7 @@ var debugModeControl = function (game) {
     }
   }
 
-  else if(gInputs.debug.button.isUp)
+  else if (gInputs.debug.button.isUp)
     gInputs.debug.ff = false;
 
 };

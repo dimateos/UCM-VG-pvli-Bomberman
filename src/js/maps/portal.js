@@ -1,8 +1,8 @@
 'use strict';
 
 var Bombable = require('../objects/bombable.js');
-var Point = require('../point.js');
-var Enemy = require('../objects/enemy.js'); //to spawn them
+var Point = require('../general/point.js');
+var Enemy = require('../enemy/enemy.js'); //to spawn them
 var defaultEnemyType = 0;
 
 var portalImmovable = true;

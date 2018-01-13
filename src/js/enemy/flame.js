@@ -1,7 +1,7 @@
 'use strict';
 
 var Physical = require('../objects/physical.js');
-var Point = require('../point.js');
+var Point = require('../general/point.js');
 
 //default flameentifiable values
 var flameBodySize = new Point(48, 48); //little smaller
