@@ -37,23 +37,23 @@ Bombable.prototype = Object.create(Physical.prototype);
 Bombable.prototype.constructor = Bombable;
 
 
-Bombable.prototype.update = function() {
+Bombable.prototype.update = function () {
     this.checkFlames(); //player and bomb rewrite (extend) update
 }
 
 //common for all bombables
-Bombable.prototype.checkFlames = function() {
+Bombable.prototype.checkFlames = function () {
 
     //console.log(this.flamesGroup);
     if (!this.dead) //maybe a invencible player puts a bomb on just a bomb
-    this.game.physics.arcade.overlap(this, this.groups.flame, onFire, checkVulnerability, this);
+        this.game.physics.arcade.overlap(this, this.groups.flame, onFire, checkVulnerability, this);
 
-    function checkVulnerability () {
+    function checkVulnerability() {
         console.log("checkin vulv");
         return (!this.invencible && !this.tmpInven);
     }
 
-    function onFire () {
+    function onFire() {
         console.log("on fire");
         this.tmpInven = true;
 
@@ -75,29 +75,29 @@ Bombable.prototype.die = function () {
 
         //if it has a power up, drops it
         if (this.dropId !== undefined)
-            this.game.time.events.add(bombableTimer-5, drop, this);
+            this.game.time.events.add(bombableTimer - 5, drop, this);
 
         //then destroy the bombable
-        this.game.time.events.add(bombableTimer+5, updateAndDestroy, this);
+        this.game.time.events.add(bombableTimer + 5, updateAndDestroy, this);
     }
     else this.game.time.events.add(bombableTimer, flipInven, this);
 
 
-    function flipInven () { this.tmpInven = false; }
+    function flipInven() { this.tmpInven = false; }
     function drop() {
         this.groups.powerUp.add(
             new Identifiable(this.game, this.position, this.scale, this.dropId));
     }
-    function updateAndDestroy () {
+    function updateAndDestroy() {
         if (this.constructor === Bombable) //in case of boxes updates map
-             this.level.updateSquare(this.position, this.level.types.free.value)
+            this.level.updateSquare(this.position, this.level.types.free.value)
 
         this.destroy();
     }
 }
 
 //the player extends this (just adds a log)
-Bombable.prototype.endInvencibility  = function () {
+Bombable.prototype.endInvencibility = function () {
     this.invencible = false;
 }
 
