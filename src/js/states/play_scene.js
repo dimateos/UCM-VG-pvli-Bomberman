@@ -20,7 +20,8 @@ var maxPlayers = 4; //needed for the map generation
 
 const width = 800;
 const height = 600;
-const debugPos = new Point(32, height-96);
+const debugPos = new Point(32, height - 96);
+const debugColor = "yellow";
 
 const tileData = {
   Res: new Point(64, 64),
@@ -58,9 +59,9 @@ var PlayScene = {
       players.push(new Player(this.game, level, numPlayer, tileData, groups));
 
     if (DEBUG) {
+      console.log("Loaded...", Date.now() - this.startTime, "ms");
       console.log("\n PLAYER: ", players[0]);
       console.log("\n MAP: ", level.map);
-      console.log("Loaded...", Date.now() - this.startTime, "ms");
     }
 
   },
@@ -141,7 +142,7 @@ var PlayScene = {
 
     if (gInputs.debug.state) {
       groups.drawDebug(this.game);
-      this.game.debug.bodyInfo(players[0], debugPos.x, debugPos.y);
+      this.game.debug.bodyInfo(players[0], debugPos.x, debugPos.y, debugColor);
     }
 
   },

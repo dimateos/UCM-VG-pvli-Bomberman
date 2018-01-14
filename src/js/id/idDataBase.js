@@ -7,8 +7,8 @@ var modsFunctions = require('./modsFunctions.js'); //all the database
 //contains the different tiers, and inside the power ups
 var idDataBase = [
 
-    [ //tier 0 (special for next level ladder etc)
-        //portal object so we can add it more logic (not just id)
+    [ //tier 0 reserved for the portal to next level
+        //not power up but the id (0,0) is used by the map
         /*{   //0
             sprite: 'portal', pts: 0,
             mods: [modsFunctions.levelUp]

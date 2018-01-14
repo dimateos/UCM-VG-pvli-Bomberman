@@ -70,7 +70,7 @@ Map.prototype.generateNewMap = function (worldNum, levelNum) {
 Map.prototype.regenerateMap = function () {
     this.generateNewMap(this.mapNumber.world, this.mapNumber.level)
 };
-Map.prototype.generateNextMap = function () { //TODO: adapt to world numbers
+Map.prototype.generateNextMap = function () { //TODO: adapt to worlds in the future
     this.generateNewMap(this.mapNumber.world, this.mapNumber.level + 1)
 };
 

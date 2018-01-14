@@ -19,16 +19,16 @@ var levelDataBase = [
         // {   //1
         //     extraWalls: 8,
         //     bombables: 33,      //some bombables drop power ups
-        //     powerUps: [1,2],   //1 tier 0 (always stairs), and 2 tier 1
+        //     powerUps: [1,2],    //first 1 portal, 2 tier 1 power ups...
         //     enemies: [3],       //3 tier 0 enemies
-        //     enemiesDrops: [0,2],//same as powerUps
+        //     enemiesDrops: [0,2],//directly tier 1 power ups
         //     theme: "basic"
         // },
         {   //1
             extraWalls: 2,
             bombables: 10,      //some bombables drop power ups
-            powerUps: [5,5],   //1 stairs, and 1 tier 1
-            enemies: [10],       //3 tier 0 enemies
+            powerUps: [10],   //1 stairs, and 1 tier 1
+            enemies: [0],       //3 tier 0 enemies
             enemiesDrops: [0],  //tirectly tier 1 powerUps (no stairs)
             theme: "basic"
         },

@@ -171,6 +171,8 @@ Player.prototype.respawn = function () {
     //callback used to give back the control to the player
     this.game.time.events.add(playerRespawnedStoppedTime, revive, this);
     function revive() {
+        //fix for a bug: sometimes the position recives a tick of the velocity...
+        //...after the respawn; so we double reset it
         this.position = new Point(this.respawnPos.x, this.respawnPos.y);
         this.dead = false;
     }

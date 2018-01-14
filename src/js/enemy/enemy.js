@@ -146,7 +146,7 @@ Enemy.prototype.checkEnemyOverlap = function(positionMap) {
                 .add(thisEnemy.dir.x, thisEnemy.dir.y)
 
             var positionsToCheck = getPositionsToCheck (nextPos, thisEnemy);
-            // console.log(positionMap, positionsToCheck);
+            // console.log(positionsToCheck);
 
             for (var i = 0; i < positionsToCheck.length; i++) {
 

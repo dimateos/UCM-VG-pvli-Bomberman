@@ -1,8 +1,14 @@
 'use strict';
 
 //returns the inputs for player 0-3
-//can be mixed/changed, repeat menu controls?
 //sort of data storage/factory (it needs game's reference)
+
+const debugPosX = 40;
+const debugPosY = 600 - 96;
+const debugPosSeparation = 15;
+const debugColor = "yellow";
+
+var debugCallback;
 
 function Inputs(game, numPlayer) {
 
@@ -51,7 +57,7 @@ Inputs.prototype.switchControls = function (game, numPlayer) {
 
             this.bomb.button = game.input.keyboard.addKey(Phaser.Keyboard.E)
 
-            console.log(" - Controls P"+numPlayer+": WASD + E");
+            this.drawDebug(game, numPlayer);
             break;
 
         case 1:
@@ -59,7 +65,7 @@ Inputs.prototype.switchControls = function (game, numPlayer) {
 
             this.bomb.button = game.input.keyboard.addKey(Phaser.Keyboard.NUMPAD_1)
 
-            console.log(" - Controls P"+numPlayer+": ARROWS + Numpad_1");
+            this.drawDebug(game, numPlayer);
             break;
 
         case 2:
@@ -72,7 +78,7 @@ Inputs.prototype.switchControls = function (game, numPlayer) {
 
             this.bomb.button = game.input.keyboard.addKey(Phaser.Keyboard.Y)
 
-            console.log(" - Controls P"+numPlayer+": TFGH + Y");
+            this.drawDebug(game, numPlayer);
             break;
 
         case 3:
@@ -85,9 +91,22 @@ Inputs.prototype.switchControls = function (game, numPlayer) {
 
             this.bomb.button = game.input.keyboard.addKey(Phaser.Keyboard.O)
 
-            console.log(" - Controls P"+numPlayer+": IJKL + O");
+            this.drawDebug(game, numPlayer);
             break;
     }
+}
+
+//writes the controls for a specific player
+var stringsControls = ["WASD + E","ARROWS + Numpad_1","TFGH + Y","IJKL + O"]
+Inputs.prototype.drawDebug = function(game, numPlayer) {
+
+    if (debugCallback !== undefined) game.time.events.remove(debugCallback);
+
+    game.debug.text(" - Controls P" +numPlayer+ ": " +stringsControls[numPlayer],
+        debugPosX, debugPosY + debugPosSeparation * numPlayer, debugColor);
+
+    // console.log(" - Controls P"+numPlayer+": " +stringsControls[numPlayer]);
+    debugCallback = game.time.events.add(5000, function reset () {this.debug.reset();}, game);
 }
 
 module.exports = Inputs;
