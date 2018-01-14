@@ -50,17 +50,17 @@ var PlayScene = {
     mMenuTitle = this.game.add.sprite(50, 0, 'mMenuTitle'); //vital for life on earth
     mMenuTitle.scale = new Point(0.4, 0.75); //nah just for presentation
 
-    
+
     //map
     groups = new Groups(this.game); //first need the groups
     level = new Map(this.game, initialMap.world, initialMap.level, groups, tileData, maxPlayers);
-    
+
     //global controls
     gInputs = new Inputs(this.game, -1);
 
     //music
     music = this.game.add.audio('music');
-    music.loopFull();
+    //music.loopFull(); //la pauso que me morido quedo loco
 
     //player/s (initialPlayers)
     for (var numPlayer = 0; numPlayer < initialPlayers; numPlayer++) {

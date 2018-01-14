@@ -31,7 +31,9 @@ var PreloaderScene = {
         this.game.load.image('bomb', 'images/Sprites/Bomb/Bomb_f01.png');
         this.game.load.image('flame', 'images/Sprites/Flame/Flame_f00.png');
 
-        this.game.load.image('enemy_0', 'images/Sprites/Creep/Creep_F_f00.png');
+        this.game.load.image('enemy_0', 'images/Sprites/Creep/Creep_0.png');
+        this.game.load.image('enemy_1', 'images/Sprites/Creep/Creep_1.png');
+        this.game.load.image('enemy_2', 'images/Sprites/Creep/Creep_2.png');
 
         //Main Menu sprites
         this.game.load.image('mMenuBG', 'images/Sprites/Menu/title_background.jpg');
@@ -41,7 +43,7 @@ var PreloaderScene = {
 
         this.game.load.image('pausePanel', 'images/Sprites/Menu/White_Panel.png');
         this.game.load.image('quitToMenu', 'images/Sprites/Menu/Two_Players_Hover.png');
-        
+
         //Music and audio
         this.game.load.audio('music', 'audio/music.ogg');
         this.game.load.audio('xplosion', 'audio/explosion.ogg');

@@ -32,7 +32,7 @@ var levelDataBase = [
             extraWalls: 6,
             bombables: 1,
             powerUps: [1],
-            enemies: [6],
+            enemies: [3, 2, 4],
             enemiesDrops: [0, 3],
             theme: "basic"
         },
@@ -59,7 +59,7 @@ var levelDataBase = [
             extraWalls: 6,
             bombables: 35,
             powerUps: [1, 2],
-            enemies: [5], //[3,2]
+            enemies: [3, 2], //[3,2]
             enemiesDrops: [0, 2],
             theme: "basic"
         },
@@ -67,7 +67,7 @@ var levelDataBase = [
             extraWalls: 6,
             bombables: 35,
             powerUps: [1], //?
-            enemies: [7], //[0,0,9]
+            enemies: [0, 0, 9], //[0,0,9]
             enemiesDrops: [0, 1], //?
             theme: "basic" //"wood"
         },

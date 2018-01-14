@@ -24,7 +24,7 @@ cookMap: function() {
     //last the enemies, staring with the drops
     var enemiesDrops = this.enemiesIdsPowerUps.length;
     insertRnd(enemiesDrops, this.types.enemyDrop.value);
-    insertRnd(this.levelData.enemies[0]-enemiesDrops, this.types.enemy.value);
+    insertRnd(this.enemiesTypeNumbers.length-enemiesDrops, this.types.enemy.value);
 
     function insertRnd (numElem, type) {
         for (var i = 0; i < numElem; i++) {
@@ -125,6 +125,19 @@ removeSurroundingSquares: function(x, y, radius, freeSquares) {
     y_toFind = y + radius;
     index = freeSquares.findIndex(equal);
     if (index > -1) freeSquares.splice(index, 1);
+},
+
+//generates the list of enemies based on levelsDataBase
+generateEnemiesTypeNumbers: function (enemies) {
+    var typeNumbers = [];
+
+    for (var type = 0; type < enemies.length; type++)
+    for (var n = 0; n < enemies[type]; n++)
+    typeNumbers.push(type);
+
+    // console.log(enemies);
+    // console.log(typeNumbers);
+    return typeNumbers;
 },
 
 }

@@ -23,7 +23,6 @@ var defaultBodyOffset = new Point();
 var defaultImmovable = true;
 var defaultBombableLives = 1;
 var defaultBombableInvencibleTime = 0;
-var defaultEnemyType = 0;
 
 //too import a big chunk of code
 var mapCooking = require('./mapCooking.js');
@@ -54,6 +53,7 @@ Map.prototype.generateMap = function (worldNum, levelNum) {
 
     this.bombableIdsPowerUps = this.generateIdsPowerUps(this.levelData.powerUps);
     this.enemiesIdsPowerUps = this.generateIdsPowerUps(this.levelData.enemiesDrops);
+    this.enemiesTypeNumbers = this.generateEnemiesTypeNumbers(this.levelData.enemies);
 
     this.cookMap();
     this.buildMap(this.groups, this.tileData); //shorter with this.
@@ -97,6 +97,8 @@ Map.prototype.generateIdsPowerUps = mapCooking.generateIdsPowerUps;
 //given a free square {x: x, y: y} in a freeSquares[] and a radius
 //searches and removes (real map) surroundings squares of that radius
 Map.prototype.removeSurroundingSquares = mapCooking.removeSurroundingSquares;
+//generates the list of enemies based on levelsDataBase
+Map.prototype.generateEnemiesTypeNumbers = mapCooking.generateEnemiesTypeNumbers;
 
 
 //creates all elements in their respective positions etc
@@ -141,7 +143,7 @@ Map.prototype.buildMap = function (groups, tileData) {
                         this.types.free.sprite, tileData.Scale));
 
                     groups.enemy.add(new Enemy(this.game, squareIndexPos,
-                        this, defaultEnemyType, tileData, groups, enemyIdPowerUp));
+                        this, this.enemiesTypeNumbers.pop(), tileData, groups, enemyIdPowerUp));
 
                     enemyIdPowerUp = undefined; //resets the id
                     break;

@@ -8,10 +8,7 @@ var Identifiable = require('../id/identifiable.js'); //deploy power ups
 
 //default enemy values
 var enemySpritePath = 'enemy';
-
-var enemyBodySize = new Point(48, 48); //smaller than the sprite
-var enemyBodyOffset = new Point(8, 8);
-var enemyExtraOffset = new Point(0, 0); //to center it
+var enemyExtraOffset = new Point(0, 0);
 
 var enemyImmovable = false;
 var enemyInvecibleTime = 2500; //maybe reduce
@@ -20,7 +17,7 @@ var bombableTimer = 500; //to sync with flames
 var enemyDataBase = require('./enemyDataBase.js');
 
 function Enemy (game, position, level, enemyType, tileData, groups, dropId) {
-
+    console.log("lul");
     this.groups = groups;
     this.tileData = tileData;
     this.level = level;
@@ -28,9 +25,11 @@ function Enemy (game, position, level, enemyType, tileData, groups, dropId) {
     this.enemyType = enemyType;
     this.pts = enemyDataBase[enemyType].pts;
 
-    var enemyPosition = position.add(enemyExtraOffset.x, enemyExtraOffset.y);
+    var enemyBodySize = enemyDataBase[enemyType].bodySize;
+    var enemyBodyOffset = enemyDataBase[enemyType].bodyOffset;
 
     var enemySprite = enemySpritePath + "_" + enemyType; //constructed
+    var enemyPosition = position.add(enemyExtraOffset.x, enemyExtraOffset.y);
 
     Bombable.call(this, game, level, groups, enemyPosition, enemySprite,
         tileData.Scale, enemyBodySize, enemyBodyOffset, enemyImmovable,
