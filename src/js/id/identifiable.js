@@ -14,9 +14,9 @@ var idImmovable = true;
 
 function Identifiable(game, position, scale, id) {
 
-    var idPosition = position.add(idExtraOffset.x, idExtraOffset.y);
+    var idPosition = new Point (position.x, position.x).add(idExtraOffset.x, idExtraOffset.y);
 
-    Physical.call(this, game, position, idDataBase[id.tier][id.num].sprite,
+    Physical.call(this, game, idPosition, idDataBase[id.tier][id.num].sprite,
       scale, idBodySize, idBodyOffset, idImmovable);
 
     this.id = id;

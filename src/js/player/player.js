@@ -38,8 +38,7 @@ function Player(game, level, numPlayer, tileData, groups) {
     .applyTileData(tileData, playerExtraOffset);
 
     Bombable.call(this, game, level, groups, this.respawnPos, playerSpritePath + this.numPlayer,
-        tileData.Scale, playerBodySize, playerBodyOffset,
-        playerImmovable, playerLives, playerInvencibleTime);
+        tileData.Scale, playerBodySize, playerBodyOffset, playerImmovable, playerLives, playerInvencibleTime);
 
     this.velocity = playerMovAndInputs.getVel();
     this.numBombs = playerNumBombs;

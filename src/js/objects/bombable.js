@@ -66,7 +66,7 @@ Bombable.prototype.checkFlames = function () {
 
 //player, bomb, enemie, etc will extend this
 Bombable.prototype.die = function () {
-    //console.log("checkin die");
+    console.log("checkin die");
     this.lives--;
 
     if (this.lives <= 0) {
@@ -89,7 +89,8 @@ Bombable.prototype.die = function () {
             new Identifiable(this.game, this.position, this.scale, this.dropId));
     }
     function updateAndDestroy() {
-        if (this.constructor === Bombable) //in case of boxes updates map
+
+        if (this.constructor === Bombable) //just cause enemy uses this too atm
             this.level.updateSquare(this.position, this.level.types.free.value)
 
         this.destroy();
