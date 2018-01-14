@@ -59,7 +59,20 @@ var globalControls = {
 
         else if (gInputs.resetLevel.button.isUp)
             gInputs.resetLevel.ff = false;
-    }
+    },
+
+    //loads next level
+    nextLevelControl: function (gInputs, level) {
+        if (gInputs.nextLevel.button.isDown && !gInputs.nextLevel.ff) {
+            gInputs.nextLevel.ff = true;
+
+            level.generateNextMap();
+        }
+
+        else if (gInputs.nextLevel.button.isUp)
+            gInputs.nextLevel.ff = false;
+    },
+
 }
 
 module.exports = globalControls;

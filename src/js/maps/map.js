@@ -14,6 +14,10 @@ var Point = require('../general/point.js');
 var baseMapData = require("./baseMapData.js"); //base map and spawns
 var levelsDataBase = require("./levelsDataBase.js"); //base map and spawns
 
+const debugPosX = 40;
+const debugPosY = 600 - 96;
+const debugColor = "yellow";
+
 //default map tiles values
 var defaultBodyOffset = new Point();
 var defaultImmovable = true;
@@ -70,8 +74,17 @@ Map.prototype.generateNewMap = function (worldNum, levelNum) {
 Map.prototype.regenerateMap = function () {
     this.generateNewMap(this.mapNumber.world, this.mapNumber.level)
 };
-Map.prototype.generateNextMap = function () { //TODO: adapt to worlds in the future
-    this.generateNewMap(this.mapNumber.world, this.mapNumber.level + 1)
+Map.prototype.generateNextMap = function () { //based on number of levels in the world
+
+    if (levelsDataBase[this.mapNumber.world].length === this.mapNumber.level + 1) {
+        if (levelsDataBase.length === this.mapNumber.world + 1)
+            this.game.debug.text(this.mapNumber.world + " , " + this.mapNumber.level
+                + " is the last map...", debugPosX, debugPosY, debugColor);
+
+        else this.generateNewMap(this.mapNumber.world + 1, 0);
+    }
+
+    else this.generateNewMap(this.mapNumber.world, this.mapNumber.level + 1);
 };
 
 

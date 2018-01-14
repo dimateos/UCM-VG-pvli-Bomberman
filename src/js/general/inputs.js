@@ -41,6 +41,10 @@ Inputs.prototype.globalControls = function(game) {
     this.resetLevel = {
         button: game.input.keyboard.addKey(Phaser.Keyboard.B),
         ff: false,
+    },
+    this.nextLevel = {
+        button: game.input.keyboard.addKey(Phaser.Keyboard.N),
+        ff: false,
     }
 }
 
