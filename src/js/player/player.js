@@ -19,14 +19,14 @@ var playerExtraOffset = new Point(6, -20); //reaquired because player body is no
 var playerImmovable = false;
 
 var playerLives = 5;
-var playerNumBombs = 5;
+var playerNumBombs = 1;
 
 var playerInvencibleTime = 5000;
 var playerRespawnedStoppedTime = 1000;
 var playerDeathTime = 1500;
 
 var Id = Identifiable.Id; //the mini factory is in Identifiable
-var playerInitialModsIds = [/*new Id(1,2),*/ new Id(1, 1), /*new Id(1,0)*/];
+var playerInitialModsIds = [/*new Id(1,2), new Id(1, 1), new Id(1,0)*/];
 var playerMovAndInputs = require('./playerMovAndInputs.js'); //big chunk of code
 
 function Player(game, level, numPlayer, tileData, groups) {

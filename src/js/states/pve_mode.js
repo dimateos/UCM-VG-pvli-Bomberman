@@ -4,11 +4,11 @@ const DEBUG = true;
 var Point = require('../general/point.js');
 var globalControls = require('../general/globalControls.js');
 
-var Groups = require('../general/groups.js')
+var Groups = require('../general/groups.js');
 var groups;
 var Map = require('../maps/map.js');
 var level;
-var initialMap = { world: 1, level: 1 };
+var initialMap = { world: 0, level: 0 };
 
 var Inputs = require('../general/inputs.js');
 var gInputs; //global inputs
@@ -54,7 +54,7 @@ var PlayScene = {
     //global controls
     gInputs = new Inputs(this.game, -1);
 
-    //player/s (initialPlayers) //maybe player group instead?
+    //player/s (initialPlayers)
     for (var numPlayer = 0; numPlayer < initialPlayers; numPlayer++)
       players.push(new Player(this.game, level, numPlayer, tileData, groups));
 
@@ -83,6 +83,7 @@ var PlayScene = {
     globalControls.addPlayerControl(gInputs, players, maxPlayers);
     globalControls.debugModeControl(gInputs, this.game);
     globalControls.resetLevelControl(gInputs, level);
+    globalControls.nextLevelControl(gInputs, level);
     offPauseMenuControl(this.game);
   },
 

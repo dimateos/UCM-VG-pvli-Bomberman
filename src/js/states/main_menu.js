@@ -17,7 +17,7 @@ var MainMenu = {
 
     },
 
-    nextState: function() { this.game.state.start('play');  },
+    nextState: function() { this.game.state.start('pve');  },
 
     // over: function() { buttonCount++; },
 
@@ -44,7 +44,7 @@ var MainMenu = {
 
         // if(this.game.input.mousePointer.leftButton.isDown && this.game.input.mousePointer.position.x == this.mMenuButton.x
         //     && this.game.input.mousePointer.position.y == this.mMenuButton.y)
-        //     this.game.state.start('play');
+        //     this.game.state.start('pve');
     }
 
 };
