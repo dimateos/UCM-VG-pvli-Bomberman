@@ -67,7 +67,7 @@ var PlayScene = {
     this.game.world.bringToTop(groups.flame);
     this.game.world.bringToTop(groups.player); //array doesnt work
 
-    globalControls.debugModeControl(gInputs, this.game);
+    globalControls.debugModeControl(gInputs, this.game, groups.player);
     globalControls.resetLevelControl(gInputs, level);
   },
 

@@ -66,9 +66,11 @@ var PlayScene = {
     music.loopFull();
     
     //player/s (initialPlayers)
-    for (var numPlayer = 0; numPlayer < initialPlayers; numPlayer++)
-    players.push(new Player(this.game, level, numPlayer, tileData, groups));
-    
+    for (var numPlayer = 0; numPlayer < initialPlayers; numPlayer++) {
+      players.push(new Player(this.game, level, numPlayer, tileData, groups));
+      players[numPlayer].startCountdown();
+    }
+
     livesHUD = this.game.add.text(width/2, height/2, players[0].playerLives,
         { font: "65px Arial", fill: "#f9e000", align: "center"});
     if (DEBUG) {
@@ -94,7 +96,7 @@ var PlayScene = {
     this.game.world.bringToTop(groups.player); //array doesnt work
 
     globalControls.addPlayerControl(gInputs, players, maxPlayers);
-    globalControls.debugModeControl(gInputs, this.game);
+    globalControls.debugModeControl(gInputs, this.game, groups.player);
     globalControls.resetLevelControl(gInputs, level);
     globalControls.nextLevelControl(gInputs, level);
     offPauseMenuControl(this.game);

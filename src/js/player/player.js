@@ -24,6 +24,7 @@ var playerNumBombs = 1;
 var playerInvencibleTime = 5000;
 var playerRespawnedStoppedTime = 1000;
 var playerDeathTime = 1500;
+var playerLifeTime = 5000;//3*60000;
 
 var Id = Identifiable.Id; //the mini factory is in Identifiable
 var playerInitialModsIds = [/*new Id(1,2), new Id(1, 1), new Id(1,0)*/];
@@ -67,6 +68,18 @@ Player.prototype.restartMovement = function () {
     this.body.velocity = new Point();
 }
 
+//Starts the countdown to finish life
+Player.prototype.startCountdown = function () {
+    var o = this.game.time.events.add(playerLifeTime, this.restartCoundown, this);
+    console.log(o);
+}
+Player.prototype.restartCoundown = function () {
+    this.die();
+    this.game.time.events.add(playerDeathTime + playerRespawnedStoppedTime,
+        this.startCountdown, this);
+}
+
+
 //Calls all methods
 Player.prototype.update = function () {
 
@@ -99,7 +112,6 @@ Player.prototype.checkPowerUps = function () {
 
 //atm simply checks overlapping
 Player.prototype.checkEnemy = function () {
-
     this.game.physics.arcade.overlap(this, this.groups.enemy, this.die, null, this);
 }
 
@@ -168,6 +180,7 @@ Player.prototype.respawn = function () {
 
     //callback to make end player's invulnerability
     this.game.time.events.add(playerInvencibleTime, this.endInvencibility, this);
+
     //callback used to give back the control to the player
     this.game.time.events.add(playerRespawnedStoppedTime, revive, this);
     function revive() {
@@ -183,5 +196,6 @@ Player.prototype.endInvencibility = function () {
     console.log("P" + this.numPlayer + " invencibility ended");
     this.invencible = false;
 }
+
 
 module.exports = Player;

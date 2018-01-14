@@ -31,15 +31,16 @@ var globalControls = {
     },
 
     //shows hitboxes and allows movement through the boxes
-    debugModeControl: function (gInputs, game) {
+    debugModeControl: function (gInputs, game, players) {
         if (gInputs.debug.button.isDown && !gInputs.debug.ff) {
 
-            // players[0].invencible = true;
             gInputs.debug.state = !gInputs.debug.state; //toggle state
             gInputs.debug.ff = true;
 
+            players.callAll("endlessInvencibility");
+
             if (!gInputs.debug.state) {
-                // players[0].endInvencibility();
+                players.callAll("endInvencibility");
                 game.debug.reset(); //reset whole debug render
             }
         }
