@@ -41,6 +41,11 @@ var PreloaderScene = {
         this.game.load.image('pausePanel', 'images/Sprites/Menu/White_Panel.png');
         this.game.load.image('quitToMenu', 'images/Sprites/Menu/Two_Players_Hover.png');
         
+        //Music and audio
+        this.game.load.audio('music', 'audio/music.ogg');
+        this.game.load.audio('xplosion', 'audio/explosion.ogg');
+        this.game.load.audio('powerup', 'audio/powerup.ogg');
+
     },
 
     create: function () {

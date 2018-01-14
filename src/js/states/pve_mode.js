@@ -18,6 +18,11 @@ var players = []; //2 max for this mode but meh
 var initialPlayers = 1;
 var maxPlayers = 4; //needed for the map generation
 
+var points;
+
+var music;
+
+
 const width = 800;
 const height = 600;
 const debugPos = new Point(32, height - 96);
@@ -30,8 +35,9 @@ const tileData = {
 };
 
 var mMenuTitle;
+var livesHUD;
+
 var pausePanel;
-var flipflop = false;
 var unpauseButton;
 var gotoMenuButton;
 
@@ -45,19 +51,26 @@ var PlayScene = {
   create: function () {
     //menu stuff
     mMenuTitle = this.game.add.sprite(50, 0, 'mMenuTitle'); //vital for life on earth
-    mMenuTitle.scale = new Point(0.9, 0.75); //nah just for presentation
+    mMenuTitle.scale = new Point(0.4, 0.75); //nah just for presentation
 
+    
     //map
     groups = new Groups(this.game); //first need the groups
     level = new Map(this.game, initialMap.world, initialMap.level, groups, tileData, maxPlayers);
-
+    
     //global controls
     gInputs = new Inputs(this.game, -1);
-
+    
+    //music
+    music = this.game.add.audio('music');
+    music.loopFull();
+    
     //player/s (initialPlayers)
     for (var numPlayer = 0; numPlayer < initialPlayers; numPlayer++)
-      players.push(new Player(this.game, level, numPlayer, tileData, groups));
-
+    players.push(new Player(this.game, level, numPlayer, tileData, groups));
+    
+    livesHUD = this.game.add.text(width/2, height/2, players[0].playerLives,
+        { font: "65px Arial", fill: "#f9e000", align: "center"});
     if (DEBUG) {
       console.log("Loaded...", Date.now() - this.startTime, "ms");
       console.log("\n PLAYER: ", players[0]);
@@ -88,6 +101,7 @@ var PlayScene = {
   },
 
   paused: function () {
+    music.pause();    
     this.game.stage.disableVisibilityChange = true;
     this.game.input.onDown.add(unPause, this);
 
@@ -113,7 +127,8 @@ var PlayScene = {
         else if (this.game.input.mousePointer.position.x > gotoMenuButton.position.x - gotoMenuButton.texture.width / 2
           && this.game.input.mousePointer.position.x < gotoMenuButton.position.x + gotoMenuButton.texture.width / 2
           && this.game.input.mousePointer.position.y > gotoMenuButton.position.y - gotoMenuButton.texture.height / 2
-          && this.game.input.mousePointer.position.y < gotoMenuButton.position.y + gotoMenuButton.texture.height / 2) { console.log("caca"); this.game.state.start('mainMenu'); this.game.paused = false; }
+          && this.game.input.mousePointer.position.y < gotoMenuButton.position.y + gotoMenuButton.texture.height / 2) 
+          { this.game.state.start('mainMenu'); this.game.paused = false; }
       }
     };
 
@@ -132,11 +147,13 @@ var PlayScene = {
   // },
 
   resumed: function () {
+    music.resume();
     this.game.stage.disableVisibilityChange = false;
     gInputs.pMenu.ff = false;
 
     pausePanel.destroy();
     unpauseButton.destroy();
+    gotoMenuButton.destroy();
   },
 
   render: function () {
