@@ -62,8 +62,8 @@ Enemy.prototype.update = function() {
 
 
 //player, bomb, enemie, etc will extend this
-Bombable.prototype.die = function (flame) {
-    console.log("checkin enemie die");
+Enemy.prototype.die = function (flame) {
+    // console.log("checkin enemie die");
     this.lives--;
 
     if (this.lives <= 0) {
@@ -73,8 +73,7 @@ Bombable.prototype.die = function (flame) {
         if (this.dropId !== undefined)
             this.game.time.events.add(bombableTimer - 5, drop, this);
 
-        flame.player.points += this.pts;
-        console.log(flame.player.points);
+        flame.player.addPoints(this.pts);
 
         //then destroy itself
         this.game.time.events.add(bombableTimer + 5, this.destroy, this);

@@ -24,7 +24,7 @@ var playerNumBombs = 1;
 var playerInvencibleTime = 5000;
 var playerRespawnedStoppedTime = 1000;
 var playerDeathTime = 1500;
-var playerLifeTime = 5000;//3*60000;
+var playerLifeTime = 3*60*1000;
 
 var Id = Identifiable.Id; //the mini factory is in Identifiable
 var playerInitialModsIds = [/*new Id(1,2), new Id(1, 1), new Id(1,0)*/];
@@ -104,9 +104,8 @@ Player.prototype.checkPowerUps = function () {
     function takePowerUp(player, powerUp) {
         //console.log("takin powerUp");
         player.mods.push(powerUp.id);
-        player.points += powerUp.pts;
 
-        console.log(player.points);
+        player.addPoints(powerUp.pts); //add points too
 
         Identifiable.pickPowerUp(powerUp, player);
 
@@ -119,6 +118,13 @@ Player.prototype.checkEnemy = function () {
     this.game.physics.arcade.overlap(this, this.groups.enemy, this.die, null, this);
 }
 
+//adds points and lives if required
+Player.prototype.addPoints = function (pts) {
+
+    console.log(this.points, " + ", pts);
+    this.points += pts;
+
+}
 
 //reads inputs, fixes direction and then moves
 Player.prototype.movementLogic = playerMovAndInputs.movementLogic;

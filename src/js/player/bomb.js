@@ -20,6 +20,8 @@ var bombPower = 1;
 var bombTimer = 2000;
 var bombFlameTimer = 500;
 
+var xplosionSound;
+
 var bombSpritePath = 'bomb';
 var flameId = {tier: 0, num: 0};
 
@@ -49,6 +51,8 @@ function Bomb (game, level, position, tileData, groups, player, bombMods) {
     //this.flamesEvent = undefined; //need to create it for die()
     this.xplosionEvent =
         game.time.events.add(this.timer, this.xplode, this);
+
+    this.xplosionSound = game.add.audio('xplosion');
 
     level.updateSquare(position, level.types.bomb.value);
     //console.log(bombTimer, bombFlameTimer, bombPower, level, groups, player, tileData, bombMods, this.xploded, this.xplosionEvent);
@@ -83,6 +87,8 @@ Bomb.prototype.xplode = function() {
     this.xploded = true;
     this.groups.bomb.remove(this); //removes and destroys the bomb
     this.player.numBombs++; //adds a bomb back to the player
+
+    this.xplosionSound.play();
 
     var flames = this.spawnFlames();
 

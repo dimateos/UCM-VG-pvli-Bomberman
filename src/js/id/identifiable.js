@@ -11,6 +11,7 @@ var idBodyOffset = new Point(0, 0);
 var idExtraOffset = new Point(14, 10); //id body is not full res
 var idImmovable = true;
 
+var powerUpSound;
 
 function Identifiable(game, position, scale, id) {
 
@@ -18,6 +19,8 @@ function Identifiable(game, position, scale, id) {
 
     Physical.call(this, game, idPosition, idDataBase[id.tier][id.num].sprite,
       scale, idBodySize, idBodyOffset, idImmovable);
+
+    powerUpSound = this.game.add.audio('powerup');
 
     this.id = id;
     this.pts = idDataBase[id.tier][id.num].pts;
@@ -30,6 +33,7 @@ Identifiable.prototype.constructor = Identifiable;
 //method used by players to pick powerUps (so they do not need idDataBase)
 Identifiable.pickPowerUp = function(powerUp, player) {
     var mods = idDataBase[powerUp.id.tier][powerUp.id.num].mods;
+    powerUpSound.play();
     Identifiable.applyMods(mods, player);
 }
 

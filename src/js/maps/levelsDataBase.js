@@ -14,8 +14,8 @@ var levelDataBase = [
     [ //world 0, used for the presentation - to showcase stuff
         {   //0 - just nothing
             extraWalls: 0,
-            bombables: 0,
-            powerUps: [0],
+            bombables: 1,
+            powerUps: [1],
             enemies: [0],
             enemiesDrops: [0],
             theme: "basic"
