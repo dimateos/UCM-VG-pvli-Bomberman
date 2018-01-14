@@ -55,8 +55,10 @@ var PlayScene = {
     gInputs = new Inputs(this.game, -1);
 
     //player/s (initialPlayers)
-    for (var numPlayer = 0; numPlayer < initialPlayers; numPlayer++)
+    for (var numPlayer = 0; numPlayer < initialPlayers; numPlayer++) {
       players.push(new Player(this.game, level, numPlayer, tileData, groups));
+      players[numPlayer].startCountdown();
+    }
 
     if (DEBUG) {
       console.log("Loaded...", Date.now() - this.startTime, "ms");
@@ -81,7 +83,7 @@ var PlayScene = {
     this.game.world.bringToTop(groups.player); //array doesnt work
 
     globalControls.addPlayerControl(gInputs, players, maxPlayers);
-    globalControls.debugModeControl(gInputs, this.game);
+    globalControls.debugModeControl(gInputs, this.game, groups.player);
     globalControls.resetLevelControl(gInputs, level);
     globalControls.nextLevelControl(gInputs, level);
     offPauseMenuControl(this.game);

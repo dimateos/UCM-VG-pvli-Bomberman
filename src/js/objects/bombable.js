@@ -24,10 +24,12 @@ function Bombable(game, level, groups, position, sprite, scale, bodySize, bodyOf
     this.dead = false;
 
     //Initial invencible time or not
+    this.endInvencibilityCallback = undefined;
     if (invencibleTime === 0) this.invencible = false;
+    else if (invencibleTime === -1) this.invencible = true; //invencible 4ever
     else {
         this.invencible = true;
-        this.game.time.events.add(invencibleTime, this.endInvencibility, this);
+        this.endInvencibilityCallback = this.game.time.events.add(invencibleTime, this.endInvencibility, this);
     }
 
     this.dropId = dropId;
@@ -99,9 +101,18 @@ Bombable.prototype.die = function () {
     }
 }
 
-//the player extends this (just adds a log)
+//Usesd as callback to remove te temporal inbvulnerability
 Bombable.prototype.endInvencibility = function () {
     this.invencible = false;
+}
+//To correctly cancel the callback (if exists)
+Bombable.prototype.endlessInvencibility = function () {
+
+    if (this.endInvencibilityCallback !== undefined)
+
+        this.game.time.events.remove(this.endInvencibilityCallback);
+
+    this.invencible = true;
 }
 
 module.exports = Bombable;
