@@ -38,7 +38,7 @@ function Bomb (game, level, position, tileData, groups, player, bombMods) {
     this.power = bombPower;
 
     this.groups = groups;
-    this.player = player; //atm not really required
+    this.player = player; //link to restore bomb etc
     this.level = level;
     this.tileData = tileData;
 
@@ -111,7 +111,7 @@ Bomb.prototype.spawnFlames = function() {
     var positionMap = new Point (this.position.x, this.position.y)
         .subtract(bombExtraOffset.x, bombExtraOffset.y);
 
-    var flames = [new Flame(this.game, positionMap, this.scale)];
+    var flames = [new Flame(this.game, positionMap, this.scale, this.player)];
 
     return this.expandFlames(flames, positionMap);
 }
@@ -144,7 +144,7 @@ Bomb.prototype.expandFlames = function(flames, positionMap) {
                     .applyTileData(this.tileData);
 
                 //creates the flame
-                var newFlame = new Flame(this.game, flamePos, this.scale)
+                var newFlame = new Flame(this.game, flamePos, this.scale, this.player)
                 flames.push(newFlame);
                 expansion++;
 

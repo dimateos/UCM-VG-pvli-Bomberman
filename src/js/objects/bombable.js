@@ -51,24 +51,24 @@ Bombable.prototype.checkFlames = function () {
         this.game.physics.arcade.overlap(this, this.groups.flame, onFire, checkVulnerability, this);
 
     function checkVulnerability() {
-        console.log("checkin vulv");
+        // console.log("checkin vulv");
         return (!this.invencible && !this.tmpInven);
     }
 
-    function onFire() {
-        console.log("on fire");
+    function onFire(bombable, flame) {
+        // console.log("on fire");
         this.tmpInven = true;
 
         //die should be insta and then in die handle sync
         //so the player can die insta etc (block mov)
         //this.game.time.events.add(bombableTimer, this.die, this);
-        this.die();
+        this.die(flame);
     }
 }
 
 //player, bomb, enemie, etc will extend this
 Bombable.prototype.die = function () {
-    console.log("checkin die");
+    // console.log("checkin die");
     this.lives--;
 
     if (this.lives <= 0) {
@@ -92,10 +92,9 @@ Bombable.prototype.die = function () {
             new Identifiable(this.game, this.position, this.scale, this.dropId));
     }
     function updateAndDestroy() {
-        console.log("update and destroy");
+        // console.log("update and destroy");
 
-        if (this.constructor === Bombable) //just cause enemy uses this too atm
-            this.level.updateSquare(this.position, this.level.types.free.value)
+        this.level.updateSquare(this.position, this.level.types.free.value)
 
         this.destroy();
     }

@@ -33,6 +33,7 @@ var playerMovAndInputs = require('./playerMovAndInputs.js'); //big chunk of code
 function Player(game, level, numPlayer, tileData, groups) {
 
     this.numPlayer = numPlayer;
+    this.points = 0;
     this.inputs = new Inputs(game, numPlayer); //based on numPlayer
 
     //produces respawn position based on playerSpawns[numPlayer]
@@ -103,6 +104,9 @@ Player.prototype.checkPowerUps = function () {
     function takePowerUp(player, powerUp) {
         //console.log("takin powerUp");
         player.mods.push(powerUp.id);
+        player.points += powerUp.pts;
+
+        console.log(player.points);
 
         Identifiable.pickPowerUp(powerUp, player);
 

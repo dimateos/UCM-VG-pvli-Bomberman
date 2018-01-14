@@ -3,6 +3,8 @@
 var Bombable = require('../objects/bombable.js'); //father
 var Point = require('../general/point.js');
 
+var Identifiable = require('../id/identifiable.js'); //deploy power ups
+
 
 //default enemy values
 var enemySpritePath = 'enemy';
@@ -13,10 +15,9 @@ var enemyExtraOffset = new Point(0, 0); //to center it
 
 var enemyImmovable = false;
 var enemyInvecibleTime = 2500; //maybe reduce
+var bombableTimer = 500; //to sync with flames
 
-var enemyLives = 1;
-var enemyVelocity = 90;
-
+var enemyDataBase = require('./enemyDataBase.js');
 
 function Enemy (game, position, level, enemyType, tileData, groups, dropId) {
 
@@ -25,25 +26,27 @@ function Enemy (game, position, level, enemyType, tileData, groups, dropId) {
     this.level = level;
 
     this.enemyType = enemyType;
+    this.pts = enemyDataBase[enemyType].pts;
+
     var enemyPosition = position.add(enemyExtraOffset.x, enemyExtraOffset.y);
 
-    Bombable.call(this, game, level, groups, enemyPosition, enemySpritePath,
-        tileData.Scale, enemyBodySize, enemyBodyOffset,
-        enemyImmovable, enemyLives, enemyInvecibleTime, dropId);
+    var enemySprite = enemySpritePath + "_" + enemyType; //constructed
 
-    // this.body.bounce.setTo(1,1); //provisional
-    // this.body.velocity.x = enemyVelocity;
+    Bombable.call(this, game, level, groups, enemyPosition, enemySprite,
+        tileData.Scale, enemyBodySize, enemyBodyOffset, enemyImmovable,
+        enemyDataBase[enemyType].lives, enemyInvecibleTime, dropId);
 
-    level.updateSquare(position, level.types.free.value); //clears the map
+    level.updateSquare(position, level.types.free.value); //clears the map square
 
+    //starting the movement
     this.dir = new Point();
-    this.pickDirection(); //starting the movement
+    this.velocity = enemyDataBase[enemyType].velocity;
+    this.pickDirection();
     this.setSpeed(this.dir);
 };
 
 Enemy.prototype = Object.create(Bombable.prototype);
 Enemy.prototype.constructor = Enemy;
-
 
 Enemy.prototype.update = function() {
 
@@ -57,6 +60,37 @@ Enemy.prototype.update = function() {
     else this.logicMovement();
 }
 
+
+//player, bomb, enemie, etc will extend this
+Bombable.prototype.die = function (flame) {
+    console.log("checkin enemie die");
+    this.lives--;
+
+    if (this.lives <= 0) {
+        this.dead = true;
+
+        //if it has a power up, drops it
+        if (this.dropId !== undefined)
+            this.game.time.events.add(bombableTimer - 5, drop, this);
+
+        flame.player.points += this.pts;
+        console.log(flame.player.points);
+
+        //then destroy itself
+        this.game.time.events.add(bombableTimer + 5, this.destroy, this);
+    }
+    else this.game.time.events.add(bombableTimer, flipInven, this);
+
+    function flipInven() { this.tmpInven = false; }
+    function drop() {
+
+        this.groups.powerUp.add(
+            new Identifiable(this.game, this.position, this.scale, this.dropId));
+    }
+}
+
+
+//all the IA is just movement
 Enemy.prototype.logicMovement = function() {
 
     //virtual map pos and extra pos to cehck collisions
@@ -103,10 +137,10 @@ Enemy.prototype.pickDirection = function() {
 
 //Simple method to set speed
 Enemy.prototype.setSpeed = function(dir) {
-    if (this.dir.x ===1) this.body.velocity.x = enemyVelocity;
-    else if (this.dir.x ===-1) this.body.velocity.x = -enemyVelocity;
-    else if (this.dir.y ===1) this.body.velocity.y = enemyVelocity;
-    else if (this.dir.y ===-1) this.body.velocity.y = -enemyVelocity;
+    if (this.dir.x ===1) this.body.velocity.x = this.velocity;
+    else if (this.dir.x ===-1) this.body.velocity.x = -this.velocity;
+    else if (this.dir.y ===1) this.body.velocity.y = this.velocity;
+    else if (this.dir.y ===-1) this.body.velocity.y = -this.velocity;
 }
 
 //checks if the enmy is getting closer to a block

@@ -20,13 +20,14 @@ function Identifiable(game, position, scale, id) {
       scale, idBodySize, idBodyOffset, idImmovable);
 
     this.id = id;
+    this.pts = idDataBase[id.tier][id.num].pts;
 }
 
 Identifiable.prototype = Object.create(Physical.prototype);
 Identifiable.prototype.constructor = Identifiable;
 
 
-//method used by players ti pick powerUps (so they do not need idDataBase)
+//method used by players to pick powerUps (so they do not need idDataBase)
 Identifiable.pickPowerUp = function(powerUp, player) {
     var mods = idDataBase[powerUp.id.tier][powerUp.id.num].mods;
     Identifiable.applyMods(mods, player);
@@ -37,6 +38,7 @@ Identifiable.pickPowerUp = function(powerUp, player) {
 Identifiable.Id = function (tier, num) {this.tier = tier; this.num = num;}
 //get tier size (for the map rnd generation)
 Identifiable.tierSize = function (tier) {return idDataBase[tier].length}
+
 
 Identifiable.addPowerUps = function(powerUpIds, target, reverseMode) {
   //Adds the id of the mods to the player.mods (so we can reverse them, etc)
@@ -50,6 +52,7 @@ Identifiable.addPowerUps = function(powerUpIds, target, reverseMode) {
   }
 }
 
+//call respectives functions applied to the player
 Identifiable.applyMods = function(mods, target, reverseMode) {
   for (var i = 0; i < mods.length; i++) {
       //console.log(target[mods[i].key]);

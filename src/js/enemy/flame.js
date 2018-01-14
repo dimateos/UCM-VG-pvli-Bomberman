@@ -10,7 +10,9 @@ var flameExtraOffset = new Point(5, 5); //flame body is not full res
 var flameImmovable = true;
 var flameSprite = 'flame';
 
-function Flame (game, position, scale) {
+function Flame (game, position, scale, player) {
+
+    this.player = player; //link to reward the kill/points
 
     var flamePosition = position.add(flameExtraOffset.x, flameExtraOffset.y);
 
