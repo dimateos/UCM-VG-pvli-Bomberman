@@ -55,13 +55,6 @@ var globalControls = {
             gInputs.resetLevel.ff = true;
 
             level.regenerateMap();
-
-            // level.groups.clearGroups(level.game); //clears all grups but player
-            // level.groups.player.callAll('respawn'); //resets players' pos
-
-            // //creates the new map
-            // level = new level.constructor(level.game, level.mapNumber.world,
-            //     level.mapNumber.level, level.groups, level.tileData, level.maxPlayers);
         }
 
         else if (gInputs.resetLevel.button.isUp)

@@ -57,13 +57,15 @@ Map.prototype.generateMap = function (worldNum, levelNum) {
 
 //generates a new map (resets groups and players'positions)
 Map.prototype.generateNewMap = function (worldNum, levelNum) {
+    this.game.time.events.removeAll(); //required cause we are going to destry
     this.groups.clearGroups(this.game); //clears all grups but player
-    this.groups.player.callAll('respawn'); //resets players' pos
+    // console.log(this.game.time.events.events);
 
     this.mapNumber = { world: worldNum, level: levelNum };
     this.levelData = levelsDataBase[worldNum][levelNum];
-
     this.generateMap(worldNum, levelNum);
+
+    this.groups.player.callAll('respawn'); //resets players' pos
 };
 Map.prototype.regenerateMap = function () {
     this.generateNewMap(this.mapNumber.world, this.mapNumber.level)

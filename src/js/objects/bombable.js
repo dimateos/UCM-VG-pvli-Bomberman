@@ -59,7 +59,7 @@ Bombable.prototype.checkFlames = function () {
 
         //die should be insta and then in die handle sync
         //so the player can die insta etc (block mov)
-        //this.game.time.events.aadd(bombableTimer, this.die, this);
+        //this.game.time.events.add(bombableTimer, this.die, this);
         this.die();
     }
 }
@@ -71,7 +71,7 @@ Bombable.prototype.die = function () {
 
     if (this.lives <= 0) {
         this.dead = true;
-        this.visible = false;
+        // this.visible = false;
 
         //if it has a power up, drops it
         if (this.dropId !== undefined)
@@ -85,10 +85,12 @@ Bombable.prototype.die = function () {
 
     function flipInven() { this.tmpInven = false; }
     function drop() {
+
         this.groups.powerUp.add(
             new Identifiable(this.game, this.position, this.scale, this.dropId));
     }
     function updateAndDestroy() {
+        console.log("update and destroy");
 
         if (this.constructor === Bombable) //just cause enemy uses this too atm
             this.level.updateSquare(this.position, this.level.types.free.value)

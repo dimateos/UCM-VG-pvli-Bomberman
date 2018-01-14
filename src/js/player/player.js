@@ -22,7 +22,8 @@ var playerLives = 5;
 var playerNumBombs = 5;
 
 var playerInvencibleTime = 5000;
-var playerDeathTimer = 1500;
+var playerRespawnedStoppedTime = 1000;
+var playerDeathTime = 1500;
 
 var Id = Identifiable.Id; //the mini factory is in Identifiable
 var playerInitialModsIds = [/*new Id(1,2),*/ new Id(1, 1), /*new Id(1,0)*/];
@@ -35,23 +36,19 @@ function Player(game, level, numPlayer, tileData, groups) {
 
     //produces respawn position based on playerSpawns[numPlayer]
     this.respawnPos = new Point(level.playerSpawns[numPlayer].x, level.playerSpawns[numPlayer].y)
-    .applyTileData(tileData, playerExtraOffset);
+        .applyTileData(tileData, playerExtraOffset);
 
     Bombable.call(this, game, level, groups, this.respawnPos, playerSpritePath + this.numPlayer,
         tileData.Scale, playerBodySize, playerBodyOffset, playerImmovable, playerLives, playerInvencibleTime);
 
-    this.velocity = playerMovAndInputs.getVel();
-    this.numBombs = playerNumBombs;
-
-    this.dirs = { dirX: new Point(), dirY: new Point };
-    this.prioritizedDirs = { first: this.dirs.dirX, second: this.dirs.dirY };
-    this.blockedBacktrack = { x: false, y: false, turn: false };
+    this.restartMovement();
 
     this.tileData = tileData;
     this.level = level;
     this.groups = groups;
     this.groups.player.add(this); //adds itself to the group
 
+    this.numBombs = playerNumBombs;
     this.mods = [];
     this.bombMods = [];
     Identifiable.addPowerUps(playerInitialModsIds, this);
@@ -60,6 +57,15 @@ function Player(game, level, numPlayer, tileData, groups) {
 Player.prototype = Object.create(Bombable.prototype);
 Player.prototype.constructor = Player;
 
+
+//Restarts all movements variables
+Player.prototype.restartMovement = function () {
+    this.velocity = playerMovAndInputs.getVel();
+    this.dirs = { dirX: new Point(), dirY: new Point };
+    this.prioritizedDirs = { first: this.dirs.dirX, second: this.dirs.dirY };
+    this.blockedBacktrack = { x: false, y: false, turn: false };
+    this.body.velocity = new Point();
+}
 
 //Calls all methods
 Player.prototype.update = function () {
@@ -141,26 +147,33 @@ Player.prototype.die = function () {
     console.log("checkin player die");
     this.lives--;
     this.dead = true; //to disable movement
-    this.body.velocity = new Point(); //stops the player
+    this.restartMovement();
 
-    this.game.time.events.add(playerDeathTimer, this.respawn, this);
+    this.game.time.events.add(playerDeathTime, this.respawn, this);
 
     if (this.lives <= 0) {
         console.log("P" + this.numPlayer + ", you ded (0 lives)");
     }
 
-    else this.game.time.events.add(playerDeathTimer, flipInven, this);
+    else this.game.time.events.add(playerDeathTime, flipInven, this);
     function flipInven() { this.tmpInven = false; }
 }
 
 //needs improvements, atm only moves the player
 Player.prototype.respawn = function () {
-    this.position = new Point(this.respawnPos.x, this.respawnPos.y);
-    this.body.velocity = new Point(); //sometimes the player gets in the wall
     this.invencible = true;
-    this.dead = false;
+    this.dead = true; //so he cannot move
+    this.restartMovement(); //so it doesnt move inside walls
+    this.position = new Point(this.respawnPos.x, this.respawnPos.y);
 
+    //callback to make end player's invulnerability
     this.game.time.events.add(playerInvencibleTime, this.endInvencibility, this);
+    //callback used to give back the control to the player
+    this.game.time.events.add(playerRespawnedStoppedTime, revive, this);
+    function revive() {
+        this.position = new Point(this.respawnPos.x, this.respawnPos.y);
+        this.dead = false;
+    }
 }
 
 //just extended to see the player number
