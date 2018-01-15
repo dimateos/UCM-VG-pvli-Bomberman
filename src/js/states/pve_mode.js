@@ -33,11 +33,20 @@ const tileData = {
 
 var mMenuTitle;
 var livesHUD;
+var pointsHUD;
+var HUDBg;
+var HUDPoints;
+var HUDBombHead;
+var HUD2;
+var HUDBomb;
 
 var pausePanel;
 var unpauseButton;
 var gotoMenuButton;
 var muteMusicButton;
+var mutedMusicButton;
+
+var musicMuted;
 
 var PlayScene = {
 
@@ -48,9 +57,25 @@ var PlayScene = {
 
   create: function () {
     //menu stuff
-    mMenuTitle = this.game.add.sprite(50, 0, 'mMenuTitle'); //vital for life on earth
-    mMenuTitle.scale = new Point(0.4, 0.75); //nah just for presentation
+    HUDBg = this.game.add.sprite(0, 0, 'HUDBg');
+    HUDPoints = this.game.add.sprite(500, -10, 'HUDPoints');
+    HUDPoints.scale.setTo(0.75, 0.75);
+    HUDBombHead = this.game.add.sprite(100, 10, 'player_0');
+    HUDBombHead.scale.setTo(0.75, 0.75);
+    HUD2 = this.game.add.sprite(100+HUDBombHead.width, -5, 'HUD2');
+    HUD2.scale.setTo(0.75, 0.75);
+    HUDBomb = this.game.add.sprite(width/2, 10, 'bomb');
+    HUDBomb.anchor.setTo(0.5, 0);
+    HUDBomb.scale.setTo(1.2, 1.2);
+    // mMenuTitle = this.game.add.sprite(50, 0, 'mMenuTitle'); //vital for life on earth
+    // mMenuTitle.scale = new Point(0.4, 0.75); //nah just for presentation
 
+    livesHUD = this.game.add.text(HUD2.position.x + HUD2.texture.width, 15, "5",
+        { font: "45px Comic Sans MS", fill: "#f9e000", align: "center"});
+    livesHUD.anchor.setTo(0.2, 0);
+    pointsHUD = this.game.add.text(HUDPoints.position.x + HUDPoints.texture.width - 60, 12, "10",
+        { font: "45px Comic Sans MS", fill: "#f9e000", align: "center"});
+    pointsHUD.anchor.setTo(0.2, 0);
 
     //map
     groups = new Groups(this.game); //first need the groups
@@ -61,16 +86,16 @@ var PlayScene = {
 
     //music
     music = this.game.add.audio('music');
-    //music.loopFull(); //la pauso que me morido quedo loco
+    music.loopFull(0.4); //la pauso que me morido quedo loco
+    music.mute = true;
 
     //player/s (initialPlayers)
+    players = [];
     for (var numPlayer = 0; numPlayer < initialPlayers; numPlayer++) {
       players.push(new Player(this.game, level, numPlayer, tileData, groups));
       players[numPlayer].startCountdown();
     }
 
-     livesHUD = this.game.add.text(width/2, height/2, "ASD",
-         { font: "45px Comic Sans MS", fill: "#f9e000", align: "center"});
 
     if (DEBUG) {
       console.log("Loaded...", Date.now() - this.startTime, "ms");
@@ -106,15 +131,27 @@ var PlayScene = {
     this.game.stage.disableVisibilityChange = true;
     this.game.input.onDown.add(unPause, this);
 
+    
     pausePanel = this.game.add.sprite(width / 2, height / 2, 'pausePanel');
     pausePanel.anchor.setTo(0.5, 0.5);
     pausePanel.alpha = 0.5;
-
-    unpauseButton = this.game.add.sprite(width / 2, height / 2 - 50, 'mMenuButton2');
+    
+    muteMusicButton = this.game.add.sprite(width/2 + 150, height/2 - 100, 'unmuted');
+    muteMusicButton.anchor.setTo(0.5, 0.5);
+    muteMusicButton.scale.setTo(0.1, 0.1);
+    if(musicMuted) muteMusicButton.visible = false;
+    mutedMusicButton = this.game.add.sprite(width/2 + 150, height/2 - 100, 'muted');
+    mutedMusicButton.anchor.setTo(0.5, 0.5);
+    mutedMusicButton.scale.setTo(0.1, 0.1);
+    if(!musicMuted) mutedMusicButton.visible = false;
+    
+    unpauseButton = this.game.add.sprite(width / 2, height / 2 - 50, 'resume');
     unpauseButton.anchor.setTo(0.5, 0.5);
+    unpauseButton.scale.setTo(0.75, 0.75);
 
     gotoMenuButton = this.game.add.sprite(width / 2, height / 2 + 50, 'quitToMenu');
     gotoMenuButton.anchor.setTo(0.5, 0.5);
+    gotoMenuButton.scale.setTo(0.75, 0.75);    
 
     function unPause() {
       if (this.game.paused) {
@@ -131,11 +168,17 @@ var PlayScene = {
           && this.game.input.mousePointer.position.y < gotoMenuButton.position.y + gotoMenuButton.texture.height / 2)
           { this.game.state.start('mainMenu'); this.game.paused = false; }
         
-        else if (this.game.input.mousePointer.position.x > gotoMenuButton.position.x - gotoMenuButton.texture.width / 2
-          && this.game.input.mousePointer.position.x < gotoMenuButton.position.x + gotoMenuButton.texture.width / 2
-          && this.game.input.mousePointer.position.y > gotoMenuButton.position.y - gotoMenuButton.texture.height / 2
-          && this.game.input.mousePointer.position.y < gotoMenuButton.position.y + gotoMenuButton.texture.height / 2)
-          { this.game.state.start('mainMenu'); this.game.paused = false; }
+        else if (this.game.input.mousePointer.position.x > muteMusicButton.position.x - muteMusicButton.texture.width / 2
+          && this.game.input.mousePointer.position.x < muteMusicButton.position.x + muteMusicButton.texture.width / 2
+          && this.game.input.mousePointer.position.y > muteMusicButton.position.y - muteMusicButton.texture.height / 2
+          && this.game.input.mousePointer.position.y < muteMusicButton.position.y + muteMusicButton.texture.height / 2)
+          { 
+            this.game.paused = false;
+            music.mute = !music.mute;
+            this.game.paused = true;            
+            mutedMusicButton.visible = !mutedMusicButton.visible; 
+            muteMusicButton.visible = !muteMusicButton.visible; 
+          }
       }
     };
 
@@ -161,6 +204,8 @@ var PlayScene = {
     pausePanel.destroy();
     unpauseButton.destroy();
     gotoMenuButton.destroy();
+    muteMusicButton.destroy();
+    mutedMusicButton.destroy();
   },
 
   render: function () {
@@ -175,6 +220,7 @@ var PlayScene = {
 
 
 var offPauseMenuControl = function (game) {
+  musicMuted = music.mute;
   if (gInputs.pMenu.button.isDown && !gInputs.pMenu.ff) {
     gInputs.pMenu.ff = true;
     game.paused = true;

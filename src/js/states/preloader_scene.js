@@ -37,18 +37,29 @@ var PreloaderScene = {
 
         //Main Menu sprites
         this.game.load.image('mMenuBG', 'images/Sprites/Menu/title_background.jpg');
-        this.game.load.image('mMenuButton1', 'images/Sprites/Menu/One_Player_Normal.png');
-        this.game.load.image('mMenuButton2', 'images/Sprites/Menu/One_Player_Hover.png');
+        this.game.load.image('mMenuButton1', 'images/Sprites/Menu/PVE_mode.png');
+        this.game.load.image('mMenuButton2', 'images/Sprites/Menu/PVP_mode.png');
         this.game.load.image('mMenuTitle', 'images/Sprites/Menu/title.png');
 
         this.game.load.image('pausePanel', 'images/Sprites/Menu/White_Panel.png');
-        this.game.load.image('quitToMenu', 'images/Sprites/Menu/Two_Players_Hover.png');
+        this.game.load.image('quitToMenu', 'images/Sprites/Menu/QuitToMenu.png');
+        this.game.load.image('resume', 'images/Sprites/Menu/Resume.png');
 
+        this.game.load.image('unmuted', 'images/Sprites/Menu/unMuted.png');
+        this.game.load.image('muted', 'images/Sprites/Menu/Muted.png');        
+
+        //HUD sprites
+        this.game.load.image('HUDBg', 'images/Sprites/HUD/HUDBg.png');
+        this.game.load.image('HUDPoints', 'images/Sprites/HUD/HUDPoints.png');
+        this.game.load.image('HUD2', 'images/Sprites/HUD/HUD2.png');
+        
+        
         //Music and audio
         this.game.load.audio('music', 'audio/music.ogg');
         this.game.load.audio('xplosion', 'audio/explosion.ogg');
         this.game.load.audio('powerup', 'audio/powerup.ogg');
         this.game.load.audio('portal', 'audio/portal.ogg');
+
     },
 
     create: function () {

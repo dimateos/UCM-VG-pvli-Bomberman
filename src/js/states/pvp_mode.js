@@ -18,6 +18,7 @@ var players = []; //2 max for this mode but meh
 var initialPlayers = 4;
 var maxPlayers = 4; //needed for the map generation
 
+var music;
 var pausePanel;
 var unpauseButton;
 var gotoMenuButton;
@@ -139,6 +140,17 @@ var PlayScene = {
 
   },
 };
+
+var offPauseMenuControl = function (game) {
+  if (gInputs.pMenu.button.isDown && !gInputs.pMenu.ff) {
+    gInputs.pMenu.ff = true;
+    game.paused = true;
+  }
+  //MIRAR DOCUMENTACION DE PHASER.SIGNAL
+  else if (gInputs.pMenu.isUp)
+    gInputs.pMenu.ff = false;
+  //console.log(gInputs.pMenu.ff)
+}
 
 
 module.exports = PlayScene;

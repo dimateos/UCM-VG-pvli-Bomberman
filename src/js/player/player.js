@@ -71,6 +71,7 @@ Player.prototype.restartMovement = function () {
 
 //Starts the countdown to finish life
 Player.prototype.startCountdown = function () {
+    console.log(this);
     this.game.time.events.add(playerLifeTime, this.restartCoundown, this);
 }
 Player.prototype.restartCoundown = function () {
