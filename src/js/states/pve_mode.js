@@ -37,6 +37,7 @@ var livesHUD;
 var pausePanel;
 var unpauseButton;
 var gotoMenuButton;
+var muteMusicButton;
 
 var PlayScene = {
 
@@ -68,8 +69,8 @@ var PlayScene = {
       players[numPlayer].startCountdown();
     }
 
-    livesHUD = this.game.add.text(width/2, height/2, players[0].playerLives,
-        { font: "65px Arial", fill: "#f9e000", align: "center"});
+     livesHUD = this.game.add.text(width/2, height/2, "ASD",
+         { font: "45px Comic Sans MS", fill: "#f9e000", align: "center"});
 
     if (DEBUG) {
       console.log("Loaded...", Date.now() - this.startTime, "ms");
@@ -124,6 +125,12 @@ var PlayScene = {
           this.game.paused = false;
 
         //We need to fix the remake of maps before this fully works. But it does what it has to.
+        else if (this.game.input.mousePointer.position.x > gotoMenuButton.position.x - gotoMenuButton.texture.width / 2
+          && this.game.input.mousePointer.position.x < gotoMenuButton.position.x + gotoMenuButton.texture.width / 2
+          && this.game.input.mousePointer.position.y > gotoMenuButton.position.y - gotoMenuButton.texture.height / 2
+          && this.game.input.mousePointer.position.y < gotoMenuButton.position.y + gotoMenuButton.texture.height / 2)
+          { this.game.state.start('mainMenu'); this.game.paused = false; }
+        
         else if (this.game.input.mousePointer.position.x > gotoMenuButton.position.x - gotoMenuButton.texture.width / 2
           && this.game.input.mousePointer.position.x < gotoMenuButton.position.x + gotoMenuButton.texture.width / 2
           && this.game.input.mousePointer.position.y > gotoMenuButton.position.y - gotoMenuButton.texture.height / 2

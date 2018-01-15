@@ -48,7 +48,7 @@ var PreloaderScene = {
         this.game.load.audio('music', 'audio/music.ogg');
         this.game.load.audio('xplosion', 'audio/explosion.ogg');
         this.game.load.audio('powerup', 'audio/powerup.ogg');
-
+        this.game.load.audio('portal', 'audio/portal.ogg');
     },
 
     create: function () {

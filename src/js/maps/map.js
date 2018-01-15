@@ -27,6 +27,8 @@ var defaultBombableInvencibleTime = 0;
 //too import a big chunk of code
 var mapCooking = require('./mapCooking.js');
 
+var portalSound;
+
 function Map(game, worldNum, levelNum, groups, tileData, maxPlayers) {
 
     this.game = game;
@@ -169,11 +171,13 @@ Map.prototype.buildMap = function (groups, tileData) {
             && bombableIdPowerUp.num === portalId.num);
 
         if (portal) //creates the portal too
+        { 
             groups.box.add(new Portal(this.game, this, groups,
-                squareIndexPos, this.types.bombable.sprite, tileData,
-                defaultBodyOffset, defaultImmovable,
-                defaultBombableLives, defaultBombableInvencibleTime));
-
+            squareIndexPos, this.types.bombable.sprite, tileData,
+            defaultBodyOffset, defaultImmovable,
+            defaultBombableLives, defaultBombableInvencibleTime));
+        }
+            
         return portal;
     }
 };
