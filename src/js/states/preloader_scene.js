@@ -46,7 +46,8 @@ var PreloaderScene = {
         this.game.load.image('resume', 'images/Sprites/Menu/Resume.png');
 
         this.game.load.image('unmuted', 'images/Sprites/Menu/unMuted.png');
-        this.game.load.image('muted', 'images/Sprites/Menu/Muted.png');        
+        this.game.load.image('muted', 'images/Sprites/Menu/Muted.png');
+        this.game.load.image('volArrow', 'images/Sprites/Menu/VolumeArrow.png');     
 
         //HUD sprites
         this.game.load.image('HUDBg', 'images/Sprites/HUD/HUDBg.png');

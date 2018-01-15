@@ -15,6 +15,8 @@ var portalSpinVel = 0.05;
 var portalBombTimer = 500; //to sync with flames
 var portalSpawnTimer = 1500; //cooldown to spawn enemies
 
+var portalSound;
+
 function Portal (game, level, groups, position, sprite, tileData, bodyOffSet, immovable, lives, invencibleTime) {
 
     //var portalPosition = position.add(portalExtraOffset.x, portalExtraOffset.y);
@@ -28,6 +30,8 @@ function Portal (game, level, groups, position, sprite, tileData, bodyOffSet, im
         lives, invencibleTime, portalDropId)
 
     this.spawned = false;
+
+    this.portalSound = game.add.audio('portal');
 }
 
 Portal.prototype = Object.create(Bombable.prototype);
@@ -45,6 +49,7 @@ Portal.prototype.update = function() {
     }
 
     function nextLevel(portal, player) {
+        portal.portalSound.stop();
         player.level.generateNextMap();
     }
 }
@@ -83,6 +88,8 @@ Portal.prototype.spawnPortal = function () {
         this.body.position.x+this.body.width,
         this.body.position.y+this.body.height);
     this.anchor.setTo(0.5, 0.5);
+
+    this.portalSound.loopFull(0.4);
 
     this.loadTexture(portalSprite); //change sprite
 }

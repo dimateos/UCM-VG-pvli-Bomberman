@@ -45,6 +45,8 @@ var unpauseButton;
 var gotoMenuButton;
 var muteMusicButton;
 var mutedMusicButton;
+var lessVolButton;
+var moreVolButton;
 
 var musicMuted;
 
@@ -70,10 +72,10 @@ var PlayScene = {
     // mMenuTitle = this.game.add.sprite(50, 0, 'mMenuTitle'); //vital for life on earth
     // mMenuTitle.scale = new Point(0.4, 0.75); //nah just for presentation
 
-    livesHUD = this.game.add.text(HUD2.position.x + HUD2.texture.width, 15, "5",
+    livesHUD = this.game.add.text(HUD2.position.x + HUD2.texture.width, 15, "",
         { font: "45px Comic Sans MS", fill: "#f9e000", align: "center"});
     livesHUD.anchor.setTo(0.2, 0);
-    pointsHUD = this.game.add.text(HUDPoints.position.x + HUDPoints.texture.width - 60, 12, "10",
+    pointsHUD = this.game.add.text(HUDPoints.position.x + HUDPoints.texture.width - 60, 12, "",
         { font: "45px Comic Sans MS", fill: "#f9e000", align: "center"});
     pointsHUD.anchor.setTo(0.2, 0);
 
@@ -144,6 +146,20 @@ var PlayScene = {
     mutedMusicButton.anchor.setTo(0.5, 0.5);
     mutedMusicButton.scale.setTo(0.1, 0.1);
     if(!musicMuted) mutedMusicButton.visible = false;
+
+    lessVolButton = this.game.add.sprite(muteMusicButton.position.x - muteMusicButton.texture.width/15,
+      muteMusicButton.position.y, 'volArrow');
+    lessVolButton.anchor.setTo(1, 0.5);
+    lessVolButton.scale.setTo(0.04, 0.04);
+
+    moreVolButton = this.game.add.sprite(muteMusicButton.position.x + muteMusicButton.texture.width/19,
+      muteMusicButton.position.y, 'volArrow');
+    moreVolButton.anchor.setTo(1, 0.5);
+    moreVolButton.scale.setTo(0.04, 0.04);
+    moreVolButton.angle = 180;
+    
+
+      
     
     unpauseButton = this.game.add.sprite(width / 2, height / 2 - 50, 'resume');
     unpauseButton.anchor.setTo(0.5, 0.5);
@@ -173,12 +189,22 @@ var PlayScene = {
           && this.game.input.mousePointer.position.y > muteMusicButton.position.y - muteMusicButton.texture.height / 2
           && this.game.input.mousePointer.position.y < muteMusicButton.position.y + muteMusicButton.texture.height / 2)
           { 
-            this.game.paused = false;
+            this.game.paused = false;        
             music.mute = !music.mute;
             this.game.paused = true;            
             mutedMusicButton.visible = !mutedMusicButton.visible; 
             muteMusicButton.visible = !muteMusicButton.visible; 
           }
+        else if (this.game.input.mousePointer.position.x > lessVolButton.position.x - lessVolButton.texture.width / 2
+          && this.game.input.mousePointer.position.x < lessVolButton.position.x + lessVolButton.texture.width / 2
+          && this.game.input.mousePointer.position.y > lessVolButton.position.y - lessVolButton.texture.height / 2
+          && this.game.input.mousePointer.position.y < lessVolButton.position.y + lessVolButton.texture.height / 2)
+          { music.volume -= 0.1; }
+        else if (this.game.input.mousePointer.position.x > moreVolButton.position.x - moreVolButton.texture.width / 2
+          && this.game.input.mousePointer.position.x < moreVolButton.position.x + moreVolButton.texture.width / 2
+          && this.game.input.mousePointer.position.y > moreVolButton.position.y - moreVolButton.texture.height / 2
+          && this.game.input.mousePointer.position.y < moreVolButton.position.y + moreVolButton.texture.height / 2)
+          { music.volume += 0.1; }
       }
     };
 
@@ -209,7 +235,11 @@ var PlayScene = {
   },
 
   render: function () {
-
+    
+    // var rnd = this.game.rnd.integerInRange(0,100);
+    livesHUD.text = players[0].lives;
+    pointsHUD.text = players[0].points;
+    
     if (gInputs.debug.state) {
       groups.drawDebug(this.game);
       this.game.debug.bodyInfo(players[0], debugPos.x, debugPos.y, debugColor);
