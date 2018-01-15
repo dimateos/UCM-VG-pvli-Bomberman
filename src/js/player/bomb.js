@@ -88,7 +88,7 @@ Bomb.prototype.xplode = function() {
     this.groups.bomb.remove(this); //removes and destroys the bomb
     this.player.numBombs++; //adds a bomb back to the player
 
-    this.xplosionSound.play();
+    this.xplosionSound.play("", 0, 0.1);
 
     var flames = this.spawnFlames();
 

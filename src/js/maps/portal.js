@@ -89,7 +89,7 @@ Portal.prototype.spawnPortal = function () {
         this.body.position.y+this.body.height);
     this.anchor.setTo(0.5, 0.5);
 
-    this.portalSound.loopFull(0.4);
+    this.portalSound.loopFull(0.3);
 
     this.loadTexture(portalSprite); //change sprite
 }

@@ -48,7 +48,6 @@ var mutedMusicButton;
 var lessVolButton;
 var moreVolButton;
 
-var musicMuted;
 
 var PlayScene = {
 
@@ -57,7 +56,17 @@ var PlayScene = {
     if (DEBUG) this.startTime = Date.now(); //to calculate booting time
   },
 
+  toggleMute: function () { this.game.sound.mute = !this.game.sound.mute; },
+
+  moreVol: function () { if(music.volume < 1) music.volume += 0.1; },
+
+  lessVol: function () { if(music.volume > 0.2) music.volume -= 0.1; },
+
   create: function () {
+    //music
+    music = this.game.add.audio('music');
+    music.loopFull(0.4); //la pauso que me morido quedo loco
+    
     //menu stuff
     HUDBg = this.game.add.sprite(0, 0, 'HUDBg');
     HUDPoints = this.game.add.sprite(500, -10, 'HUDPoints');
@@ -69,8 +78,19 @@ var PlayScene = {
     HUDBomb = this.game.add.sprite(width/2, 10, 'bomb');
     HUDBomb.anchor.setTo(0.5, 0);
     HUDBomb.scale.setTo(1.2, 1.2);
-    // mMenuTitle = this.game.add.sprite(50, 0, 'mMenuTitle'); //vital for life on earth
-    // mMenuTitle.scale = new Point(0.4, 0.75); //nah just for presentation
+  
+    muteMusicButton = this.game.add.button(10, 40, 'unmuted', this.toggleMute, this);
+    muteMusicButton.scale.setTo(0.1, 0.1);
+    mutedMusicButton = this.game.add.button(10, 40, 'muted', this.toggleMute, this);
+    mutedMusicButton.scale.setTo(0.1, 0.1);
+
+    lessVolButton = this.game.add.button(10, 10, 'volArrow', this.lessVol, this);
+    lessVolButton.scale.setTo(0.04, 0.04);
+
+    moreVolButton = this.game.add.button(30, 10, 'volArrow', this.moreVol, this);
+    moreVolButton.anchor.setTo(1, 1);
+    moreVolButton.scale.setTo(0.04, 0.04);
+    moreVolButton.angle = 180;
 
     livesHUD = this.game.add.text(HUD2.position.x + HUD2.texture.width, 15, "",
         { font: "45px Comic Sans MS", fill: "#f9e000", align: "center"});
@@ -86,10 +106,6 @@ var PlayScene = {
     //global controls
     gInputs = new Inputs(this.game, -1);
 
-    //music
-    music = this.game.add.audio('music');
-    music.loopFull(0.4); //la pauso que me morido quedo loco
-    music.mute = true;
 
     //player/s (initialPlayers)
     players = [];
@@ -138,29 +154,6 @@ var PlayScene = {
     pausePanel.anchor.setTo(0.5, 0.5);
     pausePanel.alpha = 0.5;
     
-    muteMusicButton = this.game.add.sprite(width/2 + 150, height/2 - 100, 'unmuted');
-    muteMusicButton.anchor.setTo(0.5, 0.5);
-    muteMusicButton.scale.setTo(0.1, 0.1);
-    if(musicMuted) muteMusicButton.visible = false;
-    mutedMusicButton = this.game.add.sprite(width/2 + 150, height/2 - 100, 'muted');
-    mutedMusicButton.anchor.setTo(0.5, 0.5);
-    mutedMusicButton.scale.setTo(0.1, 0.1);
-    if(!musicMuted) mutedMusicButton.visible = false;
-
-    lessVolButton = this.game.add.sprite(muteMusicButton.position.x - muteMusicButton.texture.width/15,
-      muteMusicButton.position.y, 'volArrow');
-    lessVolButton.anchor.setTo(1, 0.5);
-    lessVolButton.scale.setTo(0.04, 0.04);
-
-    moreVolButton = this.game.add.sprite(muteMusicButton.position.x + muteMusicButton.texture.width/19,
-      muteMusicButton.position.y, 'volArrow');
-    moreVolButton.anchor.setTo(1, 0.5);
-    moreVolButton.scale.setTo(0.04, 0.04);
-    moreVolButton.angle = 180;
-    
-
-      
-    
     unpauseButton = this.game.add.sprite(width / 2, height / 2 - 50, 'resume');
     unpauseButton.anchor.setTo(0.5, 0.5);
     unpauseButton.scale.setTo(0.75, 0.75);
@@ -183,28 +176,7 @@ var PlayScene = {
           && this.game.input.mousePointer.position.y > gotoMenuButton.position.y - gotoMenuButton.texture.height / 2
           && this.game.input.mousePointer.position.y < gotoMenuButton.position.y + gotoMenuButton.texture.height / 2)
           { this.game.state.start('mainMenu'); this.game.paused = false; }
-        
-        else if (this.game.input.mousePointer.position.x > muteMusicButton.position.x - muteMusicButton.texture.width / 2
-          && this.game.input.mousePointer.position.x < muteMusicButton.position.x + muteMusicButton.texture.width / 2
-          && this.game.input.mousePointer.position.y > muteMusicButton.position.y - muteMusicButton.texture.height / 2
-          && this.game.input.mousePointer.position.y < muteMusicButton.position.y + muteMusicButton.texture.height / 2)
-          { 
-            this.game.paused = false;        
-            music.mute = !music.mute;
-            this.game.paused = true;            
-            mutedMusicButton.visible = !mutedMusicButton.visible; 
-            muteMusicButton.visible = !muteMusicButton.visible; 
-          }
-        else if (this.game.input.mousePointer.position.x > lessVolButton.position.x - lessVolButton.texture.width / 2
-          && this.game.input.mousePointer.position.x < lessVolButton.position.x + lessVolButton.texture.width / 2
-          && this.game.input.mousePointer.position.y > lessVolButton.position.y - lessVolButton.texture.height / 2
-          && this.game.input.mousePointer.position.y < lessVolButton.position.y + lessVolButton.texture.height / 2)
-          { music.volume -= 0.1; }
-        else if (this.game.input.mousePointer.position.x > moreVolButton.position.x - moreVolButton.texture.width / 2
-          && this.game.input.mousePointer.position.x < moreVolButton.position.x + moreVolButton.texture.width / 2
-          && this.game.input.mousePointer.position.y > moreVolButton.position.y - moreVolButton.texture.height / 2
-          && this.game.input.mousePointer.position.y < moreVolButton.position.y + moreVolButton.texture.height / 2)
-          { music.volume += 0.1; }
+          
       }
     };
 
@@ -230,8 +202,8 @@ var PlayScene = {
     pausePanel.destroy();
     unpauseButton.destroy();
     gotoMenuButton.destroy();
-    muteMusicButton.destroy();
-    mutedMusicButton.destroy();
+    // muteMusicButton.destroy();
+    // mutedMusicButton.destroy();
   },
 
   render: function () {
@@ -239,7 +211,11 @@ var PlayScene = {
     // var rnd = this.game.rnd.integerInRange(0,100);
     livesHUD.text = players[0].lives;
     pointsHUD.text = players[0].points;
-    
+
+    if(music.mute) muteMusicButton.visible = false;
+    else   muteMusicButton.visible = true;
+    if(!music.mute) mutedMusicButton.visible = false;    
+    else mutedMusicButton.visible = true;
     if (gInputs.debug.state) {
       groups.drawDebug(this.game);
       this.game.debug.bodyInfo(players[0], debugPos.x, debugPos.y, debugColor);
@@ -250,7 +226,6 @@ var PlayScene = {
 
 
 var offPauseMenuControl = function (game) {
-  musicMuted = music.mute;
   if (gInputs.pMenu.button.isDown && !gInputs.pMenu.ff) {
     gInputs.pMenu.ff = true;
     game.paused = true;
