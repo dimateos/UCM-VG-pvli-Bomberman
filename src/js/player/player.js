@@ -44,13 +44,21 @@ function Player(game, level, numPlayer, tileData, groups) {
 
     Bombable.call(this, game, level, groups, this.respawnPos, playerSpritePath + this.numPlayer,
         tileData.Scale, playerBodySize, playerBodyOffset, playerImmovable, playerLives, playerInvencibleTime);
+
+    // this.anchor.setTo(0.3, 0);
     
     this.animations.add("walking_left", [16, 17, 18, 19, 20, 21, 22, 23], 10, true);
     this.animations.add("walking_right", [16, 17, 18, 19, 20, 21, 22, 23], 10, true);
     this.animations.add("walking_up", [0, 1, 2, 3, 4, 5, 6, 7], 10, true);
     this.animations.add("walking_down", [8, 9, 10, 11, 12, 13, 14, 15], 10, true);
 
-    this.stopped_frames = [0, 8, 16, 16];
+// console.log(numPlayer, this);
+
+console.log(this.animations);
+
+    //this.animations.play("walking_right");
+
+    this.stopped_frames = [16, 16, 0, 8];
 
     this.restartMovement();
 
@@ -96,7 +104,7 @@ Player.prototype.update = function () {
     this.checkFlames(); //bombable method
     //if dead or invencible already no need to check
     if (!this.dead && !this.invencible) this.checkEnemy();
-    console.log(this)
+    // console.log(this)
     //if dead somehow yo do nothing
     if (!this.dead) {
         this.checkPowerUps();
@@ -104,11 +112,11 @@ Player.prototype.update = function () {
         this.bombLogic();
 
         if(bodyVelocity.x > 0){
-            this.scale.setTo(1, 1);
+            // this.scale.setTo(this.tileData.Scale.x, this.tileData.Scale.y);
             this.animations.play("walking_right");
         }
         else if (bodyVelocity.x < 0){
-            this.scale.setTo(-1, 1);
+            // this.scale.setTo(this.tileData.Scale.x*-1, this.tileData.Scale.y);
             this.animations.play("walking_left");
         }
         else if (bodyVelocity.y > 0)
@@ -116,7 +124,10 @@ Player.prototype.update = function () {
         else if (bodyVelocity.y < 0)
             this.animations.play("walking_up");
         else
-            this.texture.frame = 0;
+            {
+                this.animations.stop();
+                this.frame = this.stopped_frames;
+            }
 
     }
 }
