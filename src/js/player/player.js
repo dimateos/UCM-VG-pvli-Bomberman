@@ -30,6 +30,8 @@ var Id = Identifiable.Id; //the mini factory is in Identifiable
 var playerInitialModsIds = [/*new Id(1,2), new Id(1, 1), new Id(1,0)*/];
 var playerMovAndInputs = require('./playerMovAndInputs.js'); //big chunk of code
 
+var bodyVelocity;
+
 function Player(game, level, numPlayer, tileData, groups) {
 
     this.numPlayer = numPlayer;
@@ -42,6 +44,13 @@ function Player(game, level, numPlayer, tileData, groups) {
 
     Bombable.call(this, game, level, groups, this.respawnPos, playerSpritePath + this.numPlayer,
         tileData.Scale, playerBodySize, playerBodyOffset, playerImmovable, playerLives, playerInvencibleTime);
+    
+    this.animations.add("walking_left", [16, 17, 18, 19, 20, 21, 22, 23], 10, true);
+    this.animations.add("walking_right", [16, 17, 18, 19, 20, 21, 22, 23], 10, true);
+    this.animations.add("walking_up", [0, 1, 2, 3, 4, 5, 6, 7], 10, true);
+    this.animations.add("walking_down", [8, 9, 10, 11, 12, 13, 14, 15], 10, true);
+
+    this.stopped_frames = [0, 8, 16, 16];
 
     this.restartMovement();
 
@@ -87,12 +96,28 @@ Player.prototype.update = function () {
     this.checkFlames(); //bombable method
     //if dead or invencible already no need to check
     if (!this.dead && !this.invencible) this.checkEnemy();
-
+    console.log(this)
     //if dead somehow yo do nothing
     if (!this.dead) {
         this.checkPowerUps();
-        this.movementLogic();
+        bodyVelocity = this.movementLogic();
         this.bombLogic();
+
+        if(bodyVelocity.x > 0){
+            this.scale.setTo(1, 1);
+            this.animations.play("walking_right");
+        }
+        else if (bodyVelocity.x < 0){
+            this.scale.setTo(-1, 1);
+            this.animations.play("walking_left");
+        }
+        else if (bodyVelocity.y > 0)
+            this.animations.play("walking_down");
+        else if (bodyVelocity.y < 0)
+            this.animations.play("walking_up");
+        else
+            this.texture.frame = 0;
+
     }
 }
 

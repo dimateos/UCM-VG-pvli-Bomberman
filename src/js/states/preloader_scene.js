@@ -16,9 +16,10 @@ var PreloaderScene = {
         // TODO: load here the assets for the game
         //this.game.load.image('logo', 'images/readme/arena.png');
 
-        for (var numPlayers = 0; numPlayers < 4; numPlayers++)
-            this.game.load.image('player_'+numPlayers, 'images/Sprites/Bomberman/Bman_'+numPlayers+'.png');
-
+        for (var numPlayers = 0; numPlayers < 4; numPlayers++){
+            if(numPlayers > 0) this.game.load.spritesheet('player_'+numPlayers, 'images/Sprites/Bomberman/Bman_'+numPlayers+'.png', 1, 1);
+            else this.game.load.spritesheet('player_0', 'images/Sprites/Bomberman/Bomb'+numPlayers+'.png', 24, 1);
+        }
         this.game.load.image('background', 'images/Sprites/Blocks/BackgroundTile.png');
         this.game.load.image('bombable', 'images/Sprites/Blocks/ExplodableBlock.png');
         this.game.load.image('wall', 'images/Sprites/Blocks/SolidBlock.png');
@@ -29,11 +30,11 @@ var PreloaderScene = {
         this.game.load.image('powerUpSpeedUp', 'images/Sprites/Powerups/SpeedPowerup.png');
 
         this.game.load.image('bomb', 'images/Sprites/Bomb/Bomb_f01.png');
-        this.game.load.image('flame', 'images/Sprites/Flame/Flame_f00.png');
+        this.game.load.spritesheet('flame', 'images/Sprites/Flame/Flame_f00.png', 1, 1);
 
-        this.game.load.image('enemy_0', 'images/Sprites/Creep/Creep_0.png');
-        this.game.load.image('enemy_1', 'images/Sprites/Creep/Creep_1.png');
-        this.game.load.image('enemy_2', 'images/Sprites/Creep/Creep_2.png');
+        this.game.load.spritesheet('enemy_0', 'images/Sprites/Creep/Creep_0.png', 1, 1);
+        this.game.load.spritesheet('enemy_1', 'images/Sprites/Creep/Creep_1.png', 1, 1);
+        this.game.load.spritesheet('enemy_2', 'images/Sprites/Creep/Creep_2.png', 1, 1);
 
         //Main Menu sprites
         this.game.load.image('mMenuBG', 'images/Sprites/Menu/title_background.jpg');
