@@ -42,13 +42,13 @@ var HUDBombHead;
 var HUD2;
 var HUDBomb;
 
-// var pausePanel;
-// var unpauseButton;
-// var gotoMenuButton;
 var muteMusicButton;
 var mutedMusicButton;
 var lessVolButton;
 var moreVolButton;
+
+var HUD = require('../general/HUD.js');
+var hud;
 
 
 var PlayScene = {
@@ -70,6 +70,8 @@ var PlayScene = {
     music.loopFull(0.4); //la pauso que me morido quedo loco
     
     //menu stuff
+    hud = new HUD(this.game, true, music);
+
     HUDBg = this.game.add.sprite(0, 0, 'HUDBg');
     HUDPoints = this.game.add.sprite(500, -10, 'HUDPoints');
     HUDPoints.scale.setTo(0.75, 0.75);
@@ -143,78 +145,19 @@ var PlayScene = {
     globalControls.debugModeControl(gInputs, this.game, groups.player);
     globalControls.resetLevelControl(gInputs, level);
     globalControls.nextLevelControl(gInputs, level);
-    offPauseMenuControl(this.game);
+    pauseMenu.offPauseMenuControl(this.game, gInputs);
   },
 
   paused: function() {
-    pauseMenu.pausedCreate(music);
+    pauseMenu.pausedCreate(music, this.game);
   },
-  // paused: function () {
-  //   console.log(this);
-  //   music.pause();
-  //   this.game.stage.disableVisibilityChange = true;
-  //   this.game.input.onDown.add(unPause, this);
-
-    
-  //   pausePanel = this.game.add.sprite(width / 2, height / 2, 'pausePanel');
-  //   pausePanel.anchor.setTo(0.5, 0.5);
-  //   pausePanel.alpha = 0.5;
-    
-  //   unpauseButton = this.game.add.sprite(width / 2, height / 2 - 50, 'resume');
-  //   unpauseButton.anchor.setTo(0.5, 0.5);
-  //   unpauseButton.scale.setTo(0.75, 0.75);
-
-  //   gotoMenuButton = this.game.add.sprite(width / 2, height / 2 + 50, 'quitToMenu');
-  //   gotoMenuButton.anchor.setTo(0.5, 0.5);
-  //   gotoMenuButton.scale.setTo(0.75, 0.75);    
-
-  //   function unPause() {
-  //     if (this.game.paused) {
-  //       if (this.game.input.mousePointer.position.x > unpauseButton.position.x - unpauseButton.texture.width / 2
-  //         && this.game.input.mousePointer.position.x < unpauseButton.position.x + unpauseButton.texture.width / 2
-  //         && this.game.input.mousePointer.position.y > unpauseButton.position.y - unpauseButton.texture.height / 2
-  //         && this.game.input.mousePointer.position.y < unpauseButton.position.y + unpauseButton.texture.height / 2)
-  //         this.game.paused = false;
-
-  //       //We need to fix the remake of maps before this fully works. But it does what it has to.
-  //       else if (this.game.input.mousePointer.position.x > gotoMenuButton.position.x - gotoMenuButton.texture.width / 2
-  //         && this.game.input.mousePointer.position.x < gotoMenuButton.position.x + gotoMenuButton.texture.width / 2
-  //         && this.game.input.mousePointer.position.y > gotoMenuButton.position.y - gotoMenuButton.texture.height / 2
-  //         && this.game.input.mousePointer.position.y < gotoMenuButton.position.y + gotoMenuButton.texture.height / 2)
-  //         { this.game.state.start('mainMenu'); this.game.paused = false; }
-          
-  //     }
-  //   };
-
-  // },
-
-  //NOT FULLY NECESSARY BUT MAY BE USEFUL IN THE FUTURE
-  // pauseUpdate: function () {
-  //  // console.log(this);
-
-  //   //if(gInputs)
-  //     // console.log(gInputs);
-  //     // gInputs.pMenu.ff = false;
-  //   // onPauseMenuControl(this.game);
-
-  //   // console.log(gInputs.pMenu.ff)
-  // },
 
   resumed: function () {
-    // music.resume();
-    // this.game.stage.disableVisibilityChange = false;
-    // gInputs.pMenu.ff = false;
-
-    // pausePanel.destroy();
-    // unpauseButton.destroy();
-    // gotoMenuButton.destroy();
-
-    pauseMenu.resumedMenu(music, gInputs);
+    pauseMenu.resumedMenu(music, gInputs, this.game);
   },
 
   render: function () {
-    
-    // var rnd = this.game.rnd.integerInRange(0,100);
+  
     livesHUD.text = players[0].lives;
     pointsHUD.text = players[0].points;
 
@@ -229,19 +172,5 @@ var PlayScene = {
 
   },
 };
-
-
-var offPauseMenuControl = function (game) {
-  // if (gInputs.pMenu.button.isDown && !gInputs.pMenu.ff) {
-  //   gInputs.pMenu.ff = true;
-  //   game.paused = true;
-  // }
-  // //MIRAR DOCUMENTACION DE PHASER.SIGNAL
-  // else if (gInputs.pMenu.isUp)
-  //   gInputs.pMenu.ff = false;
-  // //console.log(gInputs.pMenu.ff)
-
-  pauseMenu.offPauseMenuControl(game, gInputs);
-}
 
 module.exports = PlayScene;

@@ -52,14 +52,6 @@ function Player(game, level, numPlayer, tileData, groups) {
     this.animations.add("walking_up", [0, 1, 2, 3, 4, 5, 6, 7], 10, true);
     this.animations.add("walking_down", [8, 9, 10, 11, 12, 13, 14, 15], 10, true);
 
-// console.log(numPlayer, this);
-
-console.log(this.animations);
-
-    //this.animations.play("walking_right");
-
-    this.stopped_frames = [16, 16, 0, 8];
-
     this.restartMovement();
 
     this.tileData = tileData;

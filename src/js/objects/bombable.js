@@ -15,6 +15,8 @@ function Bombable(game, level, groups, position, sprite, scale, bodySize, bodyOf
 
     Physical.call(this, game, position, sprite, scale, bodySize, bodyOffSet, immovable);
 
+    this.animations.add("darken");
+
     this.groups = groups;
     this.level = level;
 
@@ -80,6 +82,7 @@ Bombable.prototype.die = function () {
             this.game.time.events.add(bombableTimer - 5, drop, this);
 
         //then destroy the bombable
+        this.animations.play("darken", 15);
         this.game.time.events.add(bombableTimer + 5, updateAndDestroy, this);
     }
     else this.game.time.events.add(bombableTimer, flipInven, this);

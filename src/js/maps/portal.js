@@ -29,6 +29,8 @@ function Portal (game, level, groups, position, sprite, tileData, bodyOffSet, im
         this.tileData.Scale, this.tileData.Res, bodyOffSet, immovable,
         lives, invencibleTime, portalDropId)
 
+    this.animations.add("darken");
+
     this.spawned = false;
 
     this.portalSound = game.add.audio('portal');
@@ -64,7 +66,10 @@ Portal.prototype.die = function () {
         this.lives--;
 
         if (this.lives <= 0) //spawn the portal
+        {
+            this.animations.play("darken", 15);
             this.game.time.events.add(portalBombTimer+5, this.spawnPortal, this);
+        }
     }
     this.game.time.events.add(portalSpawnTimer, flipInven, this);
 
