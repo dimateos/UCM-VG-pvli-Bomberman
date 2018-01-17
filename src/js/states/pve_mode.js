@@ -68,11 +68,11 @@ var PlayScene = {
     //music
     music = this.game.add.audio('music');
     music.loopFull(0.4); //la pauso que me morido quedo loco
-    
+
     //menu stuff
     var hudBgPos = new Point(0, 0);
     var hudBgSc = new Point(1, 1);
-    var hudBg = new HUD(this.game, hudBgPos, 'HUDBg', hudBgSc, 0);
+    //var hudBg = new HUD(this.game, hudBgPos, 'HUDBg', hudBgSc, 0);
 
     // HUDBg = this.game.add.sprite(0, 0, 'HUDBg');
     HUDPoints = this.game.add.sprite(500, -10, 'HUDPoints');
@@ -84,7 +84,7 @@ var PlayScene = {
     HUDBomb = this.game.add.sprite(width/2, 10, 'bomb');
     HUDBomb.anchor.setTo(0.5, 0);
     HUDBomb.scale.setTo(1.2, 1.2);
-  
+
     muteMusicButton = this.game.add.button(10, 40, 'unmuted', this.toggleMute, this);
     muteMusicButton.scale.setTo(0.1, 0.1);
     mutedMusicButton = this.game.add.button(10, 40, 'muted', this.toggleMute, this);
@@ -159,13 +159,13 @@ var PlayScene = {
   },
 
   render: function () {
-  
+
     livesHUD.text = players[0].lives;
     pointsHUD.text = players[0].points;
 
     if(music.mute) muteMusicButton.visible = false;
     else   muteMusicButton.visible = true;
-    if(!music.mute) mutedMusicButton.visible = false;    
+    if(!music.mute) mutedMusicButton.visible = false;
     else mutedMusicButton.visible = true;
     if (gInputs.debug.state) {
       groups.drawDebug(this.game);

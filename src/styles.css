@@ -10,7 +10,9 @@ body {
   font-size: 1.6rem;
   background: rgb(78, 129, 93);
   color: #000;
-  background-image: url(arcade-machine.png);
+  background-image: url(aaa.gif);
+  background-size: cover;
+  /* background-image: url(arcade-machine.png); */
   background-repeat : no-repeat;
   background-position: 45% 3%;
 }
