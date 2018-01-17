@@ -10,7 +10,6 @@ var height = 600;
 var pauseMenu = {
     pausedCreate: function (music, game) {
         music.pause();
-        console.log(this)
         game.stage.disableVisibilityChange = true;
         game.input.onDown.add(unPause, this);
     

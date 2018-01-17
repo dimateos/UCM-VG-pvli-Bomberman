@@ -70,9 +70,11 @@ var PlayScene = {
     music.loopFull(0.4); //la pauso que me morido quedo loco
     
     //menu stuff
-    hud = new HUD(this.game, true, music);
+    var hudBgPos = new Point(0, 0);
+    var hudBgSc = new Point(1, 1);
+    var hudBg = new HUD(this.game, hudBgPos, 'HUDBg', hudBgSc, 0);
 
-    HUDBg = this.game.add.sprite(0, 0, 'HUDBg');
+    // HUDBg = this.game.add.sprite(0, 0, 'HUDBg');
     HUDPoints = this.game.add.sprite(500, -10, 'HUDPoints');
     HUDPoints.scale.setTo(0.75, 0.75);
     HUDBombHead = this.game.add.sprite(100, 10, 'player_0', 8);
