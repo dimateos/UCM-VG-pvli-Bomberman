@@ -47,7 +47,7 @@ function Player(game, level, numPlayer, tileData, groups) {
 
     // this.anchor.setTo(0.3, 0);
     
-    this.animations.add("walking_left", [16, 17, 18, 19, 20, 21, 22, 23], 10, true);
+    this.animations.add("walking_left", [24, 25, 26, 27, 28, 30, 31, 32], 10, true);
     this.animations.add("walking_right", [16, 17, 18, 19, 20, 21, 22, 23], 10, true);
     this.animations.add("walking_up", [0, 1, 2, 3, 4, 5, 6, 7], 10, true);
     this.animations.add("walking_down", [8, 9, 10, 11, 12, 13, 14, 15], 10, true);

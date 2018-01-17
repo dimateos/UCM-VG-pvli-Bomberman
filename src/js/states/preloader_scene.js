@@ -17,10 +17,10 @@ var PreloaderScene = {
         //this.game.load.image('logo', 'images/readme/arena.png');
 
         for (var numPlayers = 0; numPlayers < 4; numPlayers++){
-            this.game.load.spritesheet('player_'+numPlayers, 'images/Sprites/Bomberman/Bomb'+numPlayers+'.png', 64, 86);
+            this.game.load.spritesheet('player_'+numPlayers, 'images/Sprites/Bomberman/Bomb0'+numPlayers+'.png', 64, 86);
         }
         this.game.load.image('background', 'images/Sprites/Blocks/BackgroundTile.png');
-        this.game.load.image('bombable', 'images/Sprites/Blocks/ExplodableBlock.png');
+        this.game.load.spritesheet('bombable', 'images/Sprites/Blocks/ExplodableBlockAnim.png', 64, 64);
         this.game.load.image('wall', 'images/Sprites/Blocks/SolidBlock.png');
         this.game.load.image('portal', 'images/Sprites/Blocks/Portal.png');
 
@@ -28,12 +28,12 @@ var PreloaderScene = {
         this.game.load.image('powerUpFlameUp', 'images/Sprites/Powerups/FlamePowerup.png');
         this.game.load.image('powerUpSpeedUp', 'images/Sprites/Powerups/SpeedPowerup.png');
 
-        this.game.load.image('bomb', 'images/Sprites/Bomb/Bomb_f01.png');
-        this.game.load.spritesheet('flame', 'images/Sprites/Flame/Flame_f00.png', 1, 1);
+        this.game.load.spritesheet('bomb', 'images/Sprites/Bomb/Bomb_f1.png', 48, 48);
+        this.game.load.spritesheet('flame', 'images/Sprites/Flame/flames.png', 48, 48);
 
-        this.game.load.spritesheet('enemy_0', 'images/Sprites/Creep/Creep_0.png', 1, 1);
-        this.game.load.spritesheet('enemy_1', 'images/Sprites/Creep/Creep_1.png', 1, 1);
-        this.game.load.spritesheet('enemy_2', 'images/Sprites/Creep/Creep_2.png', 1, 1);
+        this.game.load.spritesheet('enemy_0', 'images/Sprites/Creep/creep0.png', 64, 64);
+        this.game.load.spritesheet('enemy_1', 'images/Sprites/Creep/creep1.png', 64, 64);
+        this.game.load.spritesheet('enemy_2', 'images/Sprites/Creep/creep2.png', 64, 64);
 
         //Main Menu sprites
         this.game.load.image('mMenuBG', 'images/Sprites/Menu/title_background.jpg');

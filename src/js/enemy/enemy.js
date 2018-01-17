@@ -35,6 +35,11 @@ function Enemy (game, position, level, enemyType, tileData, groups, dropId) {
         tileData.Scale, enemyBodySize, enemyBodyOffset, enemyImmovable,
         enemyDataBase[enemyType].lives, enemyInvecibleTime, dropId);
 
+    this.animations.add("walking_left", [19, 20, 21, 22, 23, 24, 25], 10, true);
+    this.animations.add("walking_right", [12, 13, 14, 15, 16, 17, 18], 10, true);
+    this.animations.add("walking_up", [0, 1, 2, 3, 4, 5], 10, true);
+    this.animations.add("walking_down", [6, 7, 8, 9, 10, 11], 10, true);
+
     level.updateSquare(position, level.types.free.value); //clears the map square
 
     //starting the movement
@@ -56,7 +61,26 @@ Enemy.prototype.update = function() {
         this.body.velocity.x = 0;
         this.body.velocity.y = 0;
     }
-    else this.logicMovement();
+    else {
+        this.logicMovement();
+
+        if(this.body.velocity.x > 0){
+            // this.scale.setTo(this.tileData.Scale.x, this.tileData.Scale.y);
+            this.animations.play("walking_right");
+        }
+        else if (this.body.velocity.x < 0){
+            // this.scale.setTo(this.tileData.Scale.x*-1, this.tileData.Scale.y);
+            this.animations.play("walking_left");
+        }
+        else if (this.body.velocity.y > 0)
+            this.animations.play("walking_down");
+        else if (this.body.velocity.y < 0)
+            this.animations.play("walking_up");
+        else
+            {
+                this.animations.stop();
+            }
+    }
 }
 
 

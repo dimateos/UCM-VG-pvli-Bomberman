@@ -44,6 +44,9 @@ function Bomb (game, level, position, tileData, groups, player, bombMods) {
     this.level = level;
     this.tileData = tileData;
 
+    this.animations.add("red");
+    this.animations.play("red", 3/2);
+
     this.mods = [];
     Identifiable.applyMods(bombMods, this);
 
