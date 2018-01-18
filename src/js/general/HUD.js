@@ -2,6 +2,8 @@
 
 var GameObject = require('../objects/gameObject.js');
 
+var Button = require('./Button.js');
+
 var livesHUD;
 var pointsHUD;
 var HUDBg;
@@ -24,8 +26,7 @@ function HUD(game, position, sprite, scale, type, buttonCallback, player) {
         GameObject.call(this, game, position, sprite, scale);
     }
     else if (type === 1) {
-        this.game.add.button(position.x, position.y, sprite, buttonCallback, this);
-        this.scale.setTo(scale.x, scale.y);
+        Button.call(this, game, position, sprite, scale, buttonCallback, this);
     }
     else if (type === 2) {
         this.game.add.text(position.x, position.y, "",

@@ -35,20 +35,30 @@ const tileData = {
 
 var mMenuTitle;
 var livesHUD;
+var livesHUD1;
 var pointsHUD;
+var pointsHUD1;
 var HUDBg;
 var HUDPoints;
+var HUDPoints1;
 var HUDBombHead;
-var HUD2;
+var HUDBombHead1;
+var HUD2_0;
+var HUD2_1;
 var HUDBomb;
+var HUDPressX;
+
+var HUDanim0;
+var HUDanim1;
+var ffAnim = false;
 
 var muteMusicButton;
 var mutedMusicButton;
 var lessVolButton;
 var moreVolButton;
 
-var HUD = require('../general/HUD.js');
-var hud;
+var TwoPlayers = false;
+
 
 
 var PlayScene = {
@@ -64,47 +74,76 @@ var PlayScene = {
 
   lessVol: function () { if(music.volume > 0.2) music.volume -= 0.1; },
 
+  loseLife: function (pl) { players[pl].die(); },
+
   create: function () {
     //music
     music = this.game.add.audio('music');
     music.loopFull(0.4); //la pauso que me morido quedo loco
-
+    this.game.sound.mute = true;
+    
+    
     //menu stuff
-    var hudBgPos = new Point(0, 0);
-    var hudBgSc = new Point(1, 1);
-    //var hudBg = new HUD(this.game, hudBgPos, 'HUDBg', hudBgSc, 0);
-
-    // HUDBg = this.game.add.sprite(0, 0, 'HUDBg');
-    HUDPoints = this.game.add.sprite(500, -10, 'HUDPoints');
-    HUDPoints.scale.setTo(0.75, 0.75);
-    HUDBombHead = this.game.add.sprite(100, 10, 'player_0', 8);
+    HUDBg = this.game.add.sprite(0, 0, 'HUDBg');
+    
+    HUDBombHead = this.game.add.sprite(60, 10, 'player_0Clock');
     HUDBombHead.scale.setTo(0.75, 0.75);
-    HUD2 = this.game.add.sprite(100+HUDBombHead.width, -5, 'HUD2');
-    HUD2.scale.setTo(0.75, 0.75);
+    HUD2_0 = this.game.add.sprite(35+HUDBombHead.position.x, -5, 'HUD2');
+    HUD2_0.scale.setTo(0.75, 0.75);
+    HUDPoints = this.game.add.sprite(170, -10, 'HUDPoints');
+    HUDPoints.scale.setTo(0.5, 0.75);
+    
     HUDBomb = this.game.add.sprite(width/2, 10, 'bomb');
     HUDBomb.anchor.setTo(0.5, 0);
     HUDBomb.scale.setTo(1.2, 1.2);
+    
+    HUDBombHead1 = this.game.add.sprite(HUDBomb.position.x + 60, 10, 'player_1Clock');
+    HUDBombHead1.scale.setTo(0.75, 0.75);
+    HUD2_1 = this.game.add.sprite(35+HUDBombHead1.position.x, -5, 'HUD2');
+    HUD2_1.scale.setTo(0.75, 0.75);
+    HUDPoints1 = this.game.add.sprite(600, -10, 'HUDPoints');
+    HUDPoints1.scale.setTo(0.5, 0.75);
+    HUDPoints1.visible = false;
+    
+    livesHUD = this.game.add.text(HUD2_0.position.x + 42, 15, "",
+    { font: "45px Comic Sans MS", fill: "#f9e000", align: "center"});
+    livesHUD.anchor.setTo(0.2, 0);
+    pointsHUD = this.game.add.text(HUDPoints.position.x + 130, 12, "",
+    { font: "45px Comic Sans MS", fill: "#f9e000", align: "center"});
+    pointsHUD.anchor.setTo(0.2, 0);
+    
+    livesHUD1 = this.game.add.text(HUD2_1.position.x + 42, 15, "",
+    { font: "45px Comic Sans MS", fill: "#f9e000", align: "center"});
+    livesHUD1.anchor.setTo(0.2, 0);
+    livesHUD1.visible = false;
+    pointsHUD1 = this.game.add.text(HUDPoints1.position.x + 130, 12, "",
+    { font: "45px Comic Sans MS", fill: "#f9e000", align: "center"});
+    pointsHUD1.anchor.setTo(0.2, 0);
+    pointsHUD1.visible = false;
+    
+    HUDPressX = this.game.add.sprite(HUD2_1.position.x, 0, 'HUDPressX');
+    HUDPressX.scale.setTo(0.75, 0.75);
+    // HUDPressX.visible = false;
+    
+    HUDanim0 = HUDBombHead.animations.add('Clock');
+    HUDanim0.play(1/18, true);
+    HUDanim0.onLoop.add(this.loseLife, this, 0, 0);
+    HUDanim1 = HUDBombHead1.animations.add('Clock');
+    
 
     muteMusicButton = this.game.add.button(10, 40, 'unmuted', this.toggleMute, this);
     muteMusicButton.scale.setTo(0.1, 0.1);
     mutedMusicButton = this.game.add.button(10, 40, 'muted', this.toggleMute, this);
     mutedMusicButton.scale.setTo(0.1, 0.1);
-
+    
     lessVolButton = this.game.add.button(10, 10, 'volArrow', this.lessVol, this);
     lessVolButton.scale.setTo(0.04, 0.04);
-
+    
     moreVolButton = this.game.add.button(30, 10, 'volArrow', this.moreVol, this);
     moreVolButton.anchor.setTo(1, 1);
     moreVolButton.scale.setTo(0.04, 0.04);
     moreVolButton.angle = 180;
-
-    livesHUD = this.game.add.text(HUD2.position.x + HUD2.texture.width, 15, "",
-        { font: "45px Comic Sans MS", fill: "#f9e000", align: "center"});
-    livesHUD.anchor.setTo(0.2, 0);
-    pointsHUD = this.game.add.text(HUDPoints.position.x + HUDPoints.texture.width - 60, 12, "",
-        { font: "45px Comic Sans MS", fill: "#f9e000", align: "center"});
-    pointsHUD.anchor.setTo(0.2, 0);
-
+    
     //map
     groups = new Groups(this.game); //first need the groups
     level = new Map(this.game, initialMap.world, initialMap.level, groups, tileData, maxPlayers);
@@ -139,6 +178,35 @@ var PlayScene = {
     //   this.game.physics.arcade.collide(groups.player, groups.bomb);
     // }
     // else this.game.physics.arcade.collide(players[0], groups.enemy);
+    if (players.length >= 2)
+      TwoPlayers = true;
+    else
+      TwoPlayers = false;
+
+    
+    livesHUD.text = players[0].lives;
+    pointsHUD.text = players[0].points;
+
+    if(TwoPlayers === true){
+      if(HUDPressX.visible){
+        HUDPressX.visible = false;
+        livesHUD1.visible = true;
+        pointsHUD1.visible = true;
+        HUDPoints1.visible = true;
+      }
+      livesHUD1.text = players[1].lives;
+      pointsHUD1.text = players[1].points;
+
+      if(!HUDanim1.isPlaying){
+        HUDanim1.play(1/18, true);    
+        HUDanim1.onLoop.add(this.loseLife, this, 0, 1);
+      }
+    }
+
+    if(music.mute) muteMusicButton.visible = false;
+    else   muteMusicButton.visible = true;
+    if(!music.mute) mutedMusicButton.visible = false;
+    else mutedMusicButton.visible = true;
 
     this.game.world.bringToTop(groups.flame);
     this.game.world.bringToTop(groups.player); //array doesnt work
@@ -148,6 +216,7 @@ var PlayScene = {
     globalControls.resetLevelControl(gInputs, level);
     globalControls.nextLevelControl(gInputs, level);
     pauseMenu.offPauseMenuControl(this.game, gInputs);
+
   },
 
   paused: function() {
@@ -159,14 +228,6 @@ var PlayScene = {
   },
 
   render: function () {
-
-    livesHUD.text = players[0].lives;
-    pointsHUD.text = players[0].points;
-
-    if(music.mute) muteMusicButton.visible = false;
-    else   muteMusicButton.visible = true;
-    if(!music.mute) mutedMusicButton.visible = false;
-    else mutedMusicButton.visible = true;
     if (gInputs.debug.state) {
       groups.drawDebug(this.game);
       this.game.debug.bodyInfo(players[0], debugPos.x, debugPos.y, debugColor);
