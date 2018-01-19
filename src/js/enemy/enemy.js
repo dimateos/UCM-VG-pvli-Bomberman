@@ -17,7 +17,7 @@ var bombableTimer = 500; //to sync with flames
 var enemyDataBase = require('./enemyDataBase.js');
 
 function Enemy (game, position, level, enemyType, tileData, groups, dropId) {
-    console.log("lul");
+
     this.groups = groups;
     this.tileData = tileData;
     this.level = level;
@@ -47,6 +47,8 @@ function Enemy (game, position, level, enemyType, tileData, groups, dropId) {
     this.velocity = enemyDataBase[enemyType].velocity;
     this.pickDirection();
     this.setSpeed(this.dir);
+
+    this.salty = false;
 };
 
 Enemy.prototype = Object.create(Bombable.prototype);
@@ -78,6 +80,8 @@ Enemy.prototype.update = function() {
             this.animations.play("walking_up");
         else
             {
+                this.pickDirection();
+                if (this.dir.x !== 0 || this.dir.y !== 0) this.setSpeed(this.dir);
                 this.animations.stop();
             }
     }
@@ -151,7 +155,7 @@ Enemy.prototype.pickDirection = function() {
 
     var rnd = this.game.rnd.integerInRange(0,freeSurroungings.length-1);
 
-    // console.log(positionMap, freeSurroungings[rnd]);
+    // console.log(positionMap, freeSurroungings, rnd);
 
     if (freeSurroungings.length === 0) this.dir = new Point();
     else this.dir = freeSurroungings[rnd];

@@ -1,7 +1,7 @@
 'use strict';
 
 var GameObject = require('../objects/gameObject.js');
-//var Physical = require('../objects/physical.js'); //no more needed
+var Physical = require('../objects/physical.js');
 var Bombable = require('../objects/bombable.js');
 var Enemy = require('../enemy/enemy.js');
 
@@ -153,11 +153,11 @@ Map.prototype.buildMap = function (groups, tileData) {
 
                 case this.types.wallSP.value: //no special tile atm
                 case this.types.wall.value:
-                    // groups.wall.add(new Physical (this.game, squareIndexPos,
-                    //     this.types.wall.sprite, tileData.Scale, tileData.Res,
-                    //     defaultBodyOffset, defaultImmovable)); //no more needed
-                    groups.wall.add(new GameObject(this.game, squareIndexPos,
-                        this.types.wall.sprite, tileData.Scale));
+                    groups.wall.add(new Physical (this.game, squareIndexPos,
+                        this.types.wall.sprite, tileData.Scale, tileData.Res,
+                        defaultBodyOffset, defaultImmovable)); //no more needed
+                    // groups.wall.add(new GameObject(this.game, squareIndexPos,
+                    //     this.types.wall.sprite, tileData.Scale));
 
                     break;
             }

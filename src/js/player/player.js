@@ -19,6 +19,7 @@ var playerExtraOffset = new Point(6, -20); //reaquired because player body is no
 var playerImmovable = false;
 
 var playerLives = 5;
+var playerExtraLifePoints = 10;
 var playerNumBombs = 1;
 
 var playerInvencibleTime = 5000;
@@ -36,6 +37,8 @@ function Player(game, level, numPlayer, tileData, groups) {
 
     this.numPlayer = numPlayer;
     this.points = 0;
+    this.extraLives = 0;
+
     this.inputs = new Inputs(game, numPlayer); //based on numPlayer
 
     //produces respawn position based on playerSpawns[numPlayer]
@@ -88,7 +91,7 @@ Player.prototype.restartCountdown = function (restarting) {
     if (restarting) time+= playerRespawnedStoppedTime;
 
     this.deathCallback = this.game.time.events.add(time, this.die, this);
-    console.log("countdown", this.deathCallback);
+    // console.log("countdown", this.deathCallback);
 }
 
 
@@ -151,9 +154,17 @@ Player.prototype.checkEnemy = function () {
 //adds points and lives if required
 Player.prototype.addPoints = function (pts) {
 
-    console.log(this.points, " + ", pts);
+    // console.log(this.points, " + ", pts);
     this.points += pts;
 
+    if (this.points >= playerExtraLifePoints) {
+        var n = this.points/(playerExtraLifePoints - this.points%playerExtraLifePoints);
+
+        if (n > this.extraLives) {
+            this.extraLives++;
+            this.lives++;
+        }
+    }
 }
 
 //reads inputs, fixes direction and then moves

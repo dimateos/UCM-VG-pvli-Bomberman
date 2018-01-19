@@ -16,7 +16,7 @@ var gInputs; //global inputs
 var Player = require('../player/player.js');
 var players = []; //2 max for this mode but meh
 var initialPlayers = 1;
-var maxPlayers = 4; //needed for the map generation
+var maxPlayers = 2; //needed for the map generation
 
 var pauseMenu = require('./pauseMenu.js');
 
@@ -172,12 +172,11 @@ var PlayScene = {
   update: function () {
 
     //No longer needed
-    // this.game.physics.arcade.collide(groups.player, groups.wall);
-    // if (!gInputs.debug.state) {
-    //   this.game.physics.arcade.collide(groups.player, groups.box);
-    //   this.game.physics.arcade.collide(groups.player, groups.bomb);
-    // }
-    // else this.game.physics.arcade.collide(players[0], groups.enemy);
+    this.game.physics.arcade.collide(groups.player, groups.wall);
+    this.game.physics.arcade.collide(groups.player, groups.box);
+    this.game.physics.arcade.collide(groups.player, groups.bomb);
+
+
     if (players.length >= 2)
       TwoPlayers = true;
     else
