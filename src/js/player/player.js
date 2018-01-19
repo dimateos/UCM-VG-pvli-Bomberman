@@ -33,6 +33,10 @@ var playerMovAndInputs = require('./playerMovAndInputs.js'); //big chunk of code
 
 var bodyVelocity;
 
+var step = Math.PI * 2 / 360; //degrees
+var playerInitialAlphaAngle = 30; //sin(playerInitialAlphaAnlge) -> alpha
+var alphaWavingSpeed = 1.5;
+
 function Player(game, level, numPlayer, tileData, groups) {
 
     this.numPlayer = numPlayer;
@@ -68,6 +72,8 @@ function Player(game, level, numPlayer, tileData, groups) {
     Identifiable.addPowerUps(playerInitialModsIds, this);
 
     this.deathCallback = undefined;
+
+    this.counterAngle = playerInitialAlphaAngle*step;
 };
 
 Player.prototype = Object.create(Bombable.prototype);
@@ -99,14 +105,17 @@ Player.prototype.restartCountdown = function (restarting) {
 Player.prototype.update = function () {
 
     this.checkFlames(); //bombable method
+
     //if dead or invencible already no need to check
     if (!this.dead && !this.invencible) this.checkEnemy();
-    // console.log(this)
-    //if dead somehow yo do nothing
+
+    //if dead somehow player does nothing
     if (!this.dead) {
         this.checkPowerUps();
         bodyVelocity = this.movementLogic();
         this.bombLogic();
+
+        if (this.invencible) this.invencibleAlpha();
 
         if(bodyVelocity.x > 0){
             // this.scale.setTo(this.tileData.Scale.x, this.tileData.Scale.y);
@@ -127,6 +136,22 @@ Player.prototype.update = function () {
             }
 
     }
+}
+
+//changes alpha to simulate being invulnerable
+Player.prototype.invencibleAlpha = function () {
+
+    var tStep = Math.sin(this.counterAngle);
+    // console.log(this.counterAngle/step);
+
+    this.counterAngle += step*alphaWavingSpeed;
+
+    //only positive sin (no negative alpha)
+    if (this.counterAngle >= (180-playerInitialAlphaAngle)*step) {
+        this.counterAngle = playerInitialAlphaAngle*step;
+    }
+
+    this.alpha = tStep;
 }
 
 //checks for powerUps and takes them
@@ -247,6 +272,7 @@ Player.prototype.respawn = function () {
 Player.prototype.endInvencibility = function () {
     console.log("P" + this.numPlayer + " invencibility ended");
     this.invencible = false;
+    this.alpha = 1;
 }
 
 
