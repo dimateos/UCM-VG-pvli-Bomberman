@@ -29,7 +29,7 @@ var playerLifeTime = 60 * 3 * 1000;
 
 var Id = Identifiable.Id; //the mini factory is in Identifiable
 var playerInitialModsIds = [/*new Id(1,2), new Id(1, 1), new Id(1,0)*/];
-var playerPVPModsIds = [new Id(1,2), new Id(1, 1)];
+var playerPVPModsIds = [new Id(1, 2), new Id(1, 1)];
 var playerMovAndInputs = require('./playerMovAndInputs.js'); //big chunk of code
 
 var bodyVelocity;
@@ -37,7 +37,7 @@ var bodyVelocity;
 var step = Math.PI * 2 / 360; //degrees
 var playerInitialAlphaAngle = 30; //sin(playerInitialAlphaAnlge) -> alpha
 var alphaWavingSpeed = 1.75;
-var hudAnimSpeed = 1/8; //1/18 is the correct
+var hudAnimSpeed = 1 / 8; //1/18 is the correct
 
 const debugPosX = 40;
 const debugPosY = 600 - 96;
@@ -259,14 +259,12 @@ Player.prototype.die = function (flame) {
 
     this.animations.play("dying");
 
-    if (flame !== undefined && flame !== this.hudVidas[this.numPlayer]) {
+    if (flame !== undefined && flame !== this.hudVidas[this.numPlayer] && flame.player !== undefined) {
         if (flame.player !== this) flame.player.kills++;
         else {
             flame.player.selfKills++; //for the show
             this.game.debug.text(" LOL", debugPosX, debugPosY, debugColor);
-            this.game.time.events.add(playerInvencibleTime, function reset () {this.debug.reset();}, this.game);
-
-            this.level.battleRoyale();
+            this.game.time.events.add(playerInvencibleTime, function reset() { this.debug.reset(); }, this.game);
         }
     }
     // console.log(this.kills, this.selfKills);
@@ -308,21 +306,27 @@ Player.prototype.pvpModeDeath = function () {
 
 //Resets the player basically
 Player.prototype.respawn = function () {
+
     this.invencible = true;
     this.dead = true; //so he cannot move
-    this.visible = true;
 
-    this.animations.play("spawn");
+    if (this.lives > 0) {
+        this.visible = true;
 
-    this.restartMovement(); //so it doesnt move inside walls
-    this.restartCountdown(true);
-    this.position = new Point(this.respawnPos.x, this.respawnPos.y);
+        this.animations.play("spawn");
 
-    //callback to make end player's invulnerability
-    this.game.time.events.add(playerInvencibleTime, this.endInvencibility, this);
+        this.restartMovement(); //so it doesnt move inside walls
+        this.restartCountdown(true);
+        this.position = new Point(this.respawnPos.x, this.respawnPos.y);
 
-    //callback used to give back the control to the player
-    this.game.time.events.add(playerRespawnedStoppedTime, revive, this);
+        //callback to make end player's invulnerability
+        this.game.time.events.add(playerInvencibleTime, this.endInvencibility, this);
+
+        //callback used to give back the control to the player
+        this.game.time.events.add(playerRespawnedStoppedTime, revive, this);
+    }
+    else this.visible = false;
+
     function revive() {
         //fix for a bug: sometimes the position recives a tick of the velocity...
         //...after the respawn; so we double reset it

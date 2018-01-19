@@ -4,6 +4,7 @@ var GameObject = require('../objects/gameObject.js');
 var Physical = require('../objects/physical.js');
 var Bombable = require('../objects/bombable.js');
 var Enemy = require('../enemy/enemy.js');
+var Flame = require('../enemy/flame.js');
 
 var Id = require('../id/identifiable.js').Id; //for bombable id
 
@@ -26,6 +27,8 @@ var defaultBombableInvencibleTime = 0;
 
 //too import a big chunk of code
 var mapCooking = require('./mapCooking.js');
+var deathZoneTimeStart = 2*60*1000;
+var deathZoneTimeLoop = 5*1000;
 
 var portalSound;
 
@@ -38,6 +41,8 @@ function Map(game, worldNum, levelNum, groups, tileData, maxPlayers, pvpMode) {
 
     this.pvpMode = pvpMode;
     this.deathZoneExpansion = 0;
+    this.deathZoneCallback = undefined;
+    this.deathZoneStartCallback = undefined;
 
     //Always same base map values
     this.cols = baseMapData.cols;
@@ -46,6 +51,8 @@ function Map(game, worldNum, levelNum, groups, tileData, maxPlayers, pvpMode) {
     this.playerSpawns = baseMapData.playerSpawns;
 
     this.generateMap(worldNum, levelNum);
+
+    if(pvpMode) this.restartDeathZoneCountdowns();
 };
 
 //only used in pvp
@@ -53,30 +60,40 @@ Map.prototype.battleRoyale = function () {
 
     for (var col = this.deathZoneExpansion; col < this.map[0].length-this.deathZoneExpansion; col++) {
         var squareIndexPos = new Point(col, this.deathZoneExpansion).applyTileData(this.tileData);
-        this.groups.flame.add((new GameObject(this.game, squareIndexPos,
-            "flame", this.tileData.Scale)));
+        this.groups.flame.add(new Flame(this.game, squareIndexPos, this.tileData.Scale));
     }
     for (var col = this.deathZoneExpansion; col < this.map[0].length-this.deathZoneExpansion; col++) {
         var squareIndexPos = new Point(col, this.map.length-1-this.deathZoneExpansion).applyTileData(this.tileData);
-        this.groups.flame.add((new GameObject(this.game, squareIndexPos,
-            "flame", this.tileData.Scale)));
+        this.groups.flame.add(new Flame(this.game, squareIndexPos, this.tileData.Scale));
     }
 
     for (var fil = 1+this.deathZoneExpansion; fil < this.map.length-1-this.deathZoneExpansion; fil++) {
         var squareIndexPos = new Point(this.deathZoneExpansion, fil).applyTileData(this.tileData);
-        this.groups.flame.add((new GameObject(this.game, squareIndexPos,
-            "flame", this.tileData.Scale)));
+        this.groups.flame.add(new Flame(this.game, squareIndexPos, this.tileData.Scale));
     }
 
     for (var fil = 1+this.deathZoneExpansion; fil < this.map.length-1-this.deathZoneExpansion; fil++) {
         var squareIndexPos = new Point(this.map[0].length-1-this.deathZoneExpansion, fil).applyTileData(this.tileData);
-        this.groups.flame.add((new GameObject(this.game, squareIndexPos,
-            "flame", this.tileData.Scale)));
+        this.groups.flame.add(new Flame(this.game, squareIndexPos, this.tileData.Scale));
     }
 
     this.deathZoneExpansion++;
 }
 
+//Starts the countdown to the battleRoyale mode
+Map.prototype.restartDeathZoneCountdowns = function () {
+    this.deathZoneExpansion = 0;
+    if (this.deathZoneCallback !== undefined) this.game.time.events.remove(this.deathCallback);
+    if (this.deathZoneStartCallback !== undefined) this.game.time.events.remove(this.deathZoneStartCallback);
+
+    console.log(deathZoneTimeStart, this.deathZoneExpansion);
+    this.deathZoneStartCallback = this.game.time.events.add(deathZoneTimeStart, this.deathZoneExpansionFunction, this);
+}
+
+Map.prototype.deathZoneExpansionFunction = function () {
+    this.battleRoyale();
+    this.deathZoneCallback = this.game.time.events.add(deathZoneTimeLoop, this.deathZoneExpansionFunction, this);
+}
 
 //gets data of specified map from levelsDataBase and then cooks+build
 Map.prototype.generateMap = function (worldNum, levelNum) {
@@ -105,6 +122,7 @@ Map.prototype.generateNewMap = function (worldNum, levelNum) {
     this.generateMap(worldNum, levelNum);
 
     this.groups.player.callAll('respawn'); //resets players' pos
+    if(this.pvpMode) this.restartDeathZoneCountdowns();
 };
 Map.prototype.regenerateMap = function () {
     this.generateNewMap(this.mapNumber.world, this.mapNumber.level)

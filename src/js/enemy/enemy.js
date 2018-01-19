@@ -100,7 +100,7 @@ Enemy.prototype.die = function (flame) {
         if (this.dropId !== undefined)
             this.game.time.events.add(bombableTimer - 5, drop, this);
 
-        flame.player.addPoints(this.pts);
+        if (flame.player !== undefined) flame.player.addPoints(this.pts);
 
         //then destroy itself
         this.game.time.events.add(bombableTimer + 5, this.destroy, this);
