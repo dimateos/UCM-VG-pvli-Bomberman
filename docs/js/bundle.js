@@ -18,7 +18,7 @@ var bombableTimer = 500; //to sync with flames
 var enemyDataBase = require('./enemyDataBase.js');
 
 function Enemy (game, position, level, enemyType, tileData, groups, dropId) {
-    console.log("lul");
+
     this.groups = groups;
     this.tileData = tileData;
     this.level = level;
@@ -36,6 +36,11 @@ function Enemy (game, position, level, enemyType, tileData, groups, dropId) {
         tileData.Scale, enemyBodySize, enemyBodyOffset, enemyImmovable,
         enemyDataBase[enemyType].lives, enemyInvecibleTime, dropId);
 
+    this.animations.add("walking_left", [19, 20, 21, 22, 23, 24, 25], 10, true);
+    this.animations.add("walking_right", [12, 13, 14, 15, 16, 17, 18], 10, true);
+    this.animations.add("walking_up", [0, 1, 2, 3, 4, 5], 10, true);
+    this.animations.add("walking_down", [6, 7, 8, 9, 10, 11], 10, true);
+
     level.updateSquare(position, level.types.free.value); //clears the map square
 
     //starting the movement
@@ -43,6 +48,8 @@ function Enemy (game, position, level, enemyType, tileData, groups, dropId) {
     this.velocity = enemyDataBase[enemyType].velocity;
     this.pickDirection();
     this.setSpeed(this.dir);
+
+    this.salty = false;
 };
 
 Enemy.prototype = Object.create(Bombable.prototype);
@@ -57,7 +64,28 @@ Enemy.prototype.update = function() {
         this.body.velocity.x = 0;
         this.body.velocity.y = 0;
     }
-    else this.logicMovement();
+    else {
+        this.logicMovement();
+
+        if(this.body.velocity.x > 0){
+            // this.scale.setTo(this.tileData.Scale.x, this.tileData.Scale.y);
+            this.animations.play("walking_right");
+        }
+        else if (this.body.velocity.x < 0){
+            // this.scale.setTo(this.tileData.Scale.x*-1, this.tileData.Scale.y);
+            this.animations.play("walking_left");
+        }
+        else if (this.body.velocity.y > 0)
+            this.animations.play("walking_down");
+        else if (this.body.velocity.y < 0)
+            this.animations.play("walking_up");
+        else
+            {
+                this.pickDirection();
+                if (this.dir.x !== 0 || this.dir.y !== 0) this.setSpeed(this.dir);
+                this.animations.stop();
+            }
+    }
 }
 
 
@@ -73,7 +101,7 @@ Enemy.prototype.die = function (flame) {
         if (this.dropId !== undefined)
             this.game.time.events.add(bombableTimer - 5, drop, this);
 
-        flame.player.addPoints(this.pts);
+        if (flame.player !== undefined) flame.player.addPoints(this.pts);
 
         //then destroy itself
         this.game.time.events.add(bombableTimer + 5, this.destroy, this);
@@ -128,7 +156,7 @@ Enemy.prototype.pickDirection = function() {
 
     var rnd = this.game.rnd.integerInRange(0,freeSurroungings.length-1);
 
-    // console.log(positionMap, freeSurroungings[rnd]);
+    // console.log(positionMap, freeSurroungings, rnd);
 
     if (freeSurroungings.length === 0) this.dir = new Point();
     else this.dir = freeSurroungings[rnd];
@@ -275,6 +303,8 @@ function Flame (game, position, scale, player) {
     Physical.call(this, game, position, flameSprite, scale,
         flameBodySize, flameBodyOffset, flameImmovable);
 
+    this.animations.add("flaming", [0, 1, 2, 3, 4], 15, true);
+    this.animations.play("flaming");
 }
 
 Flame.prototype = Object.create(Physical.prototype);
@@ -305,7 +335,7 @@ var globalControls = {
 
             //even use its constructor to create the new  player
             players.push(new pSample.constructor(pSample.game, pSample.level,
-                players.length, pSample.tileData, pSample.groups))
+                players.length, pSample.tileData, pSample.groups, pSample.hudVidas))
 
             //adapt the new player's lives
             players[players.length - 1].lives = pSample.lives;
@@ -441,7 +471,7 @@ function Inputs(game, numPlayer) {
 //all global inputs
 Inputs.prototype.globalControls = function(game) {
     this.pMenu = {
-        button: game.input.keyboard.addKey(Phaser.Keyboard.P),
+        button: game.input.keyboard.addKey(Phaser.Keyboard.ESC),
         ff: false
     }
     this.addPlayer = {
@@ -876,7 +906,7 @@ window.onload = function () {
   game.state.start('boot');
 };
 
-},{"./states/boot_scene.js":23,"./states/main_menu.js":24,"./states/preloader_scene.js":25,"./states/pve_mode.js":26,"./states/pvp_mode.js":27}],12:[function(require,module,exports){
+},{"./states/boot_scene.js":23,"./states/main_menu.js":24,"./states/preloader_scene.js":26,"./states/pve_mode.js":27,"./states/pvp_mode.js":28}],12:[function(require,module,exports){
 'use strict';
 
 var baseMapData = {
@@ -1020,9 +1050,10 @@ module.exports = levelDataBase;
 'use strict';
 
 var GameObject = require('../objects/gameObject.js');
-//var Physical = require('../objects/physical.js'); //no more needed
+var Physical = require('../objects/physical.js');
 var Bombable = require('../objects/bombable.js');
 var Enemy = require('../enemy/enemy.js');
+var Flame = require('../enemy/flame.js');
 
 var Id = require('../id/identifiable.js').Id; //for bombable id
 
@@ -1045,13 +1076,22 @@ var defaultBombableInvencibleTime = 0;
 
 //too import a big chunk of code
 var mapCooking = require('./mapCooking.js');
+var deathZoneTimeStart = 2*60*1000;
+var deathZoneTimeLoop = 5*1000;
 
-function Map(game, worldNum, levelNum, groups, tileData, maxPlayers) {
+var portalSound;
+
+function Map(game, worldNum, levelNum, groups, tileData, maxPlayers, pvpMode) {
 
     this.game = game;
     this.groups = groups;
     this.tileData = tileData;
     this.maxPlayers = maxPlayers;
+
+    this.pvpMode = pvpMode;
+    this.deathZoneExpansion = 0;
+    this.deathZoneCallback = undefined;
+    this.deathZoneStartCallback = undefined;
 
     //Always same base map values
     this.cols = baseMapData.cols;
@@ -1060,7 +1100,49 @@ function Map(game, worldNum, levelNum, groups, tileData, maxPlayers) {
     this.playerSpawns = baseMapData.playerSpawns;
 
     this.generateMap(worldNum, levelNum);
+
+    if(pvpMode) this.restartDeathZoneCountdowns();
 };
+
+//only used in pvp
+Map.prototype.battleRoyale = function () {
+
+    for (var col = this.deathZoneExpansion; col < this.map[0].length-this.deathZoneExpansion; col++) {
+        var squareIndexPos = new Point(col, this.deathZoneExpansion).applyTileData(this.tileData);
+        this.groups.flame.add(new Flame(this.game, squareIndexPos, this.tileData.Scale));
+    }
+    for (var col = this.deathZoneExpansion; col < this.map[0].length-this.deathZoneExpansion; col++) {
+        var squareIndexPos = new Point(col, this.map.length-1-this.deathZoneExpansion).applyTileData(this.tileData);
+        this.groups.flame.add(new Flame(this.game, squareIndexPos, this.tileData.Scale));
+    }
+
+    for (var fil = 1+this.deathZoneExpansion; fil < this.map.length-1-this.deathZoneExpansion; fil++) {
+        var squareIndexPos = new Point(this.deathZoneExpansion, fil).applyTileData(this.tileData);
+        this.groups.flame.add(new Flame(this.game, squareIndexPos, this.tileData.Scale));
+    }
+
+    for (var fil = 1+this.deathZoneExpansion; fil < this.map.length-1-this.deathZoneExpansion; fil++) {
+        var squareIndexPos = new Point(this.map[0].length-1-this.deathZoneExpansion, fil).applyTileData(this.tileData);
+        this.groups.flame.add(new Flame(this.game, squareIndexPos, this.tileData.Scale));
+    }
+
+    this.deathZoneExpansion++;
+}
+
+//Starts the countdown to the battleRoyale mode
+Map.prototype.restartDeathZoneCountdowns = function () {
+    this.deathZoneExpansion = 0;
+    if (this.deathZoneCallback !== undefined) this.game.time.events.remove(this.deathCallback);
+    if (this.deathZoneStartCallback !== undefined) this.game.time.events.remove(this.deathZoneStartCallback);
+
+    console.log(deathZoneTimeStart, this.deathZoneExpansion);
+    this.deathZoneStartCallback = this.game.time.events.add(deathZoneTimeStart, this.deathZoneExpansionFunction, this);
+}
+
+Map.prototype.deathZoneExpansionFunction = function () {
+    this.battleRoyale();
+    this.deathZoneCallback = this.game.time.events.add(deathZoneTimeLoop, this.deathZoneExpansionFunction, this);
+}
 
 //gets data of specified map from levelsDataBase and then cooks+build
 Map.prototype.generateMap = function (worldNum, levelNum) {
@@ -1089,6 +1171,7 @@ Map.prototype.generateNewMap = function (worldNum, levelNum) {
     this.generateMap(worldNum, levelNum);
 
     this.groups.player.callAll('respawn'); //resets players' pos
+    if(this.pvpMode) this.restartDeathZoneCountdowns();
 };
 Map.prototype.regenerateMap = function () {
     this.generateNewMap(this.mapNumber.world, this.mapNumber.level)
@@ -1170,11 +1253,12 @@ Map.prototype.buildMap = function (groups, tileData) {
 
                 case this.types.wallSP.value: //no special tile atm
                 case this.types.wall.value:
-                    // groups.wall.add(new Physical (this.game, squareIndexPos,
-                    //     this.types.wall.sprite, tileData.Scale, tileData.Res,
-                    //     defaultBodyOffset, defaultImmovable)); //no more needed
-                    groups.wall.add(new GameObject(this.game, squareIndexPos,
-                        this.types.wall.sprite, tileData.Scale));
+
+                    groups.wall.add(new Physical(this.game, squareIndexPos,
+                        this.types.wall.sprite, tileData.Scale, tileData.Res,
+                        defaultBodyOffset, defaultImmovable)); //no more needed
+                    // groups.wall.add(new GameObject(this.game, squareIndexPos,
+                    //     this.types.wall.sprite, tileData.Scale));
 
                     break;
             }
@@ -1188,10 +1272,12 @@ Map.prototype.buildMap = function (groups, tileData) {
             && bombableIdPowerUp.num === portalId.num);
 
         if (portal) //creates the portal too
+        {
             groups.box.add(new Portal(this.game, this, groups,
                 squareIndexPos, this.types.bombable.sprite, tileData,
                 defaultBodyOffset, defaultImmovable,
                 defaultBombableLives, defaultBombableInvencibleTime));
+        }
 
         return portal;
     }
@@ -1249,7 +1335,7 @@ Map.prototype.isNextSquareNotWall = function (positionMap, direction) {
 
 module.exports = Map;
 
-},{"../enemy/enemy.js":1,"../general/point.js":7,"../id/identifiable.js":9,"../objects/bombable.js":17,"../objects/gameObject.js":18,"./baseMapData.js":12,"./levelsDataBase.js":13,"./mapCooking.js":15,"./portal.js":16}],15:[function(require,module,exports){
+},{"../enemy/enemy.js":1,"../enemy/flame.js":3,"../general/point.js":7,"../id/identifiable.js":9,"../objects/bombable.js":17,"../objects/gameObject.js":18,"../objects/physical.js":19,"./baseMapData.js":12,"./levelsDataBase.js":13,"./mapCooking.js":15,"./portal.js":16}],15:[function(require,module,exports){
 'use strict';
 
 var Point = require('../general/point.js');
@@ -1414,37 +1500,48 @@ var portalSpinVel = 0.05;
 var portalBombTimer = 500; //to sync with flames
 var portalSpawnTimer = 1500; //cooldown to spawn enemies
 
-function Portal (game, level, groups, position, sprite, tileData, bodyOffSet, immovable, lives, invencibleTime) {
+var portalSound;
+
+function Portal(game, level, groups, position, sprite, tileData, bodyOffSet, immovable, lives, invencibleTime) {
 
     //var portalPosition = position.add(portalExtraOffset.x, portalExtraOffset.y);
 
     //var portalBodySize = new Point(bodySize.x/2, bodySize.y/2); //so you get to the center
     //var bodyOffSet = portalBodySize; //the half too
     this.tileData = tileData;
+    this.level = level;
 
     Bombable.call(this, game, level, groups, position, sprite,
         this.tileData.Scale, this.tileData.Res, bodyOffSet, immovable,
         lives, invencibleTime, portalDropId)
 
+    this.animations.add("darken");
+
     this.spawned = false;
+    this.loadNext = false;
+
+    this.portalSound = game.add.audio('portal');
 }
 
 Portal.prototype = Object.create(Bombable.prototype);
 Portal.prototype.constructor = Portal;
 
 
-Portal.prototype.update = function() {
+Portal.prototype.update = function () {
     this.checkFlames(); //player and bomb rewrite (extend) update
 
     if (this.spawned) {
-        this.rotation+= portalSpinVel;
+        this.rotation += portalSpinVel;
 
-        if (this.groups.enemy.children.length === 0)
+        if (this.groups.enemy.children.length === 0) {
             this.game.physics.arcade.overlap(this, this.groups.player, nextLevel);
+            if (this.loadNext) this.level.generateNextMap();
+        }
     }
 
     function nextLevel(portal, player) {
-        player.level.generateNextMap();
+        portal.loadNext = true;
+        portal.portalSound.stop();
     }
 }
 
@@ -1452,17 +1549,20 @@ Portal.prototype.update = function() {
 Portal.prototype.die = function () {
     //console.log("checkin die");
 
-    if (this.spawned) this.game.time.events.add(portalBombTimer+5, this.spawnEnemie, this);
+    if (this.spawned) this.game.time.events.add(portalBombTimer + 5, this.spawnEnemie, this);
 
     else {
         this.lives--;
 
         if (this.lives <= 0) //spawn the portal
-            this.game.time.events.add(portalBombTimer+5, this.spawnPortal, this);
+        {
+            this.animations.play("darken", 15);
+            this.game.time.events.add(portalBombTimer + 5, this.spawnPortal, this);
+        }
     }
     this.game.time.events.add(portalSpawnTimer, flipInven, this);
 
-    function flipInven () { this.tmpInven = false; }
+    function flipInven() { this.tmpInven = false; }
 }
 
 //switches the box into the portal
@@ -1474,14 +1574,16 @@ Portal.prototype.spawnPortal = function () {
 
     this.body.width /= 2; //changes its body (smaller)
     this.body.height /= 2;
-    this.body.offset = new Point (
-        this.body.width*this.tileData.Scale.y,
-        this.body.height*this.tileData.Scale.x);
+    this.body.offset = new Point(
+        this.body.width * this.tileData.Scale.y,
+        this.body.height * this.tileData.Scale.x);
 
-    this.position = new Point ( //moves and anchors to rotate
-        this.body.position.x+this.body.width,
-        this.body.position.y+this.body.height);
+    this.position = new Point( //moves and anchors to rotate
+        this.body.position.x + this.body.width,
+        this.body.position.y + this.body.height);
     this.anchor.setTo(0.5, 0.5);
+
+    this.portalSound.loopFull(0.3);
 
     this.loadTexture(portalSprite); //change sprite
 }
@@ -1491,10 +1593,10 @@ Portal.prototype.spawnEnemie = function () {
     //console.log(this.groups.enemy.children);
 
     var enemyPos = new Point(
-        this.position.x-this.body.width, //corrects the anchor
-        this.position.y-this.body.height);
+        this.position.x - this.body.width, //corrects the anchor
+        this.position.y - this.body.height);
 
-    this.groups.enemy.add(new Enemy (this.game, enemyPos,
+    this.groups.enemy.add(new Enemy(this.game, enemyPos,
         this.level, defaultEnemyType, this.tileData, this.groups, portalDropId));
 }
 
@@ -1518,6 +1620,8 @@ var bombableTimer = 500; //to sync with flames
 function Bombable(game, level, groups, position, sprite, scale, bodySize, bodyOffSet, immovable, lives, invencibleTime, dropId) {
 
     Physical.call(this, game, position, sprite, scale, bodySize, bodyOffSet, immovable);
+
+    this.animations.add("darken");
 
     this.groups = groups;
     this.level = level;
@@ -1584,6 +1688,7 @@ Bombable.prototype.die = function () {
             this.game.time.events.add(bombableTimer - 5, drop, this);
 
         //then destroy the bombable
+        this.animations.play("darken", 15);
         this.game.time.events.add(bombableTimer + 5, updateAndDestroy, this);
     }
     else this.game.time.events.add(bombableTimer, flipInven, this);
@@ -1705,6 +1810,9 @@ function Bomb (game, level, position, tileData, groups, player, bombMods) {
     this.level = level;
     this.tileData = tileData;
 
+    this.animations.add("red");
+    this.animations.play("red", 3/2);
+
     this.mods = [];
     Identifiable.applyMods(bombMods, this);
 
@@ -1749,7 +1857,7 @@ Bomb.prototype.xplode = function() {
     this.groups.bomb.remove(this); //removes and destroys the bomb
     this.player.numBombs++; //adds a bomb back to the player
 
-    this.xplosionSound.play();
+    this.xplosionSound.play("", 0, 0.1);
 
     var flames = this.spawnFlames();
 
@@ -1858,27 +1966,51 @@ var playerSpritePath = 'player_'; //partial, to complete with numPlayer
 // var playerBodySize = new Point(48, 48); //little smaller
 // var playerBodyOffset = new Point(0, 40);
 var playerBodySize = new Point(40, 32); //little smaller
-var playerBodyOffset = new Point(3, 48);
+var playerBodyOffset = new Point(6, 48);
 var playerExtraOffset = new Point(6, -20); //reaquired because player body is not full res
 
 var playerImmovable = false;
 
 var playerLives = 5;
+var playerExtraLifePoints = 1000;
 var playerNumBombs = 1;
 
 var playerInvencibleTime = 5000;
 var playerRespawnedStoppedTime = 1000;
 var playerDeathTime = 1500;
-var playerLifeTime = 3*60*1000;
+var playerLifeTime = 60 * 3 * 1000;
 
 var Id = Identifiable.Id; //the mini factory is in Identifiable
 var playerInitialModsIds = [/*new Id(1,2), new Id(1, 1), new Id(1,0)*/];
+var playerPVPModsIds = [new Id(1, 2), new Id(1, 1)];
 var playerMovAndInputs = require('./playerMovAndInputs.js'); //big chunk of code
 
-function Player(game, level, numPlayer, tileData, groups) {
+var bodyVelocity;
+
+var step = Math.PI * 2 / 360; //degrees
+var playerInitialAlphaAngle = 30; //sin(playerInitialAlphaAnlge) -> alpha
+var alphaWavingSpeed = 1.75;
+var hudAnimSpeed = 1 / 8; //1/18 is the correct
+
+const debugPosX = 40;
+const debugPosY = 600 - 96;
+const debugColor = "yellow";
+
+function Player(game, level, numPlayer, tileData, groups, hudVidas) {
 
     this.numPlayer = numPlayer;
     this.points = 0;
+    this.extraLives = 0;
+
+    this.hudVidas = hudVidas;
+    this.hudVidaAnim = hudVidas[numPlayer].animations.add('Clock');
+    this.hudVidaAnim.play(hudAnimSpeed, true);
+    this.hudVidaAnim.onLoop.add(this.die, this, 0, 0);
+
+    this.wins = 0; //for pvp
+    this.selfKills = 0;
+    this.kills = 0;
+
     this.inputs = new Inputs(game, numPlayer); //based on numPlayer
 
     //produces respawn position based on playerSpawns[numPlayer]
@@ -1887,6 +2019,19 @@ function Player(game, level, numPlayer, tileData, groups) {
 
     Bombable.call(this, game, level, groups, this.respawnPos, playerSpritePath + this.numPlayer,
         tileData.Scale, playerBodySize, playerBodyOffset, playerImmovable, playerLives, playerInvencibleTime);
+
+    // this.anchor.setTo(0.3, 0);
+
+    this.animations.add("walking_left", [24, 25, 26, 27, 28, 29, 30, 31], 10, true);
+    this.animations.add("walking_right", [16, 17, 18, 19, 20, 21, 22, 23], 10, true);
+    this.animations.add("walking_up", [0, 1, 2, 3, 4, 5, 6, 7], 10, true);
+    this.animations.add("walking_down", [8, 9, 10, 11, 12, 13, 14, 15], 10, true);
+
+    this.animations.add("dying", [32, 33, 34, 35, 36], 10);
+    this.animations.add("spawn", [8], 15);
+    this.animations.add("respawn", [36, 35, 34, 33, 32], 10);
+
+    this.animations.play("spawn");
 
     this.restartMovement();
 
@@ -1899,6 +2044,10 @@ function Player(game, level, numPlayer, tileData, groups) {
     this.mods = [];
     this.bombMods = [];
     Identifiable.addPowerUps(playerInitialModsIds, this);
+
+    this.deathCallback = undefined;
+
+    this.counterAngle = playerInitialAlphaAngle * step;
 };
 
 Player.prototype = Object.create(Bombable.prototype);
@@ -1914,14 +2063,17 @@ Player.prototype.restartMovement = function () {
     this.body.velocity = new Point();
 }
 
-//Starts the countdown to finish life
-Player.prototype.startCountdown = function () {
-    this.game.time.events.add(playerLifeTime, this.restartCoundown, this);
-}
-Player.prototype.restartCoundown = function () {
-    this.die();
-    this.game.time.events.add(playerDeathTime + playerRespawnedStoppedTime,
-        this.startCountdown, this);
+//Starts the countdown to finish life, false if just starting
+Player.prototype.restartCountdown = function (restarting) {
+    if (this.deathCallback !== undefined) this.game.time.events.remove(this.deathCallback);
+
+    var time = playerLifeTime;
+    if (restarting) time += playerRespawnedStoppedTime;
+
+    this.hudVidaAnim.restart();
+
+    this.deathCallback = this.game.time.events.add(time, this.die, this);
+    // console.log("countdown", this.deathCallback);
 }
 
 
@@ -1929,15 +2081,52 @@ Player.prototype.restartCoundown = function () {
 Player.prototype.update = function () {
 
     this.checkFlames(); //bombable method
+
     //if dead or invencible already no need to check
     if (!this.dead && !this.invencible) this.checkEnemy();
 
-    //if dead somehow yo do nothing
+    //if dead somehow player does nothing
     if (!this.dead) {
         this.checkPowerUps();
-        this.movementLogic();
+        bodyVelocity = this.movementLogic();
         this.bombLogic();
+
+        if (this.invencible) this.invencibleAlpha();
+
+        if (bodyVelocity.x > 0) {
+            // this.scale.setTo(this.tileData.Scale.x, this.tileData.Scale.y);
+            this.animations.play("walking_right");
+        }
+        else if (bodyVelocity.x < 0) {
+            // this.scale.setTo(this.tileData.Scale.x*-1, this.tileData.Scale.y);
+            this.animations.play("walking_left");
+        }
+        else if (bodyVelocity.y > 0)
+            this.animations.play("walking_down");
+        else if (bodyVelocity.y < 0)
+            this.animations.play("walking_up");
+        else {
+            this.animations.stop();
+            this.frame = this.stopped_frames;
+        }
+
     }
+}
+
+//changes alpha to simulate being invulnerable
+Player.prototype.invencibleAlpha = function () {
+
+    var tStep = Math.sin(this.counterAngle);
+    // console.log(this.counterAngle/step);
+
+    this.counterAngle += step * alphaWavingSpeed;
+
+    //only positive sin (no negative alpha)
+    if (this.counterAngle >= (180 - playerInitialAlphaAngle) * step) {
+        this.counterAngle = playerInitialAlphaAngle * step;
+    }
+
+    this.alpha = tStep;
 }
 
 //checks for powerUps and takes them
@@ -1965,9 +2154,17 @@ Player.prototype.checkEnemy = function () {
 //adds points and lives if required
 Player.prototype.addPoints = function (pts) {
 
-    console.log(this.points, " + ", pts);
+    // console.log(this.points, " + ", pts);
     this.points += pts;
 
+    if (this.points >= playerExtraLifePoints) {
+        var n = this.points / (playerExtraLifePoints - this.points % playerExtraLifePoints);
+
+        if (n > this.extraLives) {
+            this.extraLives++;
+            this.lives++;
+        }
+    }
 }
 
 //reads inputs, fixes direction and then moves
@@ -2009,34 +2206,82 @@ Player.prototype.bombLogic = function () {
 
 
 //player concrete logic for die
-Player.prototype.die = function () {
-    console.log("checkin player die");
-    this.lives--;
+Player.prototype.die = function (flame) {
+    console.log("checkin player die", this.level.pvpMode);
+
     this.dead = true; //to disable movement
-    this.restartMovement();
 
-    this.game.time.events.add(playerDeathTime, this.respawn, this);
+    this.animations.play("dying");
 
-    if (this.lives <= 0) {
-        console.log("P" + this.numPlayer + ", you ded (0 lives)");
+    if (flame !== undefined && flame !== this.hudVidas[this.numPlayer] && flame.player !== undefined) {
+        if (flame.player !== this) flame.player.kills++;
+        else {
+            flame.player.selfKills++; //for the show
+            this.game.debug.text(" LOL", debugPosX, debugPosY, debugColor);
+            this.game.time.events.add(playerInvencibleTime, function reset() { this.debug.reset(); }, this.game);
+        }
     }
+    // console.log(this.kills, this.selfKills);
 
-    else this.game.time.events.add(playerDeathTime, flipInven, this);
+    if (!this.level.pvpMode) {
+        this.lives--;
+        this.restartMovement();
+        this.game.time.events.add(playerDeathTime, this.respawn, this);
+        if (this.lives <= 0) {
+            console.log("P" + this.numPlayer + ", you ded (0 lives)");
+        }
+    }
+    else this.pvpModeDeath();
+
+    this.game.time.events.add(playerDeathTime, flipInven, this);
     function flipInven() { this.tmpInven = false; }
 }
 
-//needs improvements, atm only moves the player
+//different behavior
+Player.prototype.pvpModeDeath = function () {
+
+    this.visible = false;
+
+    var alive = 0;
+    for (var i = 0; i < this.groups.player.children.length; i++) {
+        if ((this.groups.player.children[i] !== this) && (!this.groups.player.children[i].dead))
+            alive++;
+    }
+
+    if (alive <= 1) {
+        for (var i = 0; i < this.groups.player.children.length; i++) {
+            if (!this.groups.player.children[i].dead)
+                this.groups.player.children[i].wins++;
+        }
+        this.level.regenerateMap();
+    }
+
+}
+
+//Resets the player basically
 Player.prototype.respawn = function () {
+
     this.invencible = true;
     this.dead = true; //so he cannot move
-    this.restartMovement(); //so it doesnt move inside walls
-    this.position = new Point(this.respawnPos.x, this.respawnPos.y);
 
-    //callback to make end player's invulnerability
-    this.game.time.events.add(playerInvencibleTime, this.endInvencibility, this);
+    if (this.lives > 0) {
+        this.visible = true;
+    this.animations.play("respawn");
 
-    //callback used to give back the control to the player
-    this.game.time.events.add(playerRespawnedStoppedTime, revive, this);
+        this.animations.play("spawn");
+
+        this.restartMovement(); //so it doesnt move inside walls
+        this.restartCountdown(true);
+        this.position = new Point(this.respawnPos.x, this.respawnPos.y);
+
+        //callback to make end player's invulnerability
+        this.game.time.events.add(playerInvencibleTime, this.endInvencibility, this);
+
+        //callback used to give back the control to the player
+        this.game.time.events.add(playerRespawnedStoppedTime, revive, this);
+    }
+    else this.visible = false;
+
     function revive() {
         //fix for a bug: sometimes the position recives a tick of the velocity...
         //...after the respawn; so we double reset it
@@ -2049,6 +2294,7 @@ Player.prototype.respawn = function () {
 Player.prototype.endInvencibility = function () {
     console.log("P" + this.numPlayer + " invencibility ended");
     this.invencible = false;
+    this.alpha = 1;
 }
 
 
@@ -2128,6 +2374,8 @@ movementLogic: function () {
 
     //callback
     function unlockTurning() { this.blockedBacktrack.turn = false }
+
+    return this.body.velocity;
 },
 
 //reads the input, handles multiple keys
@@ -2310,7 +2558,8 @@ const winWidth = 800;
 const winHeight = 600;
 
 var mMenuBG;
-var mMenuButton;
+var mMenuPVE;
+var mMenuPVP;
 var buttonCount = 1;
 
 var mMenuTitle; //super bomboooooozle man
@@ -2321,23 +2570,29 @@ var MainMenu = {
 
     },
 
-    nextState: function() { this.game.state.start('pve');  },
+    nextStatePVE: function() { this.game.state.start('pve');  },
+    nextStatePVP: function() { this.game.state.start('pvp');  },
 
     // over: function() { buttonCount++; },
 
     // out: function() { buttonCount--; },
 
     create: function() {
+        console.log(this);
+
         mMenuBG = this.game.add.sprite(0, 0, 'mMenuBG');
         mMenuBG.scale.y = 1.05; //just a little bigger
-        mMenuButton = this.game.add.button(winWidth/2, winHeight/2 + 100, 'mMenuButton' + buttonCount, this.nextState, this);
+        mMenuPVE = this.game.add.button(winWidth/2, winHeight/2 + 70, 'mMenuButton1', this.nextStatePVE, this);
+        mMenuPVP = this.game.add.button(winWidth/2, winHeight/2 + 140, 'mMenuButton2', this.nextStatePVP, this);
 
         mMenuBG.width = winWidth;
         mMenuBG.heigth = winHeight;
 
-        mMenuButton.anchor.setTo(0.5, 0.5);
-        //mMenuButton.scale.x = 100;
-        //mMenuButton.scale.y = 75;
+        mMenuPVE.scale.setTo(0.7, 0.7);
+        mMenuPVE.anchor.setTo(0.5, 0.5);
+
+        mMenuPVP.scale.setTo(0.7, 0.7);
+        mMenuPVP.anchor.setTo(0.5, 0.5);
 
         // mMenuButton.onInputOver.add(this.over, this);
 
@@ -2357,6 +2612,77 @@ module.exports = MainMenu;
 
 },{}],25:[function(require,module,exports){
 'use strict';
+
+var pausePanel;
+var unpauseButton;
+var gotoMenuButton;
+
+var width = 800;
+var height = 600;
+
+var pauseMenu = {
+    pausedCreate: function (music, game) {
+        music.pause();
+        game.stage.disableVisibilityChange = true;
+        game.input.onDown.add(unPause, this);
+    
+        
+        pausePanel = game.add.sprite(width / 2, height / 2, 'pausePanel');
+        pausePanel.anchor.setTo(0.5, 0.5);
+        pausePanel.alpha = 0.5;
+        
+        unpauseButton = game.add.sprite(width / 2, height / 2 - 50, 'resume');
+        unpauseButton.anchor.setTo(0.5, 0.5);
+        unpauseButton.scale.setTo(0.75, 0.75);
+    
+        gotoMenuButton = game.add.sprite(width / 2, height / 2 + 50, 'quitToMenu');
+        gotoMenuButton.anchor.setTo(0.5, 0.5);
+        gotoMenuButton.scale.setTo(0.75, 0.75);    
+    
+        function unPause() {
+          if (game.paused) {
+            if (game.input.mousePointer.position.x > unpauseButton.position.x - unpauseButton.texture.width / 2
+              && game.input.mousePointer.position.x < unpauseButton.position.x + unpauseButton.texture.width / 2
+              && game.input.mousePointer.position.y > unpauseButton.position.y - unpauseButton.texture.height / 2
+              && game.input.mousePointer.position.y < unpauseButton.position.y + unpauseButton.texture.height / 2)
+              game.paused = false;
+    
+            //We need to fix the remake of maps before this fully works. But it does what it has to.
+            else if (game.input.mousePointer.position.x > gotoMenuButton.position.x - gotoMenuButton.texture.width / 2
+              && game.input.mousePointer.position.x < gotoMenuButton.position.x + gotoMenuButton.texture.width / 2
+              && game.input.mousePointer.position.y > gotoMenuButton.position.y - gotoMenuButton.texture.height / 2
+              && game.input.mousePointer.position.y < gotoMenuButton.position.y + gotoMenuButton.texture.height / 2)
+              { game.state.start('mainMenu'); game.paused = false; }
+              
+          }
+        };
+    },
+
+    resumedMenu: function (music, gInputs, game) {
+        music.resume();
+        game.stage.disableVisibilityChange = false;
+        gInputs.pMenu.ff = false;
+    
+        pausePanel.destroy();
+        unpauseButton.destroy();
+        gotoMenuButton.destroy();
+    },
+
+    offPauseMenuControl: function (game, gInputs) {
+        if (gInputs.pMenu.button.isDown && !gInputs.pMenu.ff) {
+          gInputs.pMenu.ff = true;
+          game.paused = true;
+        }
+        //MIRAR DOCUMENTACION DE PHASER.SIGNAL
+        else if (gInputs.pMenu.isUp)
+          gInputs.pMenu.ff = false;
+        //console.log(gInputs.pMenu.ff)
+    }
+}
+
+module.exports = pauseMenu;
+},{}],26:[function(require,module,exports){
+'use strict';
 var DEBUG = true;
 
 const winWith = 800;
@@ -2374,11 +2700,12 @@ var PreloaderScene = {
         // TODO: load here the assets for the game
         //this.game.load.image('logo', 'images/readme/arena.png');
 
-        for (var numPlayers = 0; numPlayers < 4; numPlayers++)
-            this.game.load.image('player_'+numPlayers, 'images/Sprites/Bomberman/Bman_'+numPlayers+'.png');
-
+        for (var numPlayers = 0; numPlayers < 4; numPlayers++){
+            this.game.load.spritesheet('player_'+numPlayers, 'images/Sprites/Bomberman/Bomb0'+numPlayers+'+Exploding.png', 64, 86);
+            this.game.load.spritesheet('player_'+numPlayers+'Clock', 'images/Sprites/Bomberman/Bman_'+numPlayers+'Clock.png', 47, 88)            
+        }
         this.game.load.image('background', 'images/Sprites/Blocks/BackgroundTile.png');
-        this.game.load.image('bombable', 'images/Sprites/Blocks/ExplodableBlock.png');
+        this.game.load.spritesheet('bombable', 'images/Sprites/Blocks/ExplodableBlockAnim.png', 64, 64);
         this.game.load.image('wall', 'images/Sprites/Blocks/SolidBlock.png');
         this.game.load.image('portal', 'images/Sprites/Blocks/Portal.png');
 
@@ -2386,26 +2713,40 @@ var PreloaderScene = {
         this.game.load.image('powerUpFlameUp', 'images/Sprites/Powerups/FlamePowerup.png');
         this.game.load.image('powerUpSpeedUp', 'images/Sprites/Powerups/SpeedPowerup.png');
 
-        this.game.load.image('bomb', 'images/Sprites/Bomb/Bomb_f01.png');
-        this.game.load.image('flame', 'images/Sprites/Flame/Flame_f00.png');
+        this.game.load.spritesheet('bomb', 'images/Sprites/Bomb/Bomb_f1.png', 48, 48);
+        this.game.load.spritesheet('flame', 'images/Sprites/Flame/flames.png', 48, 48);
 
-        this.game.load.image('enemy_0', 'images/Sprites/Creep/Creep_0.png');
-        this.game.load.image('enemy_1', 'images/Sprites/Creep/Creep_1.png');
-        this.game.load.image('enemy_2', 'images/Sprites/Creep/Creep_2.png');
+        this.game.load.spritesheet('enemy_0', 'images/Sprites/Creep/creep0.png', 64, 64);
+        this.game.load.spritesheet('enemy_1', 'images/Sprites/Creep/creep1.png', 64, 64);
+        this.game.load.spritesheet('enemy_2', 'images/Sprites/Creep/creep2.png', 64, 64);
 
         //Main Menu sprites
         this.game.load.image('mMenuBG', 'images/Sprites/Menu/title_background.jpg');
-        this.game.load.image('mMenuButton1', 'images/Sprites/Menu/One_Player_Normal.png');
-        this.game.load.image('mMenuButton2', 'images/Sprites/Menu/One_Player_Hover.png');
+        this.game.load.image('mMenuButton1', 'images/Sprites/Menu/PVE_mode.png');
+        this.game.load.image('mMenuButton2', 'images/Sprites/Menu/PVP_mode.png');
         this.game.load.image('mMenuTitle', 'images/Sprites/Menu/title.png');
 
         this.game.load.image('pausePanel', 'images/Sprites/Menu/White_Panel.png');
-        this.game.load.image('quitToMenu', 'images/Sprites/Menu/Two_Players_Hover.png');
+        this.game.load.image('quitToMenu', 'images/Sprites/Menu/QuitToMenu.png');
+        this.game.load.image('resume', 'images/Sprites/Menu/Resume.png');
 
+        this.game.load.image('gameOver', 'images/Sprites/HUD/GameOver.png')
+
+        this.game.load.image('unmuted', 'images/Sprites/Menu/unMuted.png');
+        this.game.load.image('muted', 'images/Sprites/Menu/Muted.png');
+        this.game.load.image('volArrow', 'images/Sprites/Menu/VolumeArrow.png');     
+
+        //HUD sprites
+        this.game.load.image('HUDBg', 'images/Sprites/HUD/HUDBg.png');
+        this.game.load.image('HUDPoints', 'images/Sprites/HUD/HUDPoints.png');
+        this.game.load.image('HUD2', 'images/Sprites/HUD/HUD2.png');
+        this.game.load.image('HUDPressX', 'images/Sprites/HUD/PressX.png');        
+        
         //Music and audio
         this.game.load.audio('music', 'audio/music.ogg');
         this.game.load.audio('xplosion', 'audio/explosion.ogg');
         this.game.load.audio('powerup', 'audio/powerup.ogg');
+        this.game.load.audio('portal', 'audio/portal.ogg');
 
     },
 
@@ -2416,9 +2757,10 @@ var PreloaderScene = {
   };
   module.exports = PreloaderScene;
 
-},{}],26:[function(require,module,exports){
+},{}],27:[function(require,module,exports){
 'use strict';
 const DEBUG = true;
+var pvpMode = false;
 
 var Point = require('../general/point.js');
 var globalControls = require('../general/globalControls.js');
@@ -2435,7 +2777,9 @@ var gInputs; //global inputs
 var Player = require('../player/player.js');
 var players = []; //2 max for this mode but meh
 var initialPlayers = 1;
-var maxPlayers = 4; //needed for the map generation
+var maxPlayers = 2; //needed for the map generation
+
+var pauseMenu = require('./pauseMenu.js');
 
 var music;
 
@@ -2452,10 +2796,28 @@ const tileData = {
 
 var mMenuTitle;
 var livesHUD;
+var livesHUD1;
+var pointsHUD;
+var pointsHUD1;
+var HUDBg;
+var HUDPoints;
+var HUDPoints1;
+var HUDBombHead = [];
+var HUD2_0;
+var HUD2_1;
+var HUDBomb;
+var HUDPressX;
 
-var pausePanel;
-var unpauseButton;
-var gotoMenuButton;
+var ffAnim = false;
+
+var muteMusicButton;
+var mutedMusicButton;
+var lessVolButton;
+var moreVolButton;
+
+var TwoPlayers = false;
+var deathCount = 0;
+
 
 var PlayScene = {
 
@@ -2464,31 +2826,89 @@ var PlayScene = {
     if (DEBUG) this.startTime = Date.now(); //to calculate booting time
   },
 
-  create: function () {
-    //menu stuff
-    mMenuTitle = this.game.add.sprite(50, 0, 'mMenuTitle'); //vital for life on earth
-    mMenuTitle.scale = new Point(0.4, 0.75); //nah just for presentation
+  toggleMute: function () { this.game.sound.mute = !this.game.sound.mute; },
 
+  moreVol: function () { if(this.game.sound.volume < 1) this.game.sound.volume += 0.1; },
+
+  lessVol: function () { if(this.game.sound.volume > 0.2) this.game.sound.volume -= 0.1; },
+
+  create: function () {
+    //music
+    music = this.game.add.audio('music');
+    music.loopFull(0.4); //la pauso que me morido quedo loco
+    this.game.sound.mute = true;
+
+
+    //menu stuff
+    HUDBg = this.game.add.sprite(0, 0, 'HUDBg');
+
+    HUDBombHead[0] = this.game.add.sprite(60, 10, 'player_0Clock');
+    HUDBombHead[0].scale.setTo(0.75, 0.75);
+    HUD2_0 = this.game.add.sprite(35+HUDBombHead[0].position.x, -5, 'HUD2');
+    HUD2_0.scale.setTo(0.75, 0.75);
+    HUDPoints = this.game.add.sprite(170, -5, 'HUDPoints');
+    HUDPoints.scale.setTo(0.45, 0.7);
+
+    HUDBomb = this.game.add.sprite(width/2, 10, 'bomb');
+    HUDBomb.anchor.setTo(0.5, 0);
+    HUDBomb.scale.setTo(1.2, 1.2);
+
+    HUDBombHead[1] = this.game.add.sprite(HUDBomb.position.x + 60, 10, 'player_1Clock');
+    HUDBombHead[1].scale.setTo(0.75, 0.75);
+    HUD2_1 = this.game.add.sprite(35+HUDBombHead[1].position.x, -5, 'HUD2');
+    HUD2_1.scale.setTo(0.75, 0.75);
+    HUDPoints1 = this.game.add.sprite(575, -5, 'HUDPoints');
+    HUDPoints1.scale.setTo(0.45, 0.7);
+    HUDPoints1.visible = false;
+
+    livesHUD = this.game.add.text(HUD2_0.position.x + 42, 15, "",
+    { font: "45px Comic Sans MS", fill: "#f9e000", align: "center"});
+    livesHUD.anchor.setTo(0.2, 0);
+    pointsHUD = this.game.add.text(HUDPoints.position.x + 133, 22, "",
+    { font: "35px Comic Sans MS", fill: "#f9e000", align: "center" });
+    pointsHUD.anchor.setTo(0.2, 0);
+
+    livesHUD1 = this.game.add.text(HUD2_1.position.x + 42, 15, "",
+    { font: "45px Comic Sans MS", fill: "#f9e000", align: "center"});
+    livesHUD1.anchor.setTo(0.2, 0);
+    livesHUD1.visible = false;
+    pointsHUD1 = this.game.add.text(HUDPoints1.position.x + 133, 22, "",
+    { font: "35px Comic Sans MS", fill: "#f9e000", align: "center"});
+    pointsHUD1.anchor.setTo(0.2, 0);
+    pointsHUD1.visible = false;
+
+    HUDPressX = this.game.add.sprite(HUD2_1.position.x, -10, 'HUDPressX');
+    HUDPressX.scale.setTo(0.75, 0.75);
+    // HUDPressX.visible = false;
+
+    muteMusicButton = this.game.add.button(10, 40, 'unmuted', this.toggleMute, this);
+    muteMusicButton.scale.setTo(0.1, 0.1);
+    mutedMusicButton = this.game.add.button(10, 40, 'muted', this.toggleMute, this);
+    mutedMusicButton.scale.setTo(0.1, 0.1);
+
+    lessVolButton = this.game.add.button(10, 10, 'volArrow', this.lessVol, this);
+    lessVolButton.scale.setTo(0.04, 0.04);
+
+    moreVolButton = this.game.add.button(30, 10, 'volArrow', this.moreVol, this);
+    moreVolButton.anchor.setTo(1, 1);
+    moreVolButton.scale.setTo(0.04, 0.04);
+    moreVolButton.angle = 180;
 
     //map
     groups = new Groups(this.game); //first need the groups
-    level = new Map(this.game, initialMap.world, initialMap.level, groups, tileData, maxPlayers);
+    level = new Map(this.game, initialMap.world, initialMap.level, groups, tileData, maxPlayers, pvpMode);
 
     //global controls
     gInputs = new Inputs(this.game, -1);
 
-    //music
-    music = this.game.add.audio('music');
-    //music.loopFull(); //la pauso que me morido quedo loco
 
     //player/s (initialPlayers)
+    players = [];
     for (var numPlayer = 0; numPlayer < initialPlayers; numPlayer++) {
-      players.push(new Player(this.game, level, numPlayer, tileData, groups));
-      players[numPlayer].startCountdown();
+      players.push(new Player(this.game, level, numPlayer, tileData, groups, HUDBombHead));
+      players[numPlayer].restartCountdown(false);
     }
 
-    livesHUD = this.game.add.text(width/2, height/2, players[0].playerLives,
-        { font: "65px Arial", fill: "#f9e000", align: "center"});
 
     if (DEBUG) {
       console.log("Loaded...", Date.now() - this.startTime, "ms");
@@ -2498,16 +2918,59 @@ var PlayScene = {
 
   },
 
+  goToMainMenu: function (){ this.game.state.start('mainMenu'); },
+
+  gmOver: function (){
+     // var gmOverBg = this.game.add.sprite(0, 0, 'mMenuBG');
+      var gmOverSign = this.game.add.sprite(width/2, height/2, 'gameOver');
+      gmOverSign.anchor.setTo(0.5, 0.5);
+      var goToMenu = this.game.add.button(width, height,
+        'quitToMenu', this.goToMainMenu, this);
+      goToMenu.anchor.setTo(1, 1);
+  },
+
 
   update: function () {
+    console.log(deathCount);
+    for(var i = 0; i < players.length; i++){
+      if(players[i].lives <= 0 && deathCount<players.length)
+        deathCount++;
+    }
+    
+    if(deathCount === players.length){
+        this.gmOver();
+    }
 
     //No longer needed
-    // this.game.physics.arcade.collide(groups.player, groups.wall);
-    // if (!gInputs.debug.state) {
-    //   this.game.physics.arcade.collide(groups.player, groups.box);
-    //   this.game.physics.arcade.collide(groups.player, groups.bomb);
-    // }
-    // else this.game.physics.arcade.collide(players[0], groups.enemy);
+    this.game.physics.arcade.collide(groups.player, groups.wall);
+    this.game.physics.arcade.collide(groups.player, groups.box);
+    this.game.physics.arcade.collide(groups.player, groups.bomb);
+
+
+    if (players.length >= 2)
+      TwoPlayers = true;
+    else
+      TwoPlayers = false;
+
+
+    livesHUD.text = players[0].lives;
+    pointsHUD.text = players[0].points;
+
+    if(TwoPlayers === true){
+      if(HUDPressX.visible){
+        HUDPressX.visible = false;
+        livesHUD1.visible = true;
+        pointsHUD1.visible = true;
+        HUDPoints1.visible = true;
+      }
+      livesHUD1.text = players[1].lives;
+      pointsHUD1.text = players[1].points;
+    }
+
+    if(music.mute) muteMusicButton.visible = false;
+    else   muteMusicButton.visible = true;
+    if(!music.mute) mutedMusicButton.visible = false;
+    else mutedMusicButton.visible = true;
 
     this.game.world.bringToTop(groups.flame);
     this.game.world.bringToTop(groups.player); //array doesnt work
@@ -2516,92 +2979,32 @@ var PlayScene = {
     globalControls.debugModeControl(gInputs, this.game, groups.player);
     globalControls.resetLevelControl(gInputs, level);
     globalControls.nextLevelControl(gInputs, level);
-    offPauseMenuControl(this.game);
-  },
-
-  paused: function () {
-    music.pause();
-    this.game.stage.disableVisibilityChange = true;
-    this.game.input.onDown.add(unPause, this);
-
-    pausePanel = this.game.add.sprite(width / 2, height / 2, 'pausePanel');
-    pausePanel.anchor.setTo(0.5, 0.5);
-    pausePanel.alpha = 0.5;
-
-    unpauseButton = this.game.add.sprite(width / 2, height / 2 - 50, 'mMenuButton2');
-    unpauseButton.anchor.setTo(0.5, 0.5);
-
-    gotoMenuButton = this.game.add.sprite(width / 2, height / 2 + 50, 'quitToMenu');
-    gotoMenuButton.anchor.setTo(0.5, 0.5);
-
-    function unPause() {
-      if (this.game.paused) {
-        if (this.game.input.mousePointer.position.x > unpauseButton.position.x - unpauseButton.texture.width / 2
-          && this.game.input.mousePointer.position.x < unpauseButton.position.x + unpauseButton.texture.width / 2
-          && this.game.input.mousePointer.position.y > unpauseButton.position.y - unpauseButton.texture.height / 2
-          && this.game.input.mousePointer.position.y < unpauseButton.position.y + unpauseButton.texture.height / 2)
-          this.game.paused = false;
-
-        //We need to fix the remake of maps before this fully works. But it does what it has to.
-        else if (this.game.input.mousePointer.position.x > gotoMenuButton.position.x - gotoMenuButton.texture.width / 2
-          && this.game.input.mousePointer.position.x < gotoMenuButton.position.x + gotoMenuButton.texture.width / 2
-          && this.game.input.mousePointer.position.y > gotoMenuButton.position.y - gotoMenuButton.texture.height / 2
-          && this.game.input.mousePointer.position.y < gotoMenuButton.position.y + gotoMenuButton.texture.height / 2)
-          { this.game.state.start('mainMenu'); this.game.paused = false; }
-      }
-    };
+    pauseMenu.offPauseMenuControl(this.game, gInputs);
 
   },
 
-  //NOT FULLY NECESSARY BUT MAY BE USEFUL IN THE FUTURE
-  // pauseUpdate: function () {
-  //  // console.log(this);
-
-  //   //if(gInputs)
-  //     // console.log(gInputs);
-  //     // gInputs.pMenu.ff = false;
-  //   // onPauseMenuControl(this.game);
-
-  //   // console.log(gInputs.pMenu.ff)
-  // },
+  paused: function() {
+    pauseMenu.pausedCreate(music, this.game);
+  },
 
   resumed: function () {
-    music.resume();
-    this.game.stage.disableVisibilityChange = false;
-    gInputs.pMenu.ff = false;
-
-    pausePanel.destroy();
-    unpauseButton.destroy();
-    gotoMenuButton.destroy();
+    pauseMenu.resumedMenu(music, gInputs, this.game);
   },
 
   render: function () {
-
     if (gInputs.debug.state) {
       groups.drawDebug(this.game);
       this.game.debug.bodyInfo(players[0], debugPos.x, debugPos.y, debugColor);
     }
-
   },
 };
 
-
-var offPauseMenuControl = function (game) {
-  if (gInputs.pMenu.button.isDown && !gInputs.pMenu.ff) {
-    gInputs.pMenu.ff = true;
-    game.paused = true;
-  }
-  //MIRAR DOCUMENTACION DE PHASER.SIGNAL
-  else if (gInputs.pMenu.isUp)
-    gInputs.pMenu.ff = false;
-  //console.log(gInputs.pMenu.ff)
-}
-
 module.exports = PlayScene;
 
-},{"../general/globalControls.js":4,"../general/groups.js":5,"../general/inputs.js":6,"../general/point.js":7,"../maps/map.js":14,"../player/player.js":21}],27:[function(require,module,exports){
+},{"../general/globalControls.js":4,"../general/groups.js":5,"../general/inputs.js":6,"../general/point.js":7,"../maps/map.js":14,"../player/player.js":21,"./pauseMenu.js":25}],28:[function(require,module,exports){
 'use strict';
 const DEBUG = true;
+var pvpMode = true;
 
 var Point = require('../general/point.js');
 var globalControls = require('../general/globalControls.js');
@@ -2616,9 +3019,35 @@ var Inputs = require('../general/inputs.js');
 var gInputs; //global inputs
 
 var Player = require('../player/player.js');
-var players = []; //2 max for this mode but meh
+var players = [];
 var initialPlayers = 4;
 var maxPlayers = 4; //needed for the map generation
+
+var music;
+
+var pauseMenu = require('./pauseMenu.js');
+
+var livesHUD;
+var livesHUD1;
+var livesHUD2;
+var livesHUD3;
+var HUDBg;
+var HUDBombHead;
+var HUDBombHead1;
+var HUDBombHead2;
+var HUDBombHead3;
+var HUDBombHeadArray = [];
+var HUD2_0;
+var HUD2_1;
+var HUD2_2;
+var HUD2_3;
+var HUDBomb;
+var HUDPressX;
+
+var muteMusicButton;
+var mutedMusicButton;
+var lessVolButton;
+var moreVolButton;
 
 const width = 800;
 const height = 600;
@@ -2631,6 +3060,7 @@ const tileData = {
   Offset: new Point(40, 80), //space for hud
 };
 
+
 var mMenuTitle; //still not definitive
 
 var PlayScene = {
@@ -2640,21 +3070,89 @@ var PlayScene = {
     if (DEBUG) this.startTime = Date.now(); //to calculate booting time
   },
 
+  toggleMute: function () { this.game.sound.mute = !this.game.sound.mute; },
+
+  moreVol: function () { if(music.volume < 1) music.volume += 0.1; },
+
+  lessVol: function () { if(music.volume > 0.2) music.volume -= 0.1; },
+
   create: function () {
+    //music
+    music = this.game.add.audio('music');
+    music.loopFull(0.4); //la pauso que me morido quedo loco
+    this.game.sound.mute = true;
+
     //menu stuff
-    mMenuTitle = this.game.add.sprite(50, 0, 'mMenuTitle'); //vital for life on earth
-    mMenuTitle.scale = new Point(0.9, 0.75);                //nah just for presentation
+    HUDBg = this.game.add.sprite(0, 0, 'HUDBg');
+    HUDBomb = this.game.add.sprite(width/2, 10, 'bomb');
+    HUDBomb.anchor.setTo(0.5, 0);
+    HUDBomb.scale.setTo(1.2, 1.2);
+
+    HUDBombHead = this.game.add.sprite(60, 10, 'player_0Clock', 8);
+    HUDBombHead.scale.setTo(0.75, 0.75);
+    HUD2_0 = this.game.add.sprite(35+HUDBombHead.position.x, -5, 'HUD2');
+    HUD2_0.scale.setTo(0.75, 0.75);
+
+    HUDBombHead1 = this.game.add.sprite(HUDBomb.position.x - 150, 10, 'player_1Clock', 8);
+    HUDBombHead1.scale.setTo(0.75, 0.75);
+    HUD2_1 = this.game.add.sprite(35+HUDBombHead1.position.x, -5, 'HUD2');
+    HUD2_1.scale.setTo(0.75, 0.75);
+
+    HUDBombHead2 = this.game.add.sprite(HUDBomb.position.x + 60, 10, 'player_2Clock', 8);
+    HUDBombHead2.scale.setTo(0.75, 0.75);
+    HUD2_2 = this.game.add.sprite(35+HUDBombHead2.position.x, -5, 'HUD2');
+    HUD2_2.scale.setTo(0.75, 0.75);
+
+    HUDBombHead3 = this.game.add.sprite(HUDBomb.position.x + 240, 10, 'player_3Clock', 8);
+    HUDBombHead3.scale.setTo(0.75, 0.75);
+    HUD2_3 = this.game.add.sprite(35+HUDBombHead3.position.x, -5, 'HUD2');
+    HUD2_3.scale.setTo(0.75, 0.75);
+
+    livesHUD = this.game.add.text(HUD2_0.position.x + 42, 15, "",
+    { font: "45px Comic Sans MS", fill: "#f9e000", align: "center"});
+    livesHUD.anchor.setTo(0.2, 0);
+
+    livesHUD1 = this.game.add.text(HUD2_1.position.x + 42, 15, "",
+    { font: "45px Comic Sans MS", fill: "#f9e000", align: "center"});
+    livesHUD1.anchor.setTo(0.2, 0);
+    // livesHUD1.visible = false;
+
+    livesHUD2 = this.game.add.text(HUD2_2.position.x + 42, 15, "",
+    { font: "45px Comic Sans MS", fill: "#f9e000", align: "center"});
+    livesHUD2.anchor.setTo(0.2, 0);
+
+    livesHUD3 = this.game.add.text(HUD2_3.position.x + 42, 15, "",
+    { font: "45px Comic Sans MS", fill: "#f9e000", align: "center"});
+    livesHUD3.anchor.setTo(0.2, 0);
+
+    muteMusicButton = this.game.add.button(10, 40, 'unmuted', this.toggleMute, this);
+    muteMusicButton.scale.setTo(0.1, 0.1);
+    mutedMusicButton = this.game.add.button(10, 40, 'muted', this.toggleMute, this);
+    mutedMusicButton.scale.setTo(0.1, 0.1);
+
+    lessVolButton = this.game.add.button(10, 10, 'volArrow', this.lessVol, this);
+    lessVolButton.scale.setTo(0.04, 0.04);
+
+    moreVolButton = this.game.add.button(30, 10, 'volArrow', this.moreVol, this);
+    moreVolButton.anchor.setTo(1, 1);
+    moreVolButton.scale.setTo(0.04, 0.04);
+    moreVolButton.angle = 180;
+
+    // mMenuTitle = this.game.add.sprite(50, 0, 'mMenuTitle'); //vital for life on earth
+    // mMenuTitle.scale = new Point(0.9, 0.75);                //nah just for presentation
+
 
     //map
     groups = new Groups(this.game); //first need the groups
-    level = new Map(this.game, initialMap.world, initialMap.level, groups, tileData, maxPlayers);
+    level = new Map(this.game, initialMap.world, initialMap.level, groups, tileData, maxPlayers, pvpMode);
 
     //global controls
     gInputs = new Inputs(this.game, -1);
 
     //player/s (initialPlayers)
+    HUDBombHeadArray = [HUDBombHead, HUDBombHead1, HUDBombHead2, HUDBombHead3];
     for (var numPlayer = 0; numPlayer < initialPlayers; numPlayer++)
-      players.push(new Player(this.game, level, numPlayer, tileData, groups));
+      players.push(new Player(this.game, level, numPlayer, tileData, groups, HUDBombHeadArray));
 
     if (DEBUG) {
       console.log("Loaded...", Date.now() - this.startTime, "ms");
@@ -2666,11 +3164,38 @@ var PlayScene = {
 
   update: function () {
 
+    //level.battleRoyale();
+
+    livesHUD.text = players[0].wins;
+    livesHUD1.text = players[1].wins;
+    livesHUD2.text = players[2].wins;
+    livesHUD3.text = players[3].wins;
+
+    if(music.mute) muteMusicButton.visible = false;
+    else   muteMusicButton.visible = true;
+    if(!music.mute) mutedMusicButton.visible = false;
+    else mutedMusicButton.visible = true;
+
+    // for(var i = 0; i<players.length; i++){
+    //   if(players.[i].wins > 1){
+
+    //   }
+    // }
+
     this.game.world.bringToTop(groups.flame);
     this.game.world.bringToTop(groups.player); //array doesnt work
 
     globalControls.debugModeControl(gInputs, this.game, groups.player);
     globalControls.resetLevelControl(gInputs, level);
+    pauseMenu.offPauseMenuControl(this.game, gInputs);
+  },
+
+  paused: function () {
+    pauseMenu.pausedCreate(music, this.game);
+  },
+
+  resumed: function () {
+    pauseMenu.resumedMenu(music, gInputs, this.game);
   },
 
   render: function () {
@@ -2683,7 +3208,6 @@ var PlayScene = {
   },
 };
 
-
 module.exports = PlayScene;
 
-},{"../general/globalControls.js":4,"../general/groups.js":5,"../general/inputs.js":6,"../general/point.js":7,"../maps/map.js":14,"../player/player.js":21}]},{},[11]);
+},{"../general/globalControls.js":4,"../general/groups.js":5,"../general/inputs.js":6,"../general/point.js":7,"../maps/map.js":14,"../player/player.js":21,"./pauseMenu.js":25}]},{},[11]);
