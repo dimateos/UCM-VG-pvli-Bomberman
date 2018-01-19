@@ -109,7 +109,7 @@ var PlayScene = {
     { font: "45px Comic Sans MS", fill: "#f9e000", align: "center"});
     livesHUD.anchor.setTo(0.2, 0);
     pointsHUD = this.game.add.text(HUDPoints.position.x + 135, 12, "",
-    { font: "45px Comic Sans MS", fill: "#f9e000", align: "left"});
+    { font: "40px Comic Sans MS", fill: "#f9e000", align: "center"});
     pointsHUD.anchor.setTo(0.2, 0);
     
     livesHUD1 = this.game.add.text(HUD2_1.position.x + 42, 15, "",
