@@ -90,7 +90,7 @@ var PlayScene = {
     HUDBombHead.scale.setTo(0.75, 0.75);
     HUD2_0 = this.game.add.sprite(35+HUDBombHead.position.x, -5, 'HUD2');
     HUD2_0.scale.setTo(0.75, 0.75);
-    HUDPoints = this.game.add.sprite(170, -10, 'HUDPoints');
+    HUDPoints = this.game.add.sprite(160, -10, 'HUDPoints');
     HUDPoints.scale.setTo(0.5, 0.75);
     
     HUDBomb = this.game.add.sprite(width/2, 10, 'bomb');
@@ -101,22 +101,22 @@ var PlayScene = {
     HUDBombHead1.scale.setTo(0.75, 0.75);
     HUD2_1 = this.game.add.sprite(35+HUDBombHead1.position.x, -5, 'HUD2');
     HUD2_1.scale.setTo(0.75, 0.75);
-    HUDPoints1 = this.game.add.sprite(600, -10, 'HUDPoints');
+    HUDPoints1 = this.game.add.sprite(565, -10, 'HUDPoints');
     HUDPoints1.scale.setTo(0.5, 0.75);
     HUDPoints1.visible = false;
     
     livesHUD = this.game.add.text(HUD2_0.position.x + 42, 15, "",
     { font: "45px Comic Sans MS", fill: "#f9e000", align: "center"});
     livesHUD.anchor.setTo(0.2, 0);
-    pointsHUD = this.game.add.text(HUDPoints.position.x + 130, 12, "",
-    { font: "45px Comic Sans MS", fill: "#f9e000", align: "center"});
+    pointsHUD = this.game.add.text(HUDPoints.position.x + 135, 12, "",
+    { font: "45px Comic Sans MS", fill: "#f9e000", align: "left"});
     pointsHUD.anchor.setTo(0.2, 0);
     
     livesHUD1 = this.game.add.text(HUD2_1.position.x + 42, 15, "",
     { font: "45px Comic Sans MS", fill: "#f9e000", align: "center"});
     livesHUD1.anchor.setTo(0.2, 0);
     livesHUD1.visible = false;
-    pointsHUD1 = this.game.add.text(HUDPoints1.position.x + 130, 12, "",
+    pointsHUD1 = this.game.add.text(HUDPoints1.position.x + 135, 12, "",
     { font: "45px Comic Sans MS", fill: "#f9e000", align: "center"});
     pointsHUD1.anchor.setTo(0.2, 0);
     pointsHUD1.visible = false;
