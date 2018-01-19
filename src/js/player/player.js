@@ -13,18 +13,19 @@ var playerSpritePath = 'player_'; //partial, to complete with numPlayer
 // var playerBodySize = new Point(48, 48); //little smaller
 // var playerBodyOffset = new Point(0, 40);
 var playerBodySize = new Point(40, 32); //little smaller
-var playerBodyOffset = new Point(3, 48);
+var playerBodyOffset = new Point(6, 48);
 var playerExtraOffset = new Point(6, -20); //reaquired because player body is not full res
 
 var playerImmovable = false;
 
 var playerLives = 5;
+var playerExtraLifePoints = 1000;
 var playerNumBombs = 1;
 
 var playerInvencibleTime = 5000;
 var playerRespawnedStoppedTime = 1000;
 var playerDeathTime = 1500;
-var playerLifeTime = 3*60*1000;
+var playerLifeTime = 60 * 3 * 1000;
 
 var Id = Identifiable.Id; //the mini factory is in Identifiable
 var playerInitialModsIds = [/*new Id(1,2), new Id(1, 1), new Id(1,0)*/];
@@ -32,10 +33,21 @@ var playerMovAndInputs = require('./playerMovAndInputs.js'); //big chunk of code
 
 var bodyVelocity;
 
+var step = Math.PI * 2 / 360; //degrees
+var playerInitialAlphaAngle = 30; //sin(playerInitialAlphaAnlge) -> alpha
+var alphaWavingSpeed = 1.75;
+
+
 function Player(game, level, numPlayer, tileData, groups) {
 
     this.numPlayer = numPlayer;
     this.points = 0;
+    this.extraLives = 0;
+
+    this.wins = 0; //for pvp
+    this.selfKills = 0;
+    this.kills = 0;
+
     this.inputs = new Inputs(game, numPlayer); //based on numPlayer
 
     //produces respawn position based on playerSpawns[numPlayer]
@@ -46,7 +58,7 @@ function Player(game, level, numPlayer, tileData, groups) {
         tileData.Scale, playerBodySize, playerBodyOffset, playerImmovable, playerLives, playerInvencibleTime);
 
     // this.anchor.setTo(0.3, 0);
-    
+
     this.animations.add("walking_left", [24, 25, 26, 27, 28, 30, 31, 32], 10, true);
     this.animations.add("walking_right", [16, 17, 18, 19, 20, 21, 22, 23], 10, true);
     this.animations.add("walking_up", [0, 1, 2, 3, 4, 5, 6, 7], 10, true);
@@ -63,6 +75,10 @@ function Player(game, level, numPlayer, tileData, groups) {
     this.mods = [];
     this.bombMods = [];
     Identifiable.addPowerUps(playerInitialModsIds, this);
+
+    this.deathCallback = undefined;
+
+    this.counterAngle = playerInitialAlphaAngle * step;
 };
 
 Player.prototype = Object.create(Bombable.prototype);
@@ -78,15 +94,15 @@ Player.prototype.restartMovement = function () {
     this.body.velocity = new Point();
 }
 
-//Starts the countdown to finish life
-Player.prototype.startCountdown = function () {
-    console.log(this);
-    this.game.time.events.add(playerLifeTime, this.restartCoundown, this);
-}
-Player.prototype.restartCoundown = function () {
-    this.die();
-    this.game.time.events.add(playerDeathTime + playerRespawnedStoppedTime,
-        this.startCountdown, this);
+//Starts the countdown to finish life, false if just starting
+Player.prototype.restartCountdown = function (restarting) {
+    if (this.deathCallback !== undefined) this.game.time.events.remove(this.deathCallback);
+
+    var time = playerLifeTime;
+    if (restarting) time += playerRespawnedStoppedTime;
+
+    this.deathCallback = this.game.time.events.add(time, this.die, this);
+    // console.log("countdown", this.deathCallback);
 }
 
 
@@ -94,20 +110,23 @@ Player.prototype.restartCoundown = function () {
 Player.prototype.update = function () {
 
     this.checkFlames(); //bombable method
+
     //if dead or invencible already no need to check
     if (!this.dead && !this.invencible) this.checkEnemy();
-    // console.log(this)
-    //if dead somehow yo do nothing
+
+    //if dead somehow player does nothing
     if (!this.dead) {
         this.checkPowerUps();
         bodyVelocity = this.movementLogic();
         this.bombLogic();
 
-        if(bodyVelocity.x > 0){
+        if (this.invencible) this.invencibleAlpha();
+
+        if (bodyVelocity.x > 0) {
             // this.scale.setTo(this.tileData.Scale.x, this.tileData.Scale.y);
             this.animations.play("walking_right");
         }
-        else if (bodyVelocity.x < 0){
+        else if (bodyVelocity.x < 0) {
             // this.scale.setTo(this.tileData.Scale.x*-1, this.tileData.Scale.y);
             this.animations.play("walking_left");
         }
@@ -115,13 +134,28 @@ Player.prototype.update = function () {
             this.animations.play("walking_down");
         else if (bodyVelocity.y < 0)
             this.animations.play("walking_up");
-        else
-            {
-                this.animations.stop();
-                this.frame = this.stopped_frames;
-            }
+        else {
+            this.animations.stop();
+            this.frame = this.stopped_frames;
+        }
 
     }
+}
+
+//changes alpha to simulate being invulnerable
+Player.prototype.invencibleAlpha = function () {
+
+    var tStep = Math.sin(this.counterAngle);
+    // console.log(this.counterAngle/step);
+
+    this.counterAngle += step * alphaWavingSpeed;
+
+    //only positive sin (no negative alpha)
+    if (this.counterAngle >= (180 - playerInitialAlphaAngle) * step) {
+        this.counterAngle = playerInitialAlphaAngle * step;
+    }
+
+    this.alpha = tStep;
 }
 
 //checks for powerUps and takes them
@@ -149,9 +183,17 @@ Player.prototype.checkEnemy = function () {
 //adds points and lives if required
 Player.prototype.addPoints = function (pts) {
 
-    console.log(this.points, " + ", pts);
+    // console.log(this.points, " + ", pts);
     this.points += pts;
 
+    if (this.points >= playerExtraLifePoints) {
+        var n = this.points / (playerExtraLifePoints - this.points % playerExtraLifePoints);
+
+        if (n > this.extraLives) {
+            this.extraLives++;
+            this.lives++;
+        }
+    }
 }
 
 //reads inputs, fixes direction and then moves
@@ -193,27 +235,60 @@ Player.prototype.bombLogic = function () {
 
 
 //player concrete logic for die
-Player.prototype.die = function () {
-    console.log("checkin player die");
-    this.lives--;
+Player.prototype.die = function (flame) {
+    console.log("checkin player die", this.level.pvpMode);
+
     this.dead = true; //to disable movement
-    this.restartMovement();
 
-    this.game.time.events.add(playerDeathTime, this.respawn, this);
-
-    if (this.lives <= 0) {
-        console.log("P" + this.numPlayer + ", you ded (0 lives)");
+    if (flame !== undefined) {
+        if (flame.player === this) flame.player.selfKills++;
+        else flame.player.kills++;
     }
+    // console.log(this.kills, this.selfKills);
 
-    else this.game.time.events.add(playerDeathTime, flipInven, this);
+    if (!this.level.pvpMode) {
+        this.lives--;
+        this.restartMovement();
+        this.game.time.events.add(playerDeathTime, this.respawn, this);
+        if (this.lives <= 0) {
+            console.log("P" + this.numPlayer + ", you ded (0 lives)");
+        }
+    }
+    else this.pvpModeDeath();
+
+    this.game.time.events.add(playerDeathTime, flipInven, this);
     function flipInven() { this.tmpInven = false; }
 }
 
-//needs improvements, atm only moves the player
+//different behavior
+Player.prototype.pvpModeDeath = function () {
+
+    this.visible = false;
+
+    var alive = 0;
+    for (var i = 0; i < this.groups.player.children.length; i++) {
+        if ((this.groups.player.children[i] !== this) && (!this.groups.player.children[i].dead))
+            alive++;
+    }
+
+    if (alive <= 1) {
+        for (var i = 0; i < this.groups.player.children.length; i++) {
+            if (!this.groups.player.children[i].dead)
+                this.groups.player.children[i].wins++;
+        }
+        this.level.regenerateMap();
+    }
+
+}
+
+//Resets the player basically
 Player.prototype.respawn = function () {
     this.invencible = true;
     this.dead = true; //so he cannot move
+    this.visible = true;
+
     this.restartMovement(); //so it doesnt move inside walls
+    this.restartCountdown(true);
     this.position = new Point(this.respawnPos.x, this.respawnPos.y);
 
     //callback to make end player's invulnerability
@@ -233,6 +308,7 @@ Player.prototype.respawn = function () {
 Player.prototype.endInvencibility = function () {
     console.log("P" + this.numPlayer + " invencibility ended");
     this.invencible = false;
+    this.alpha = 1;
 }
 
 

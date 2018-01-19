@@ -1,7 +1,7 @@
 'use strict';
 
 var GameObject = require('../objects/gameObject.js');
-//var Physical = require('../objects/physical.js'); //no more needed
+var Physical = require('../objects/physical.js');
 var Bombable = require('../objects/bombable.js');
 var Enemy = require('../enemy/enemy.js');
 
@@ -29,12 +29,13 @@ var mapCooking = require('./mapCooking.js');
 
 var portalSound;
 
-function Map(game, worldNum, levelNum, groups, tileData, maxPlayers) {
+function Map(game, worldNum, levelNum, groups, tileData, maxPlayers, pvpMode) {
 
     this.game = game;
     this.groups = groups;
     this.tileData = tileData;
     this.maxPlayers = maxPlayers;
+    this.pvpMode = pvpMode;
 
     //Always same base map values
     this.cols = baseMapData.cols;
@@ -153,11 +154,11 @@ Map.prototype.buildMap = function (groups, tileData) {
 
                 case this.types.wallSP.value: //no special tile atm
                 case this.types.wall.value:
-                    // groups.wall.add(new Physical (this.game, squareIndexPos,
-                    //     this.types.wall.sprite, tileData.Scale, tileData.Res,
-                    //     defaultBodyOffset, defaultImmovable)); //no more needed
-                    groups.wall.add(new GameObject(this.game, squareIndexPos,
-                        this.types.wall.sprite, tileData.Scale));
+                    groups.wall.add(new Physical (this.game, squareIndexPos,
+                        this.types.wall.sprite, tileData.Scale, tileData.Res,
+                        defaultBodyOffset, defaultImmovable)); //no more needed
+                    // groups.wall.add(new GameObject(this.game, squareIndexPos,
+                    //     this.types.wall.sprite, tileData.Scale));
 
                     break;
             }
@@ -171,13 +172,13 @@ Map.prototype.buildMap = function (groups, tileData) {
             && bombableIdPowerUp.num === portalId.num);
 
         if (portal) //creates the portal too
-        { 
+        {
             groups.box.add(new Portal(this.game, this, groups,
             squareIndexPos, this.types.bombable.sprite, tileData,
             defaultBodyOffset, defaultImmovable,
             defaultBombableLives, defaultBombableInvencibleTime));
         }
-            
+
         return portal;
     }
 };

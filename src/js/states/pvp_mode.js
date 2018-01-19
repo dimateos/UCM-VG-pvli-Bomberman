@@ -1,5 +1,6 @@
 'use strict';
 const DEBUG = true;
+var pvpMode = true;
 
 var Point = require('../general/point.js');
 var globalControls = require('../general/globalControls.js');
@@ -63,13 +64,13 @@ var PlayScene = {
     //this.game.stage.backgroundColor = '#E80C94';
     if (DEBUG) this.startTime = Date.now(); //to calculate booting time
   },
-  
+
   toggleMute: function () { this.game.sound.mute = !this.game.sound.mute; },
-  
+
   moreVol: function () { if(music.volume < 1) music.volume += 0.1; },
-  
+
   lessVol: function () { if(music.volume > 0.2) music.volume -= 0.1; },
-  
+
   create: function () {
     //music
     music = this.game.add.audio('music');
@@ -81,12 +82,12 @@ var PlayScene = {
     HUDBomb = this.game.add.sprite(width/2, 10, 'bomb');
     HUDBomb.anchor.setTo(0.5, 0);
     HUDBomb.scale.setTo(1.2, 1.2);
-    
+
     HUDBombHead = this.game.add.sprite(60, 10, 'player_0', 8);
     HUDBombHead.scale.setTo(0.75, 0.75);
     HUD2_0 = this.game.add.sprite(35+HUDBombHead.position.x, -5, 'HUD2');
     HUD2_0.scale.setTo(0.75, 0.75);
-    
+
     HUDBombHead1 = this.game.add.sprite(HUDBomb.position.x - 150, 10, 'player_1', 8);
     HUDBombHead1.scale.setTo(0.75, 0.75);
     HUD2_1 = this.game.add.sprite(35+HUDBombHead1.position.x, -5, 'HUD2');
@@ -105,7 +106,7 @@ var PlayScene = {
     livesHUD = this.game.add.text(HUD2_0.position.x + 42, 15, "",
     { font: "45px Comic Sans MS", fill: "#f9e000", align: "center"});
     livesHUD.anchor.setTo(0.2, 0);
-    
+
     livesHUD1 = this.game.add.text(HUD2_1.position.x + 42, 15, "",
     { font: "45px Comic Sans MS", fill: "#f9e000", align: "center"});
     livesHUD1.anchor.setTo(0.2, 0);
@@ -118,7 +119,7 @@ var PlayScene = {
     livesHUD3 = this.game.add.text(HUD2_3.position.x + 42, 15, "",
     { font: "45px Comic Sans MS", fill: "#f9e000", align: "center"});
     livesHUD3.anchor.setTo(0.2, 0);
-    
+
     muteMusicButton = this.game.add.button(10, 40, 'unmuted', this.toggleMute, this);
     muteMusicButton.scale.setTo(0.1, 0.1);
     mutedMusicButton = this.game.add.button(10, 40, 'muted', this.toggleMute, this);
@@ -138,7 +139,7 @@ var PlayScene = {
 
     //map
     groups = new Groups(this.game); //first need the groups
-    level = new Map(this.game, initialMap.world, initialMap.level, groups, tileData, maxPlayers);
+    level = new Map(this.game, initialMap.world, initialMap.level, groups, tileData, maxPlayers, pvpMode);
 
     //global controls
     gInputs = new Inputs(this.game, -1);
@@ -157,10 +158,10 @@ var PlayScene = {
 
   update: function () {
 
-    livesHUD.text = players[0].lives;
-    livesHUD1.text = players[1].lives;
-    livesHUD2.text = players[2].lives;
-    livesHUD3.text = players[3].lives;
+    livesHUD.text = players[0].wins;
+    livesHUD1.text = players[1].wins;
+    livesHUD2.text = players[2].wins;
+    livesHUD3.text = players[3].wins;
 
     if(music.mute) muteMusicButton.visible = false;
     else   muteMusicButton.visible = true;
@@ -176,7 +177,7 @@ var PlayScene = {
   },
 
   paused: function () {
-    pauseMenu.pausedCreate(music, this.game);    
+    pauseMenu.pausedCreate(music, this.game);
   },
 
   resumed: function () {

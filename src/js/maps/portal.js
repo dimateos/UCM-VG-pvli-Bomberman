@@ -17,13 +17,14 @@ var portalSpawnTimer = 1500; //cooldown to spawn enemies
 
 var portalSound;
 
-function Portal (game, level, groups, position, sprite, tileData, bodyOffSet, immovable, lives, invencibleTime) {
+function Portal(game, level, groups, position, sprite, tileData, bodyOffSet, immovable, lives, invencibleTime) {
 
     //var portalPosition = position.add(portalExtraOffset.x, portalExtraOffset.y);
 
     //var portalBodySize = new Point(bodySize.x/2, bodySize.y/2); //so you get to the center
     //var bodyOffSet = portalBodySize; //the half too
     this.tileData = tileData;
+    this.level = level;
 
     Bombable.call(this, game, level, groups, position, sprite,
         this.tileData.Scale, this.tileData.Res, bodyOffSet, immovable,
@@ -32,6 +33,7 @@ function Portal (game, level, groups, position, sprite, tileData, bodyOffSet, im
     this.animations.add("darken");
 
     this.spawned = false;
+    this.loadNext = false;
 
     this.portalSound = game.add.audio('portal');
 }
@@ -40,19 +42,21 @@ Portal.prototype = Object.create(Bombable.prototype);
 Portal.prototype.constructor = Portal;
 
 
-Portal.prototype.update = function() {
+Portal.prototype.update = function () {
     this.checkFlames(); //player and bomb rewrite (extend) update
 
     if (this.spawned) {
-        this.rotation+= portalSpinVel;
+        this.rotation += portalSpinVel;
 
-        if (this.groups.enemy.children.length === 0)
+        if (this.groups.enemy.children.length === 0) {
             this.game.physics.arcade.overlap(this, this.groups.player, nextLevel);
+            if (this.loadNext) this.level.generateNextMap();
+        }
     }
 
     function nextLevel(portal, player) {
+        portal.loadNext = true;
         portal.portalSound.stop();
-        player.level.generateNextMap();
     }
 }
 
@@ -60,7 +64,7 @@ Portal.prototype.update = function() {
 Portal.prototype.die = function () {
     //console.log("checkin die");
 
-    if (this.spawned) this.game.time.events.add(portalBombTimer+5, this.spawnEnemie, this);
+    if (this.spawned) this.game.time.events.add(portalBombTimer + 5, this.spawnEnemie, this);
 
     else {
         this.lives--;
@@ -68,12 +72,12 @@ Portal.prototype.die = function () {
         if (this.lives <= 0) //spawn the portal
         {
             this.animations.play("darken", 15);
-            this.game.time.events.add(portalBombTimer+5, this.spawnPortal, this);
+            this.game.time.events.add(portalBombTimer + 5, this.spawnPortal, this);
         }
     }
     this.game.time.events.add(portalSpawnTimer, flipInven, this);
 
-    function flipInven () { this.tmpInven = false; }
+    function flipInven() { this.tmpInven = false; }
 }
 
 //switches the box into the portal
@@ -85,13 +89,13 @@ Portal.prototype.spawnPortal = function () {
 
     this.body.width /= 2; //changes its body (smaller)
     this.body.height /= 2;
-    this.body.offset = new Point (
-        this.body.width*this.tileData.Scale.y,
-        this.body.height*this.tileData.Scale.x);
+    this.body.offset = new Point(
+        this.body.width * this.tileData.Scale.y,
+        this.body.height * this.tileData.Scale.x);
 
-    this.position = new Point ( //moves and anchors to rotate
-        this.body.position.x+this.body.width,
-        this.body.position.y+this.body.height);
+    this.position = new Point( //moves and anchors to rotate
+        this.body.position.x + this.body.width,
+        this.body.position.y + this.body.height);
     this.anchor.setTo(0.5, 0.5);
 
     this.portalSound.loopFull(0.3);
@@ -104,10 +108,10 @@ Portal.prototype.spawnEnemie = function () {
     //console.log(this.groups.enemy.children);
 
     var enemyPos = new Point(
-        this.position.x-this.body.width, //corrects the anchor
-        this.position.y-this.body.height);
+        this.position.x - this.body.width, //corrects the anchor
+        this.position.y - this.body.height);
 
-    this.groups.enemy.add(new Enemy (this.game, enemyPos,
+    this.groups.enemy.add(new Enemy(this.game, enemyPos,
         this.level, defaultEnemyType, this.tileData, this.groups, portalDropId));
 }
 
