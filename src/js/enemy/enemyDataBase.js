@@ -22,7 +22,7 @@ var enemyDataBase = [
     },
     {
         lives: 1,
-        velocity: basicVelocity*1.1,
+        velocity: basicVelocity*1.25,
         pts: 200,
         bodySize: new Point(42, 42),
         bodyOffset: new Point(10, 10),

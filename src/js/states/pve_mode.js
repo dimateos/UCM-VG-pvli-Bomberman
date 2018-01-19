@@ -1,5 +1,6 @@
 'use strict';
 const DEBUG = true;
+var pvpMode = false;
 
 var Point = require('../general/point.js');
 var globalControls = require('../general/globalControls.js');
@@ -146,7 +147,7 @@ var PlayScene = {
 
     //map
     groups = new Groups(this.game); //first need the groups
-    level = new Map(this.game, initialMap.world, initialMap.level, groups, tileData, maxPlayers);
+    level = new Map(this.game, initialMap.world, initialMap.level, groups, tileData, maxPlayers, pvpMode);
 
     //global controls
     gInputs = new Inputs(this.game, -1);

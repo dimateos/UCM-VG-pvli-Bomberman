@@ -29,12 +29,13 @@ var mapCooking = require('./mapCooking.js');
 
 var portalSound;
 
-function Map(game, worldNum, levelNum, groups, tileData, maxPlayers) {
+function Map(game, worldNum, levelNum, groups, tileData, maxPlayers, pvpMode) {
 
     this.game = game;
     this.groups = groups;
     this.tileData = tileData;
     this.maxPlayers = maxPlayers;
+    this.pvpMode = pvpMode;
 
     //Always same base map values
     this.cols = baseMapData.cols;
