@@ -9,7 +9,7 @@ body {
   font-family: Courier, 'Courier New', monospace;
   font-size: 1.6rem;
   background: rgb(78, 129, 93);
-  color: #000;
+  color: white;
   background-image: url(aaa.gif);
   background-size: cover;
   /* background-image: url(arcade-machine.png); */
