@@ -20,7 +20,7 @@ var globalControls = {
 
             //even use its constructor to create the new  player
             players.push(new pSample.constructor(pSample.game, pSample.level,
-                players.length, pSample.tileData, pSample.groups))
+                players.length, pSample.tileData, pSample.groups, pSample.hudVidas))
 
             //adapt the new player's lives
             players[players.length - 1].lives = pSample.lives;

@@ -15,7 +15,7 @@ var Inputs = require('../general/inputs.js');
 var gInputs; //global inputs
 
 var Player = require('../player/player.js');
-var players = []; //2 max for this mode but meh
+var players = [];
 var initialPlayers = 4;
 var maxPlayers = 4; //needed for the map generation
 
