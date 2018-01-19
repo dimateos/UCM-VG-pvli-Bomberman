@@ -46,6 +46,12 @@ function Map(game, worldNum, levelNum, groups, tileData, maxPlayers, pvpMode) {
     this.generateMap(worldNum, levelNum);
 };
 
+//only used in pvp
+Map.prototype.battleRoyale = function () {
+console.log("lul");
+}
+
+
 //gets data of specified map from levelsDataBase and then cooks+build
 Map.prototype.generateMap = function (worldNum, levelNum) {
 

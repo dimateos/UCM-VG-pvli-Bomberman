@@ -39,6 +39,10 @@ var playerInitialAlphaAngle = 30; //sin(playerInitialAlphaAnlge) -> alpha
 var alphaWavingSpeed = 1.75;
 var hudAnimSpeed = 1/8; //1/18 is the correct
 
+const debugPosX = 40;
+const debugPosY = 600 - 96;
+const debugColor = "yellow";
+
 function Player(game, level, numPlayer, tileData, groups, hudVidas) {
 
     this.numPlayer = numPlayer;
@@ -249,8 +253,14 @@ Player.prototype.die = function (flame) {
     this.dead = true; //to disable movement
 
     if (flame !== undefined && flame !== this.hudVidas[this.numPlayer]) {
-        if (flame.player === this) flame.player.selfKills++;
-        else flame.player.kills++;
+        if (flame.player !== this) flame.player.kills++;
+        else {
+            flame.player.selfKills++; //for the show
+            this.game.debug.text(" LOL", debugPosX, debugPosY, debugColor);
+            this.game.time.events.add(playerInvencibleTime, function reset () {this.debug.reset();}, this.game);
+
+            this.level.battleRoyale();
+        }
     }
     // console.log(this.kills, this.selfKills);
 
