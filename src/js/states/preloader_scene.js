@@ -17,7 +17,7 @@ var PreloaderScene = {
         //this.game.load.image('logo', 'images/readme/arena.png');
 
         for (var numPlayers = 0; numPlayers < 4; numPlayers++){
-            this.game.load.spritesheet('player_'+numPlayers, 'images/Sprites/Bomberman/Bomb0'+numPlayers+'.png', 64, 86);
+            this.game.load.spritesheet('player_'+numPlayers, 'images/Sprites/Bomberman/Bomb0'+numPlayers+'+Exploding.png', 64, 86);
             this.game.load.spritesheet('player_'+numPlayers+'Clock', 'images/Sprites/Bomberman/Bman_'+numPlayers+'Clock.png', 47, 88)            
         }
         this.game.load.image('background', 'images/Sprites/Blocks/BackgroundTile.png');
