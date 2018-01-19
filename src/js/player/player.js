@@ -74,6 +74,11 @@ function Player(game, level, numPlayer, tileData, groups, hudVidas) {
     this.animations.add("walking_up", [0, 1, 2, 3, 4, 5, 6, 7], 10, true);
     this.animations.add("walking_down", [8, 9, 10, 11, 12, 13, 14, 15], 10, true);
 
+    this.animations.add("dying", [33, 34, 35, 36, 37], 10);
+    this.animations.add("spawn", [8], 15);
+
+    this.animations.play("spawn");
+
     this.restartMovement();
 
     this.tileData = tileData;
@@ -252,6 +257,8 @@ Player.prototype.die = function (flame) {
 
     this.dead = true; //to disable movement
 
+    this.animations.play("dying");
+
     if (flame !== undefined && flame !== this.hudVidas[this.numPlayer]) {
         if (flame.player !== this) flame.player.kills++;
         else {
@@ -304,6 +311,8 @@ Player.prototype.respawn = function () {
     this.invencible = true;
     this.dead = true; //so he cannot move
     this.visible = true;
+
+    this.animations.play("spawn");
 
     this.restartMovement(); //so it doesnt move inside walls
     this.restartCountdown(true);

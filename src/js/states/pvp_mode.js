@@ -172,6 +172,12 @@ var PlayScene = {
     if(!music.mute) mutedMusicButton.visible = false;
     else mutedMusicButton.visible = true;
 
+    // for(var i = 0; i<players.length; i++){
+    //   if(players.[i].wins > 1){
+
+    //   }
+    // }
+
     this.game.world.bringToTop(groups.flame);
     this.game.world.bringToTop(groups.player); //array doesnt work
 
