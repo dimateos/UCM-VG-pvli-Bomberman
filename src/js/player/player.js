@@ -29,6 +29,7 @@ var playerLifeTime = 60 * 3 * 1000;
 
 var Id = Identifiable.Id; //the mini factory is in Identifiable
 var playerInitialModsIds = [/*new Id(1,2), new Id(1, 1), new Id(1,0)*/];
+var playerPVPModsIds = [new Id(1,2), new Id(1, 1)];
 var playerMovAndInputs = require('./playerMovAndInputs.js'); //big chunk of code
 
 var bodyVelocity;
@@ -36,13 +37,22 @@ var bodyVelocity;
 var step = Math.PI * 2 / 360; //degrees
 var playerInitialAlphaAngle = 30; //sin(playerInitialAlphaAnlge) -> alpha
 var alphaWavingSpeed = 1.75;
+var hudAnimSpeed = 1/8; //1/18 is the correct
 
+const debugPosX = 40;
+const debugPosY = 600 - 96;
+const debugColor = "yellow";
 
-function Player(game, level, numPlayer, tileData, groups) {
+function Player(game, level, numPlayer, tileData, groups, hudVidas) {
 
     this.numPlayer = numPlayer;
     this.points = 0;
     this.extraLives = 0;
+
+    this.hudVidas = hudVidas;
+    this.hudVidaAnim = hudVidas[numPlayer].animations.add('Clock');
+    this.hudVidaAnim.play(hudAnimSpeed, true);
+    this.hudVidaAnim.onLoop.add(this.die, this, 0, 0);
 
     this.wins = 0; //for pvp
     this.selfKills = 0;
@@ -105,6 +115,8 @@ Player.prototype.restartCountdown = function (restarting) {
 
     var time = playerLifeTime;
     if (restarting) time += playerRespawnedStoppedTime;
+
+    this.hudVidaAnim.restart();
 
     this.deathCallback = this.game.time.events.add(time, this.die, this);
     // console.log("countdown", this.deathCallback);
@@ -247,9 +259,15 @@ Player.prototype.die = function (flame) {
 
     this.animations.play("dying");
 
-    if (flame !== undefined) {
-        if (flame.player === this) flame.player.selfKills++;
-        else flame.player.kills++;
+    if (flame !== undefined && flame !== this.hudVidas[this.numPlayer]) {
+        if (flame.player !== this) flame.player.kills++;
+        else {
+            flame.player.selfKills++; //for the show
+            this.game.debug.text(" LOL", debugPosX, debugPosY, debugColor);
+            this.game.time.events.add(playerInvencibleTime, function reset () {this.debug.reset();}, this.game);
+
+            this.level.battleRoyale();
+        }
     }
     // console.log(this.kills, this.selfKills);
 

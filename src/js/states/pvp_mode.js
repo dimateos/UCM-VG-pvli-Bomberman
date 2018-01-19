@@ -15,7 +15,7 @@ var Inputs = require('../general/inputs.js');
 var gInputs; //global inputs
 
 var Player = require('../player/player.js');
-var players = []; //2 max for this mode but meh
+var players = [];
 var initialPlayers = 4;
 var maxPlayers = 4; //needed for the map generation
 
@@ -32,6 +32,7 @@ var HUDBombHead;
 var HUDBombHead1;
 var HUDBombHead2;
 var HUDBombHead3;
+var HUDBombHeadArray = [];
 var HUD2_0;
 var HUD2_1;
 var HUD2_2;
@@ -83,22 +84,22 @@ var PlayScene = {
     HUDBomb.anchor.setTo(0.5, 0);
     HUDBomb.scale.setTo(1.2, 1.2);
 
-    HUDBombHead = this.game.add.sprite(60, 10, 'player_0', 8);
+    HUDBombHead = this.game.add.sprite(60, 10, 'player_0Clock', 8);
     HUDBombHead.scale.setTo(0.75, 0.75);
     HUD2_0 = this.game.add.sprite(35+HUDBombHead.position.x, -5, 'HUD2');
     HUD2_0.scale.setTo(0.75, 0.75);
 
-    HUDBombHead1 = this.game.add.sprite(HUDBomb.position.x - 150, 10, 'player_1', 8);
+    HUDBombHead1 = this.game.add.sprite(HUDBomb.position.x - 150, 10, 'player_1Clock', 8);
     HUDBombHead1.scale.setTo(0.75, 0.75);
     HUD2_1 = this.game.add.sprite(35+HUDBombHead1.position.x, -5, 'HUD2');
     HUD2_1.scale.setTo(0.75, 0.75);
 
-    HUDBombHead2 = this.game.add.sprite(HUDBomb.position.x + 60, 10, 'player_2', 8);
+    HUDBombHead2 = this.game.add.sprite(HUDBomb.position.x + 60, 10, 'player_2Clock', 8);
     HUDBombHead2.scale.setTo(0.75, 0.75);
     HUD2_2 = this.game.add.sprite(35+HUDBombHead2.position.x, -5, 'HUD2');
     HUD2_2.scale.setTo(0.75, 0.75);
 
-    HUDBombHead3 = this.game.add.sprite(HUDBomb.position.x + 240, 10, 'player_3', 8);
+    HUDBombHead3 = this.game.add.sprite(HUDBomb.position.x + 240, 10, 'player_3Clock', 8);
     HUDBombHead3.scale.setTo(0.75, 0.75);
     HUD2_3 = this.game.add.sprite(35+HUDBombHead3.position.x, -5, 'HUD2');
     HUD2_3.scale.setTo(0.75, 0.75);
@@ -145,8 +146,9 @@ var PlayScene = {
     gInputs = new Inputs(this.game, -1);
 
     //player/s (initialPlayers)
+    HUDBombHeadArray = [HUDBombHead, HUDBombHead1, HUDBombHead2, HUDBombHead3];
     for (var numPlayer = 0; numPlayer < initialPlayers; numPlayer++)
-      players.push(new Player(this.game, level, numPlayer, tileData, groups));
+      players.push(new Player(this.game, level, numPlayer, tileData, groups, HUDBombHeadArray));
 
     if (DEBUG) {
       console.log("Loaded...", Date.now() - this.startTime, "ms");
@@ -157,6 +159,8 @@ var PlayScene = {
   },
 
   update: function () {
+
+    //level.battleRoyale();
 
     livesHUD.text = players[0].wins;
     livesHUD1.text = players[1].wins;

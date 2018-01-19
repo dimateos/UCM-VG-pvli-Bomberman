@@ -42,15 +42,12 @@ var pointsHUD1;
 var HUDBg;
 var HUDPoints;
 var HUDPoints1;
-var HUDBombHead;
-var HUDBombHead1;
+var HUDBombHead = [];
 var HUD2_0;
 var HUD2_1;
 var HUDBomb;
 var HUDPressX;
 
-var HUDanim0;
-var HUDanim1;
 var ffAnim = false;
 
 var muteMusicButton;
@@ -75,8 +72,6 @@ var PlayScene = {
 
   lessVol: function () { if(music.volume > 0.2) music.volume -= 0.1; },
 
-  loseLife: function (pl) { players[pl].die(); },
-
   create: function () {
     //music
     music = this.game.add.audio('music');
@@ -87,9 +82,9 @@ var PlayScene = {
     //menu stuff
     HUDBg = this.game.add.sprite(0, 0, 'HUDBg');
 
-    HUDBombHead = this.game.add.sprite(60, 10, 'player_0Clock');
-    HUDBombHead.scale.setTo(0.75, 0.75);
-    HUD2_0 = this.game.add.sprite(35+HUDBombHead.position.x, -5, 'HUD2');
+    HUDBombHead[0] = this.game.add.sprite(60, 10, 'player_0Clock');
+    HUDBombHead[0].scale.setTo(0.75, 0.75);
+    HUD2_0 = this.game.add.sprite(35+HUDBombHead[0].position.x, -5, 'HUD2');
     HUD2_0.scale.setTo(0.75, 0.75);
     HUDPoints = this.game.add.sprite(160, -10, 'HUDPoints');
     HUDPoints.scale.setTo(0.5, 0.75);
@@ -98,9 +93,9 @@ var PlayScene = {
     HUDBomb.anchor.setTo(0.5, 0);
     HUDBomb.scale.setTo(1.2, 1.2);
 
-    HUDBombHead1 = this.game.add.sprite(HUDBomb.position.x + 60, 10, 'player_1Clock');
-    HUDBombHead1.scale.setTo(0.75, 0.75);
-    HUD2_1 = this.game.add.sprite(35+HUDBombHead1.position.x, -5, 'HUD2');
+    HUDBombHead[1] = this.game.add.sprite(HUDBomb.position.x + 60, 10, 'player_1Clock');
+    HUDBombHead[1].scale.setTo(0.75, 0.75);
+    HUD2_1 = this.game.add.sprite(35+HUDBombHead[1].position.x, -5, 'HUD2');
     HUD2_1.scale.setTo(0.75, 0.75);
     HUDPoints1 = this.game.add.sprite(565, -10, 'HUDPoints');
     HUDPoints1.scale.setTo(0.5, 0.75);
@@ -126,12 +121,6 @@ var PlayScene = {
     HUDPressX.scale.setTo(0.75, 0.75);
     // HUDPressX.visible = false;
 
-    HUDanim0 = HUDBombHead.animations.add('Clock');
-    HUDanim0.play(1/18, true);
-    HUDanim0.onLoop.add(this.loseLife, this, 0, 0);
-    HUDanim1 = HUDBombHead1.animations.add('Clock');
-
-
     muteMusicButton = this.game.add.button(10, 40, 'unmuted', this.toggleMute, this);
     muteMusicButton.scale.setTo(0.1, 0.1);
     mutedMusicButton = this.game.add.button(10, 40, 'muted', this.toggleMute, this);
@@ -156,7 +145,7 @@ var PlayScene = {
     //player/s (initialPlayers)
     players = [];
     for (var numPlayer = 0; numPlayer < initialPlayers; numPlayer++) {
-      players.push(new Player(this.game, level, numPlayer, tileData, groups));
+      players.push(new Player(this.game, level, numPlayer, tileData, groups, HUDBombHead));
       players[numPlayer].restartCountdown(false);
     }
 
@@ -196,11 +185,6 @@ var PlayScene = {
       }
       livesHUD1.text = players[1].lives;
       pointsHUD1.text = players[1].points;
-
-      if(!HUDanim1.isPlaying){
-        HUDanim1.play(1/18, true);
-        HUDanim1.onLoop.add(this.loseLife, this, 0, 1);
-      }
     }
 
     if(music.mute) muteMusicButton.visible = false;
