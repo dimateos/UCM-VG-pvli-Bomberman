@@ -1990,7 +1990,7 @@ var bodyVelocity;
 var step = Math.PI * 2 / 360; //degrees
 var playerInitialAlphaAngle = 30; //sin(playerInitialAlphaAnlge) -> alpha
 var alphaWavingSpeed = 1.75;
-var hudAnimSpeed = 1 / 8; //1/18 is the correct
+var hudAnimSpeed = 1 / 18; //1/18 is the correct
 
 const debugPosX = 40;
 const debugPosY = 600 - 96;
