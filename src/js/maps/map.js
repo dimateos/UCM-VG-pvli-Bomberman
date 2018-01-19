@@ -35,7 +35,9 @@ function Map(game, worldNum, levelNum, groups, tileData, maxPlayers, pvpMode) {
     this.groups = groups;
     this.tileData = tileData;
     this.maxPlayers = maxPlayers;
+
     this.pvpMode = pvpMode;
+    this.deathZoneExpansion = 0;
 
     //Always same base map values
     this.cols = baseMapData.cols;
@@ -48,7 +50,31 @@ function Map(game, worldNum, levelNum, groups, tileData, maxPlayers, pvpMode) {
 
 //only used in pvp
 Map.prototype.battleRoyale = function () {
-console.log("lul");
+
+    for (var col = this.deathZoneExpansion; col < this.map[0].length-this.deathZoneExpansion; col++) {
+        var squareIndexPos = new Point(col, this.deathZoneExpansion).applyTileData(this.tileData);
+        this.groups.flame.add((new GameObject(this.game, squareIndexPos,
+            "flame", this.tileData.Scale)));
+    }
+    for (var col = this.deathZoneExpansion; col < this.map[0].length-this.deathZoneExpansion; col++) {
+        var squareIndexPos = new Point(col, this.map.length-1-this.deathZoneExpansion).applyTileData(this.tileData);
+        this.groups.flame.add((new GameObject(this.game, squareIndexPos,
+            "flame", this.tileData.Scale)));
+    }
+
+    for (var fil = 1+this.deathZoneExpansion; fil < this.map.length-1-this.deathZoneExpansion; fil++) {
+        var squareIndexPos = new Point(this.deathZoneExpansion, fil).applyTileData(this.tileData);
+        this.groups.flame.add((new GameObject(this.game, squareIndexPos,
+            "flame", this.tileData.Scale)));
+    }
+
+    for (var fil = 1+this.deathZoneExpansion; fil < this.map.length-1-this.deathZoneExpansion; fil++) {
+        var squareIndexPos = new Point(this.map[0].length-1-this.deathZoneExpansion, fil).applyTileData(this.tileData);
+        this.groups.flame.add((new GameObject(this.game, squareIndexPos,
+            "flame", this.tileData.Scale)));
+    }
+
+    this.deathZoneExpansion++;
 }
 
 
@@ -160,7 +186,8 @@ Map.prototype.buildMap = function (groups, tileData) {
 
                 case this.types.wallSP.value: //no special tile atm
                 case this.types.wall.value:
-                    groups.wall.add(new Physical (this.game, squareIndexPos,
+
+                    groups.wall.add(new Physical(this.game, squareIndexPos,
                         this.types.wall.sprite, tileData.Scale, tileData.Res,
                         defaultBodyOffset, defaultImmovable)); //no more needed
                     // groups.wall.add(new GameObject(this.game, squareIndexPos,
@@ -180,9 +207,9 @@ Map.prototype.buildMap = function (groups, tileData) {
         if (portal) //creates the portal too
         {
             groups.box.add(new Portal(this.game, this, groups,
-            squareIndexPos, this.types.bombable.sprite, tileData,
-            defaultBodyOffset, defaultImmovable,
-            defaultBombableLives, defaultBombableInvencibleTime));
+                squareIndexPos, this.types.bombable.sprite, tileData,
+                defaultBodyOffset, defaultImmovable,
+                defaultBombableLives, defaultBombableInvencibleTime));
         }
 
         return portal;
