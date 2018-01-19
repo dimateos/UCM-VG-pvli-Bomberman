@@ -56,7 +56,7 @@ var lessVolButton;
 var moreVolButton;
 
 var TwoPlayers = false;
-
+var deathCount = 0;
 
 
 var PlayScene = {
@@ -68,9 +68,9 @@ var PlayScene = {
 
   toggleMute: function () { this.game.sound.mute = !this.game.sound.mute; },
 
-  moreVol: function () { if(music.volume < 1) music.volume += 0.1; },
+  moreVol: function () { if(this.game.sound.volume < 1) this.game.sound.volume += 0.1; },
 
-  lessVol: function () { if(music.volume > 0.2) music.volume -= 0.1; },
+  lessVol: function () { if(this.game.sound.volume > 0.2) this.game.sound.volume -= 0.1; },
 
   create: function () {
     //music
@@ -86,8 +86,8 @@ var PlayScene = {
     HUDBombHead[0].scale.setTo(0.75, 0.75);
     HUD2_0 = this.game.add.sprite(35+HUDBombHead[0].position.x, -5, 'HUD2');
     HUD2_0.scale.setTo(0.75, 0.75);
-    HUDPoints = this.game.add.sprite(160, -10, 'HUDPoints');
-    HUDPoints.scale.setTo(0.5, 0.75);
+    HUDPoints = this.game.add.sprite(170, -5, 'HUDPoints');
+    HUDPoints.scale.setTo(0.45, 0.7);
 
     HUDBomb = this.game.add.sprite(width/2, 10, 'bomb');
     HUDBomb.anchor.setTo(0.5, 0);
@@ -97,27 +97,27 @@ var PlayScene = {
     HUDBombHead[1].scale.setTo(0.75, 0.75);
     HUD2_1 = this.game.add.sprite(35+HUDBombHead[1].position.x, -5, 'HUD2');
     HUD2_1.scale.setTo(0.75, 0.75);
-    HUDPoints1 = this.game.add.sprite(565, -10, 'HUDPoints');
-    HUDPoints1.scale.setTo(0.5, 0.75);
+    HUDPoints1 = this.game.add.sprite(575, -5, 'HUDPoints');
+    HUDPoints1.scale.setTo(0.45, 0.7);
     HUDPoints1.visible = false;
 
     livesHUD = this.game.add.text(HUD2_0.position.x + 42, 15, "",
     { font: "45px Comic Sans MS", fill: "#f9e000", align: "center"});
     livesHUD.anchor.setTo(0.2, 0);
-    pointsHUD = this.game.add.text(HUDPoints.position.x + 135, 12, "",
-    { font: "40px Comic Sans MS", fill: "#f9e000", align: "center"});
+    pointsHUD = this.game.add.text(HUDPoints.position.x + 133, 22, "",
+    { font: "35px Comic Sans MS", fill: "#f9e000", align: "center" });
     pointsHUD.anchor.setTo(0.2, 0);
 
     livesHUD1 = this.game.add.text(HUD2_1.position.x + 42, 15, "",
     { font: "45px Comic Sans MS", fill: "#f9e000", align: "center"});
     livesHUD1.anchor.setTo(0.2, 0);
     livesHUD1.visible = false;
-    pointsHUD1 = this.game.add.text(HUDPoints1.position.x + 135, 12, "",
-    { font: "45px Comic Sans MS", fill: "#f9e000", align: "center"});
+    pointsHUD1 = this.game.add.text(HUDPoints1.position.x + 133, 22, "",
+    { font: "35px Comic Sans MS", fill: "#f9e000", align: "center"});
     pointsHUD1.anchor.setTo(0.2, 0);
     pointsHUD1.visible = false;
 
-    HUDPressX = this.game.add.sprite(HUD2_1.position.x, 0, 'HUDPressX');
+    HUDPressX = this.game.add.sprite(HUD2_1.position.x, -10, 'HUDPressX');
     HUDPressX.scale.setTo(0.75, 0.75);
     // HUDPressX.visible = false;
 
@@ -158,8 +158,28 @@ var PlayScene = {
 
   },
 
+  goToMainMenu: function (){ this.game.state.start('mainMenu'); },
+
+  gmOver: function (){
+     // var gmOverBg = this.game.add.sprite(0, 0, 'mMenuBG');
+      var gmOverSign = this.game.add.sprite(width/2, height/2, 'gameOver');
+      gmOverSign.anchor.setTo(0.5, 0.5);
+      var goToMenu = this.game.add.button(width, height,
+        'quitToMenu', this.goToMainMenu, this);
+      goToMenu.anchor.setTo(1, 1);
+  },
+
 
   update: function () {
+    console.log(deathCount);
+    for(var i = 0; i < players.length; i++){
+      if(players[i].lives <= 0 && deathCount<players.length)
+        deathCount++;
+    }
+    
+    if(deathCount === players.length){
+        this.gmOver();
+    }
 
     //No longer needed
     this.game.physics.arcade.collide(groups.player, groups.wall);
@@ -216,7 +236,6 @@ var PlayScene = {
       groups.drawDebug(this.game);
       this.game.debug.bodyInfo(players[0], debugPos.x, debugPos.y, debugColor);
     }
-
   },
 };
 
