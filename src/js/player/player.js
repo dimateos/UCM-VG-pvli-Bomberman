@@ -13,7 +13,7 @@ var playerSpritePath = 'player_'; //partial, to complete with numPlayer
 // var playerBodySize = new Point(48, 48); //little smaller
 // var playerBodyOffset = new Point(0, 40);
 var playerBodySize = new Point(40, 32); //little smaller
-var playerBodyOffset = new Point(3, 48);
+var playerBodyOffset = new Point(6, 48);
 var playerExtraOffset = new Point(6, -20); //reaquired because player body is not full res
 
 var playerImmovable = false;
@@ -24,7 +24,7 @@ var playerNumBombs = 1;
 var playerInvencibleTime = 5000;
 var playerRespawnedStoppedTime = 1000;
 var playerDeathTime = 1500;
-var playerLifeTime = 3*60*1000;
+var playerLifeTime = 60*3*1000;
 
 var Id = Identifiable.Id; //the mini factory is in Identifiable
 var playerInitialModsIds = [/*new Id(1,2), new Id(1, 1), new Id(1,0)*/];
@@ -46,7 +46,7 @@ function Player(game, level, numPlayer, tileData, groups) {
         tileData.Scale, playerBodySize, playerBodyOffset, playerImmovable, playerLives, playerInvencibleTime);
 
     // this.anchor.setTo(0.3, 0);
-    
+
     this.animations.add("walking_left", [24, 25, 26, 27, 28, 30, 31, 32], 10, true);
     this.animations.add("walking_right", [16, 17, 18, 19, 20, 21, 22, 23], 10, true);
     this.animations.add("walking_up", [0, 1, 2, 3, 4, 5, 6, 7], 10, true);
@@ -63,6 +63,8 @@ function Player(game, level, numPlayer, tileData, groups) {
     this.mods = [];
     this.bombMods = [];
     Identifiable.addPowerUps(playerInitialModsIds, this);
+
+    this.deathCallback = undefined;
 };
 
 Player.prototype = Object.create(Bombable.prototype);
@@ -78,15 +80,15 @@ Player.prototype.restartMovement = function () {
     this.body.velocity = new Point();
 }
 
-//Starts the countdown to finish life
-Player.prototype.startCountdown = function () {
-    console.log(this);
-    this.game.time.events.add(playerLifeTime, this.restartCoundown, this);
-}
-Player.prototype.restartCoundown = function () {
-    this.die();
-    this.game.time.events.add(playerDeathTime + playerRespawnedStoppedTime,
-        this.startCountdown, this);
+//Starts the countdown to finish life, false if just starting
+Player.prototype.restartCountdown = function (restarting) {
+    if (this.deathCallback !== undefined) this.game.time.events.remove(this.deathCallback);
+
+    var time = playerLifeTime;
+    if (restarting) time+= playerRespawnedStoppedTime;
+
+    this.deathCallback = this.game.time.events.add(time, this.die, this);
+    console.log("countdown", this.deathCallback);
 }
 
 
@@ -214,6 +216,7 @@ Player.prototype.respawn = function () {
     this.invencible = true;
     this.dead = true; //so he cannot move
     this.restartMovement(); //so it doesnt move inside walls
+    this.restartCountdown(true);
     this.position = new Point(this.respawnPos.x, this.respawnPos.y);
 
     //callback to make end player's invulnerability

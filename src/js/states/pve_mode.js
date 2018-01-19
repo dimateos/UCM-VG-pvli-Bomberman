@@ -81,22 +81,22 @@ var PlayScene = {
     music = this.game.add.audio('music');
     music.loopFull(0.4); //la pauso que me morido quedo loco
     this.game.sound.mute = true;
-    
-    
+
+
     //menu stuff
     HUDBg = this.game.add.sprite(0, 0, 'HUDBg');
-    
+
     HUDBombHead = this.game.add.sprite(60, 10, 'player_0Clock');
     HUDBombHead.scale.setTo(0.75, 0.75);
     HUD2_0 = this.game.add.sprite(35+HUDBombHead.position.x, -5, 'HUD2');
     HUD2_0.scale.setTo(0.75, 0.75);
     HUDPoints = this.game.add.sprite(160, -10, 'HUDPoints');
     HUDPoints.scale.setTo(0.5, 0.75);
-    
+
     HUDBomb = this.game.add.sprite(width/2, 10, 'bomb');
     HUDBomb.anchor.setTo(0.5, 0);
     HUDBomb.scale.setTo(1.2, 1.2);
-    
+
     HUDBombHead1 = this.game.add.sprite(HUDBomb.position.x + 60, 10, 'player_1Clock');
     HUDBombHead1.scale.setTo(0.75, 0.75);
     HUD2_1 = this.game.add.sprite(35+HUDBombHead1.position.x, -5, 'HUD2');
@@ -104,14 +104,14 @@ var PlayScene = {
     HUDPoints1 = this.game.add.sprite(565, -10, 'HUDPoints');
     HUDPoints1.scale.setTo(0.5, 0.75);
     HUDPoints1.visible = false;
-    
+
     livesHUD = this.game.add.text(HUD2_0.position.x + 42, 15, "",
     { font: "45px Comic Sans MS", fill: "#f9e000", align: "center"});
     livesHUD.anchor.setTo(0.2, 0);
     pointsHUD = this.game.add.text(HUDPoints.position.x + 135, 12, "",
     { font: "45px Comic Sans MS", fill: "#f9e000", align: "left"});
     pointsHUD.anchor.setTo(0.2, 0);
-    
+
     livesHUD1 = this.game.add.text(HUD2_1.position.x + 42, 15, "",
     { font: "45px Comic Sans MS", fill: "#f9e000", align: "center"});
     livesHUD1.anchor.setTo(0.2, 0);
@@ -120,30 +120,30 @@ var PlayScene = {
     { font: "45px Comic Sans MS", fill: "#f9e000", align: "center"});
     pointsHUD1.anchor.setTo(0.2, 0);
     pointsHUD1.visible = false;
-    
+
     HUDPressX = this.game.add.sprite(HUD2_1.position.x, 0, 'HUDPressX');
     HUDPressX.scale.setTo(0.75, 0.75);
     // HUDPressX.visible = false;
-    
+
     HUDanim0 = HUDBombHead.animations.add('Clock');
     HUDanim0.play(1/18, true);
     HUDanim0.onLoop.add(this.loseLife, this, 0, 0);
     HUDanim1 = HUDBombHead1.animations.add('Clock');
-    
+
 
     muteMusicButton = this.game.add.button(10, 40, 'unmuted', this.toggleMute, this);
     muteMusicButton.scale.setTo(0.1, 0.1);
     mutedMusicButton = this.game.add.button(10, 40, 'muted', this.toggleMute, this);
     mutedMusicButton.scale.setTo(0.1, 0.1);
-    
+
     lessVolButton = this.game.add.button(10, 10, 'volArrow', this.lessVol, this);
     lessVolButton.scale.setTo(0.04, 0.04);
-    
+
     moreVolButton = this.game.add.button(30, 10, 'volArrow', this.moreVol, this);
     moreVolButton.anchor.setTo(1, 1);
     moreVolButton.scale.setTo(0.04, 0.04);
     moreVolButton.angle = 180;
-    
+
     //map
     groups = new Groups(this.game); //first need the groups
     level = new Map(this.game, initialMap.world, initialMap.level, groups, tileData, maxPlayers);
@@ -156,7 +156,7 @@ var PlayScene = {
     players = [];
     for (var numPlayer = 0; numPlayer < initialPlayers; numPlayer++) {
       players.push(new Player(this.game, level, numPlayer, tileData, groups));
-      players[numPlayer].startCountdown();
+      players[numPlayer].restartCountdown(false);
     }
 
 
@@ -183,7 +183,7 @@ var PlayScene = {
     else
       TwoPlayers = false;
 
-    
+
     livesHUD.text = players[0].lives;
     pointsHUD.text = players[0].points;
 
@@ -198,7 +198,7 @@ var PlayScene = {
       pointsHUD1.text = players[1].points;
 
       if(!HUDanim1.isPlaying){
-        HUDanim1.play(1/18, true);    
+        HUDanim1.play(1/18, true);
         HUDanim1.onLoop.add(this.loseLife, this, 0, 1);
       }
     }

@@ -171,13 +171,13 @@ Map.prototype.buildMap = function (groups, tileData) {
             && bombableIdPowerUp.num === portalId.num);
 
         if (portal) //creates the portal too
-        { 
+        {
             groups.box.add(new Portal(this.game, this, groups,
             squareIndexPos, this.types.bombable.sprite, tileData,
             defaultBodyOffset, defaultImmovable,
             defaultBombableLives, defaultBombableInvencibleTime));
         }
-            
+
         return portal;
     }
 };
