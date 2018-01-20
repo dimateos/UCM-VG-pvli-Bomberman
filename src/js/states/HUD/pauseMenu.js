@@ -1,5 +1,5 @@
 'use strict';
-const config = require('../config.js');
+const config = require('../../config.js');
 
 const DEBUG = config.DEBUG;
 const winWidth = config.winWidth;
@@ -14,7 +14,6 @@ var pauseMenu = {
         music.pause();
         game.stage.disableVisibilityChange = true;
         game.input.onDown.add(unPause, this);
-
 
         pausePanel = game.add.sprite(winWidth / 2, winHeight / 2, 'pausePanel');
         pausePanel.anchor.setTo(0.5, 0.5);
@@ -36,13 +35,11 @@ var pauseMenu = {
               && game.input.mousePointer.position.y < unpauseButton.position.y + unpauseButton.texture.height / 2)
               game.paused = false;
 
-            //We need to fix the remake of maps before this fully works. But it does what it has to.
             else if (game.input.mousePointer.position.x > gotoMenuButton.position.x - gotoMenuButton.texture.width / 2
               && game.input.mousePointer.position.x < gotoMenuButton.position.x + gotoMenuButton.texture.width / 2
               && game.input.mousePointer.position.y > gotoMenuButton.position.y - gotoMenuButton.texture.height / 2
               && game.input.mousePointer.position.y < gotoMenuButton.position.y + gotoMenuButton.texture.height / 2)
               { game.state.start('mainMenu'); game.paused = false; }
-
           }
         };
     },
