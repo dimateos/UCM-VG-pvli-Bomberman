@@ -17,7 +17,7 @@ var playerInfoHUD = function (game, HUDbombHead, playerNum, pvpMode) {
 
     var posX;
     if (!pvpMode) posX = HUDbombHeadPos.x + ((winWidth / 2) * playerNum);
-    else posX = HUDbombHeadPos.x + ((winWidth / 4) * playerNum);
+    else posX = HUDbombHeadPos.x + ((winWidth / 5) * playerNum);
 
     HUDbombHead[playerNum] = game.add.sprite(posX, HUDbombHeadPos.y, 'player_' + playerNum + 'Clock');
     HUDbombHead[playerNum].scale.setTo(0.75, 0.70);
@@ -42,10 +42,14 @@ var playerInfoHUD = function (game, HUDbombHead, playerNum, pvpMode) {
 
 }
 
-playerInfoHUD.prototype.updatePlayerInfoHud = function (player) {
-    this.HUDlives.text = player.lives;
-    this.HUDPointsNumber.text = player.points;
+playerInfoHUD.prototype.updatePlayerInfoHud = function (player, pvpMode) {
+    if (!pvpMode) {
+        this.HUDlives.text = player.lives;
+        this.HUDPointsNumber.text = player.points;
+    }
+    else this.HUDlives.text = player.wins;
 }
+
 
 playerInfoHUD.drawPressX = function (game) {
 
@@ -54,9 +58,13 @@ playerInfoHUD.drawPressX = function (game) {
     HUDPressX.visible = true;
 }
 
-playerInfoHUD.drawBombHud = function (game) {
+playerInfoHUD.drawBombHud = function (game, pvpMode) {
 
-    HUDBomb = game.add.sprite(winWidth/2, 10, 'bomb');
+    var posX;
+    if (!pvpMode) posX = winWidth/2;
+    else posX = winWidth - winWidth/10;
+
+    HUDBomb = game.add.sprite(posX, 10, 'bomb');
     HUDBomb.anchor.setTo(0.5, 0);
     HUDBomb.scale.setTo(1.2, 1.2);
 }

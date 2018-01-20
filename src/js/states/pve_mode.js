@@ -21,7 +21,6 @@ const playerInfoHUD = require('../HUD/playerInfoHUD.js');
 var playerInfoHUDs;
 var HUDBombHead = [];
 
-
 const Groups = require('../general/groups.js');
 var groups;
 
@@ -41,7 +40,6 @@ const maxPlayers = config.pve_maxPlayers; //needed for the map generation
 var players;
 
 const tileData = config.tileData;
-
 
 
 var PlayScene = {
@@ -66,10 +64,10 @@ var PlayScene = {
     //playerInfoHuds
     playerInfoHUDs = [];
     for (var numPlayer = 0; numPlayer < initialPlayers; numPlayer++) {
-      playerInfoHUDs.push(new playerInfoHUD(this.game, HUDBombHead, numPlayer));
+      playerInfoHUDs.push(new playerInfoHUD(this.game, HUDBombHead, numPlayer, pvpMode));
     }
     if (initialPlayers === 1) playerInfoHUD.drawPressX(this.game);
-    playerInfoHUD.drawBombHud(this.game); //little bomb
+    playerInfoHUD.drawBombHud(this.game, pvpMode); //little bomb
 
     //player/s (initialPlayers)
     players = [];
@@ -96,7 +94,7 @@ var PlayScene = {
     this.game.world.bringToTop(groups.player); //array doesnt work
 
     for (var numPlayer = 0; numPlayer < playerInfoHUDs.length; numPlayer++)
-      playerInfoHUDs[numPlayer].updatePlayerInfoHud(players[numPlayer]);
+      playerInfoHUDs[numPlayer].updatePlayerInfoHud(players[numPlayer], pvpMode);
 
     gameOver.check(this.game, players);
     audioHUD.checkVisible();
