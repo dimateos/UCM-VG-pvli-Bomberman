@@ -1,47 +1,46 @@
 'use strict';
+const config = require('../config.js');
 
-var Bombable = require('../objects/bombable.js'); //father
-var Point = require('../general/point.js');
+const Bombable = require('../objects/bombable.js'); //father
+const Point = require('../general/point.js');
 
-var Inputs = require('../general/inputs.js');
-var Identifiable = require('../id/identifiable.js');
-var Bomb = require('./bomb.js');
+const Inputs = require('../general/inputs.js');
+const Identifiable = require('../id/identifiable.js');
+const Bomb = require('./bomb.js');
 
 //default player values
-var playerSpritePath = 'player_'; //partial, to complete with numPlayer
+const playerSpritePath = config.keys.player; //partial, to complete with numPlayer
 
-// var playerBodySize = new Point(48, 48); //little smaller
-// var playerBodyOffset = new Point(0, 40);
-var playerBodySize = new Point(40, 32); //little smaller
-var playerBodyOffset = new Point(6, 48);
-var playerExtraOffset = new Point(6, -20); //reaquired because player body is not full res
+// const playerBodySize = config.playerBodySize; //little smaller
+// const playerBodyOffset = config.playerBodyOffset;
+const playerBodySize = config.playerBodySize; //little smaller
+const playerBodyOffset = config.playerBodyOffset;
+const playerExtraOffset = config.playerExtraOffset; //reaquired because player body is not full res
 
-var playerImmovable = false;
+const playerImmovable = config.playerImmovable;
 
-var playerLives = 5;
-var playerExtraLifePoints = 1000;
-var playerNumBombs = 1;
+const playerLives = config.playerLives;
+const playerExtraLifePoints = config.playerExtraLifePoints;
+const playerNumBombs = config.playerNumBombs;
 
-var playerInvencibleTime = 5000;
-var playerRespawnedStoppedTime = 1000;
-var playerDeathTime = 1500;
-var playerLifeTime = 60 * 3 * 1000;
+const playerInvencibleTime = config.playerInvencibleTime;
+const playerRespawnedStoppedTime = config.playerRespawnedStoppedTime;
+const playerDeathTime = config.playerDeathTime;
+const playerLifeTime = config.playerLifeTime;
 
-var Id = Identifiable.Id; //the mini factory is in Identifiable
-var playerInitialModsIds = [/*new Id(1,2), new Id(1, 1), new Id(1,0)*/];
-var playerPVPModsIds = [new Id(1, 2), new Id(1, 1)];
-var playerMovAndInputs = require('./playerMovAndInputs.js'); //big chunk of code
+const step = config.step; //degrees
+const playerInitialAlphaAngle = config.playerInitialAlphaAngle; //sin(playerInitialAlphaAnlge) -> alpha
+const alphaWavingSpeed = config.alphaWavingSpeed;
+const hudAnimSpeed = config.hudAnimSpeed; //1/18 is the correct
 
+
+const Id = Identifiable.Id; //the mini factory is in Identifiable
+const playerInitialModsIds = [/*new Id(1,2), new Id(1, 1), new Id(1,0)*/];
+const playerPVPModsIds = [new Id(1, 2), new Id(1, 1)];
+
+const playerMovAndInputs = require('./playerMovAndInputs.js'); //big chunk of code
 var bodyVelocity;
 
-var step = Math.PI * 2 / 360; //degrees
-var playerInitialAlphaAngle = 30; //sin(playerInitialAlphaAnlge) -> alpha
-var alphaWavingSpeed = 1.75;
-var hudAnimSpeed = 1 / 18; //1/18 is the correct
-
-const debugPosX = 40;
-const debugPosY = 600 - 96;
-const debugColor = "yellow";
 
 function Player(game, level, numPlayer, tileData, groups, hudVidas) {
 
@@ -264,7 +263,7 @@ Player.prototype.die = function (flame) {
         if (flame.player !== this) flame.player.kills++;
         else {
             flame.player.selfKills++; //for the show
-            this.game.debug.text(" LOL", debugPosX, debugPosY, debugColor);
+            this.game.debug.text(" LOL", config.debugPos.x, config.debugPos.y, config.debugColor);
             this.game.time.events.add(playerInvencibleTime, function reset() { this.debug.reset(); }, this.game);
         }
     }

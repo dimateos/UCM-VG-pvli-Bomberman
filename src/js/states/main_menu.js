@@ -1,9 +1,9 @@
 'use strict';
+const config = require('../config.js');
 
-const DEBUG = true;
-
-const winWidth = 800;
-const winHeight = 600;
+const DEBUG = config.DEBUG;
+const winWidth = config.winWidth;
+const winHeight = config.winHeight;
 
 var mMenuBG;
 var mMenuPVE;

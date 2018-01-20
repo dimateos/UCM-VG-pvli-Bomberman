@@ -1,9 +1,9 @@
 # Super Bomboozleman
 *Super Bomberman (SNES 1993) remade in javascript (using Phaser engine)*
 
->[Jorge García García](https://github.com/jorgar17) `@ucm.es`
-
 >[Diego Mateos Arlanzón](https://github.com/dimateos) `dimateos@ucm.es`
+
+>[Jorge García García](https://github.com/jorgar17) `jorgar@ucm.es`
 
 ## Play the game online [here](https://dimateos.github.io/PVLI_GLaDOS/).
 

@@ -1,5 +1,10 @@
 'use strict';
-const DEBUG = true;
+const config = require('../config.js');
+const keys = config.keys;
+
+const DEBUG = config.DEBUG;
+const winWidth = config.winWidth;
+const winHeight = config.winHeight;
 
 var BootScene = {
 
@@ -7,7 +12,7 @@ var BootScene = {
         if (DEBUG) this.startTime = Date.now(); //to calculate booting time etc
 
         // load here assets required for the loading screen
-        this.game.load.image('preloader_logo', 'images/phaser.png');
+        this.game.load.image(keys.preloader_logo, 'images/phaser.png');
       },
 
       create: function () {
@@ -16,7 +21,7 @@ var BootScene = {
         //this.scale.pageAlignHorizontally = true;
         //this.scale.setScreenSize();
 
-        this.game.state.start('preloader');
+        this.game.state.start(keys.preloader);
         if (DEBUG) console.log("Booting...", Date.now()-this.startTime, "ms");
       }
     };

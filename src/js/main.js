@@ -1,8 +1,10 @@
 'use strict';
-const DEBUG = true;
+const config = require('./config.js');
+const keys = config.keys;
 
-const winWith = 800;
-const winHeight = 600;
+const DEBUG = config.DEBUG;
+const winWidth = config.winWidth;
+const winHeight = config.winHeight;
 
 var BootScene = require('./states/boot_scene.js');
 
@@ -14,13 +16,13 @@ var PVEmode = require('./states/pve_mode.js');
 var PVPmode = require('./states/pvp_mode.js');
 
 window.onload = function () {
-  var game = new Phaser.Game(winWith, winHeight, Phaser.AUTO, 'game');
+  var game = new Phaser.Game(winWidth, winHeight, Phaser.AUTO, 'game');
 
-  game.state.add('boot', BootScene);
-  game.state.add('preloader', PreloaderScene);
-  game.state.add('mainMenu', MainMenu);
-  game.state.add('pve', PVEmode);
-  game.state.add('pvp', PVPmode);
+  game.state.add(keys.boot, BootScene);
+  game.state.add(keys.preloader, PreloaderScene);
+  game.state.add(keys.mainMenu, MainMenu);
+  game.state.add(keys.pve, PVEmode);
+  game.state.add(keys.pvp, PVPmode);
 
-  game.state.start('boot');
+  game.state.start(keys.boot);
 };

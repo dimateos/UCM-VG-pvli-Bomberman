@@ -1,38 +1,40 @@
 'use strict';
-const DEBUG = true;
-var pvpMode = false;
+const pvpMode = false;
+const config = require('../config.js');
+const keys = config.keys;
 
-var Point = require('../general/point.js');
-var globalControls = require('../general/globalControls.js');
+const DEBUG = config.DEBUG;
+const winWidth = config.winWidth;
+const winHeight = config.winHeight;
 
-var Groups = require('../general/groups.js');
+const debugPos = config.debugPos;
+const debugColor = config.debugColor;
+
+const Point = require('../general/point.js');
+const globalControls = require('../general/globalControls.js');
+const pauseMenu = require('./pauseMenu.js');
+
+const Groups = require('../general/groups.js');
 var groups;
-var Map = require('../maps/map.js');
-var level;
-var initialMap = { world: 0, level: 0 };
 
-var Inputs = require('../general/inputs.js');
+const Map = require('../maps/map.js');
+var level;
+
+var initialMap;
+if (DEBUG) initialMap = config.initialMapPveDEBUG;
+else initialMap = config.initialMapPve;
+
+const Inputs = require('../general/inputs.js');
 var gInputs; //global inputs
 
-var Player = require('../player/player.js');
-var players = []; //2 max for this mode but meh
-var initialPlayers = 1;
-var maxPlayers = 2; //needed for the map generation
+const Player = require('../player/player.js');
+const initialPlayers = config.pve_initialPlayers;
+const maxPlayers = config.pve_maxPlayers; //needed for the map generation
+var players = [];
 
-var pauseMenu = require('./pauseMenu.js');
+const tileData = config.tileData;
 
 var music;
-
-const width = 800;
-const height = 600;
-const debugPos = new Point(32, height - 96);
-const debugColor = "yellow";
-
-const tileData = {
-  Res: new Point(64, 64),
-  Scale: new Point(0.75, 0.625), //64x64 to 48x40
-  Offset: new Point(40, 80), //space for hud
-};
 
 var mMenuTitle;
 var livesHUD;
@@ -89,7 +91,7 @@ var PlayScene = {
     HUDPoints = this.game.add.sprite(170, -5, 'HUDPoints');
     HUDPoints.scale.setTo(0.45, 0.7);
 
-    HUDBomb = this.game.add.sprite(width/2, 10, 'bomb');
+    HUDBomb = this.game.add.sprite(winWidth/2, 10, 'bomb');
     HUDBomb.anchor.setTo(0.5, 0);
     HUDBomb.scale.setTo(1.2, 1.2);
 
@@ -162,21 +164,20 @@ var PlayScene = {
 
   gmOver: function (){
      // var gmOverBg = this.game.add.sprite(0, 0, 'mMenuBG');
-      var gmOverSign = this.game.add.sprite(width/2, height/2, 'gameOver');
+      var gmOverSign = this.game.add.sprite(winWidth/2, winHeight/2, 'gameOver');
       gmOverSign.anchor.setTo(0.5, 0.5);
-      var goToMenu = this.game.add.button(width, height,
+      var goToMenu = this.game.add.button(winWidth, winHeight,
         'quitToMenu', this.goToMainMenu, this);
       goToMenu.anchor.setTo(1, 1);
   },
 
 
   update: function () {
-    console.log(deathCount);
     for(var i = 0; i < players.length; i++){
       if(players[i].lives <= 0 && deathCount<players.length)
         deathCount++;
     }
-    
+
     if(deathCount === players.length){
         this.gmOver();
     }
