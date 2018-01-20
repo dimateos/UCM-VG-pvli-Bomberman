@@ -53,7 +53,6 @@ var PreloaderScene = {
         this.game.load.image(keys.volArrow, 'images/Sprites/Menu/VolumeArrow.png');
 
         //HUD sprites
-        this.game.load.image(keys.HUDBg, 'images/Sprites/HUD/HUDBg.png');
         this.game.load.image(keys.HUDPoints, 'images/Sprites/HUD/HUDPoints.png');
         this.game.load.image(keys.HUD2, 'images/Sprites/HUD/HUD2.png');
         this.game.load.image(keys.HUDPressX, 'images/Sprites/HUD/PressX.png');

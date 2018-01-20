@@ -26,7 +26,6 @@ var MainMenu = {
     // out: function() { buttonCount--; },
 
     create: function() {
-        console.log(this);
 
         mMenuBG = this.game.add.sprite(0, 0, 'mMenuBG');
         mMenuBG.scale.y = 1.05; //just a little bigger

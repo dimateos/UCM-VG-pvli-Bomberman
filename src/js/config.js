@@ -3,16 +3,18 @@
 const Point = require('./general/point.js');
 const keys = require('./keys.js');
 
+const width = 800;
+const height = 600;
 
 const config = {
 
     keys: keys,
 
     DEBUG: true,
-    winWidth: 800,
-    winHeight: 600,
+    winWidth: width,
+    winHeight: height,
 
-    debugPos: new Point(32, this.winHeight - 96),
+    debugPos: new Point(32, height - 96),
     debugColor: "yellow",
 
     tileData: {
@@ -27,7 +29,7 @@ const config = {
 
 
     //PvE
-    pve_initialPlayers: 1,
+    pve_initialPlayers: 2,
     pve_maxPlayers: 2, //needed for the map generation
 
 
@@ -46,7 +48,7 @@ const config = {
 
     playerImmovable: false,
 
-    playerLives: 5,
+    playerLives: 1,
     playerExtraLifePoints: 1000,
     playerNumBombs: 1,
 

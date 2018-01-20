@@ -12,7 +12,7 @@ const debugColor = config.debugColor;
 
 var Point = require('../general/point.js');
 var globalControls = require('../general/globalControls.js');
-var pauseMenu = require('./pauseMenu.js');
+var pauseMenu = require('../HUD/pauseMenu.js');
 
 var Groups = require('../general/groups.js');
 var groups;

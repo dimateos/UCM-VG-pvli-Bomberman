@@ -3,7 +3,7 @@
 var globalControls = {
 
     //allow to add extra players
-    addPlayerControl: function (gInputs, players, maxPlayers) {
+    addPlayerControl: function (gInputs, players, maxPlayers, playerInfoHUDs) {
         if (gInputs.addPlayer.button.isDown && !gInputs.addPlayer.ff && players.length < maxPlayers) {
             gInputs.addPlayer.ff = true;
 
@@ -17,6 +17,9 @@ var globalControls = {
             }
 
             var pSample = players[0]; //to use its values
+            var hudSample = playerInfoHUDs[0];
+
+            playerInfoHUDs.push(new hudSample.constructor(pSample.game, pSample.hudVidas, players.length, false))
 
             //even use its constructor to create the new  player
             players.push(new pSample.constructor(pSample.game, pSample.level,

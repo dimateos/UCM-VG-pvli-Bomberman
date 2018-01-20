@@ -1,5 +1,5 @@
 'use strict';
-const config = require('../../config.js');
+const config = require('../config.js');
 const keys = config.keys;
 
 const winWidth = config.winWidth;

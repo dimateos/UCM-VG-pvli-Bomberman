@@ -50,7 +50,6 @@ muted:'muted',
 volArrow:'volArrow',
 
 //HUD sprites
-HUDBg:'HUDBg',
 HUDPoints:'HUDPoints',
 HUD2:'HUD2',
 HUDPressX:'HUDPressX',
