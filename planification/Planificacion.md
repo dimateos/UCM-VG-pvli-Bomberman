@@ -3,8 +3,6 @@
 - [Planificacion](#planificacion)
     - [Historias de usuario](#historias-de-usuario)
         - [Hechas](#hechas)
-        - [En proceso](#en-proceso)
-        - [Por empezar](#por-empezar)
     - [Planificación](#planificaci%C3%B3n)
         - [Semana 1](#semana-1)
         - [Semana 2](#semana-2)
@@ -20,8 +18,9 @@
 ## Historias de usuario
 
 ### Hechas
-- Movimiento del jugador con flechas
-    - Y cualquier control que se le pase
+- Movimiento del jugador
+    - Cualquier input disponible (dos direcciones a la vez etc)
+    - Movimiento encarrilado del personaje
 - Colisiones del jugador con los muros
 - Creación de los muros (iterativo/provisional)
 - Creación y destrucción de bombas
@@ -33,7 +32,6 @@
 - Concretados las mecanicas tecnicas del gameplay en diseño.md
     - Asi como tambien su implementacion
 
-### En proceso
 - Concretar todos los atributos y metodos de las clases
     - Segun la implementacion de diseño.md (maybe not?)
         - Añade muchos metodos posibles - quizas no los necesitamos
@@ -41,7 +39,6 @@
 - Creación de mapa a partir de un archivo (opcional)
 - Creación de estructura interna de casillas
 
-### Por empezar
 - Animaciones de jugador
 - Animaciones de bomba
 - Power-ups (aparición aleatoria)
@@ -104,7 +101,7 @@
 ### Semana 8
 * Efectos de sonido
 * Música
-* Creación de mapa a partir de un archivo (opcional)
+* Creación de mapa a partir de un archivo
 
 ### Semana 9
 * Semana para posibles complicaciones en cualquiera de los aspectos.
