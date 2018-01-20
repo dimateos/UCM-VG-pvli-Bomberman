@@ -1,27 +1,35 @@
 'use strict';
-const DEBUG = true;
-var pvpMode = true;
+const pvpMode = true;
+const config = require('../config.js');
+const keys = config.keys;
+
+const DEBUG = config.DEBUG;
+const winWidth = config.winWidth;
+const winHeight = config.winHeight;
+
+const debugPos = config.debugPos;
+const debugColor = config.debugColor;
 
 var Point = require('../general/point.js');
 var globalControls = require('../general/globalControls.js');
+var pauseMenu = require('./pauseMenu.js');
 
 var Groups = require('../general/groups.js');
 var groups;
 var Map = require('../maps/map.js');
 var level;
-var initialMap = { world: 1, level: 0 };
+var initialMap = config.initialMapPvP;
 
 var Inputs = require('../general/inputs.js');
 var gInputs; //global inputs
 
-var Player = require('../player/player.js');
+const Player = require('../player/player.js');
+const initialPlayers = config.pvp_initialPlayers;
+const maxPlayers = config.pvp_maxPlayers; //needed for the map generation
 var players = [];
-var initialPlayers = 4;
-var maxPlayers = 4; //needed for the map generation
 
 var music;
 
-var pauseMenu = require('./pauseMenu.js');
 
 var livesHUD;
 var livesHUD1;
@@ -45,16 +53,8 @@ var mutedMusicButton;
 var lessVolButton;
 var moreVolButton;
 
-const width = 800;
-const height = 600;
-const debugPos = new Point(32, height - 96);
-const debugColor = "yellow";
+const tileData = config.tileData;
 
-const tileData = {
-  Res: new Point(64, 64),
-  Scale: new Point(0.75, 0.625), //64x64 to 48x40
-  Offset: new Point(40, 80), //space for hud
-};
 
 
 var mMenuTitle; //still not definitive
@@ -80,7 +80,7 @@ var PlayScene = {
 
     //menu stuff
     HUDBg = this.game.add.sprite(0, 0, 'HUDBg');
-    HUDBomb = this.game.add.sprite(width/2, 10, 'bomb');
+    HUDBomb = this.game.add.sprite(winWidth/2, 10, 'bomb');
     HUDBomb.anchor.setTo(0.5, 0);
     HUDBomb.scale.setTo(1.2, 1.2);
 

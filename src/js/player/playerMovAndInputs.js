@@ -1,15 +1,16 @@
 'use strict';
+const config = require('../config.js');
 
-var Point = require('../general/point.js'); //required
+const Point = require('../general/point.js'); //required
 
 //default movement values
-var playerVelocity = 140; //max=playerVelocity+5*10 (depends on powerUps)
-var playerVelocityTurning = 105; //140 105
+const playerVelocity = config.playerVelocity; //max=playerVelocity+5*10 (depends on powerUps)
+const playerVelocityTurning = config.playerVelocityTurning; //140 105
 //reduced velocity for the turn so the alignment is much smoother
 //does not change with playerVelocity, so what changes is the relative reduction
 //a starting -25% playerVelocity, and a max of ~45% (or less)
 
-var playerExtraOffset = new Point(6, -20); //need to took from config file
+const playerExtraOffset = config.playerExtraOffset;
 
 //big chunk of code imported by the player
 var playerMoveAndInputs = {

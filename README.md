@@ -50,6 +50,7 @@ Battle in rounds up to 3 minutes.
     * Also triggered when the focus is not on the game
 
 * **Hacks**: *(maybe disabled)*
+  * Show debug: `C`
   * Rebuild map: `B`
   * Next map: `N`
 

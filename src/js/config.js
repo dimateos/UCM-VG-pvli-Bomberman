@@ -25,9 +25,15 @@ const config = {
     initialMapPve: { world: 1, level: 1 },
     initialMapPvP: { world: 1, level: 0 },
 
+
     //PvE
     pve_initialPlayers: 1,
     pve_maxPlayers: 2, //needed for the map generation
+
+
+    //PvE
+    pvp_initialPlayers: 4,
+    pvp_maxPlayers: 4,
 
 
     //PLAYER
@@ -54,6 +60,23 @@ const config = {
     alphaWavingSpeed: 1.75,
     hudAnimSpeed: 1 / 18, //1/18 is the correct
 
+    playerVelocity: 140, //max=playerVelocity+5*10 (depends on powerUps)
+    playerVelocityTurning: 105, //140 105
+
+
+    //BOMB
+
+    bombBodySize: new Point(48, 48), //little smaller
+    bombBodyOffset: new Point(0, 0),
+    bombExtraOffset: new Point(5, 5), //reaquired because bomb body is not full res
+
+    bombImmovable: true,
+    bombInvecibleTime: 0,
+
+    bombLives: 1,
+    bombPower: 1,
+    bombTimer: 2000,
+    bombFlameTimer: 500,
 };
 
 module.exports = config;

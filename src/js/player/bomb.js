@@ -1,4 +1,5 @@
 'use strict';
+const config = require('../config.js');
 
 var Bombable = require('../objects/bombable.js'); //father
 var Flame = require('../enemy/flame.js');
@@ -8,22 +9,19 @@ var Identifiable = require('../id/identifiable.js');
 
 
 //default bomb values
-var bombBodySize = new Point(48, 48); //little smaller
-var bombBodyOffset = new Point(0, 0);
-var bombExtraOffset = new Point(5, 5); //reaquired because bomb body is not full res
+var bombBodySize = config.bombBodySize; //little smaller
+var bombBodyOffset = config.bombBodyOffset;
+var bombExtraOffset = config.bombExtraOffset; //reaquired because bomb body is not full res
 
-var bombImmovable = true;
-var bombInvecibleTime = 0;
+var bombImmovable = config.bombImmovable;
+var bombInvecibleTime = config.bombInvecibleTime;
 
-var bombLives = 1;
-var bombPower = 1;
-var bombTimer = 2000;
-var bombFlameTimer = 500;
+var bombLives = config.bombLives;
+var bombPower = config.bombPower;
+var bombTimer = config.bombTimer;
+var bombFlameTimer = config.bombFlameTimer;
 
-var xplosionSound;
-
-var bombSpritePath = 'bomb';
-var flameId = {tier: 0, num: 0};
+var bombSpritePath = config.keys.bomb;
 
 
 function Bomb (game, level, position, tileData, groups, player, bombMods) {
