@@ -1,5 +1,5 @@
 'use strict';
-
+const config = require('../config.js');
 var GameObject = require('../objects/gameObject.js');
 var Physical = require('../objects/physical.js');
 var Bombable = require('../objects/bombable.js');
@@ -15,20 +15,19 @@ var Point = require('../general/point.js');
 var baseMapData = require("./baseMapData.js"); //base map and spawns
 var levelsDataBase = require("./levelsDataBase.js"); //base map and spawns
 
-const debugPosX = 40;
-const debugPosY = 600 - 96;
-const debugColor = "yellow";
+const debugPos = config.debugMapPos;
+const debugColor = config.debugColor;
 
 //default map tiles values
-var defaultBodyOffset = new Point();
-var defaultImmovable = true;
-var defaultBombableLives = 1;
-var defaultBombableInvencibleTime = 0;
+var defaultBodyOffset = config.defaultBodyOffset;
+var defaultImmovable = config.defaultImmovable;
+var defaultBombableLives = config.defaultBombableLives;
+var defaultBombableInvencibleTime = config.defaultBombableInvencibleTime;
 
 //too import a big chunk of code
 var mapCooking = require('./mapCooking.js');
-var deathZoneTimeStart = 2*60*1000;
-var deathZoneTimeLoop = 5*1000;
+var deathZoneTimeStart = config.deathZoneTimeStart;
+var deathZoneTimeLoop = config.deathZoneTimeLoop;
 
 var portalSound;
 
@@ -132,7 +131,7 @@ Map.prototype.generateNextMap = function () { //based on number of levels in the
     if (levelsDataBase[this.mapNumber.world].length === this.mapNumber.level + 1) {
         if (levelsDataBase.length === this.mapNumber.world + 1)
             this.game.debug.text(this.mapNumber.world + " , " + this.mapNumber.level
-                + " is the last map...", debugPosX, debugPosY, debugColor);
+                + " is the last map...", debugPos.x, debugPos.y, debugColor);
 
         else this.generateNewMap(this.mapNumber.world + 1, 0);
     }

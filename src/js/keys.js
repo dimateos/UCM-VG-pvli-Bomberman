@@ -29,6 +29,7 @@ powerUpSpeedUp:'powerUpSpeedUp',
 bomb:'bomb',
 flame:'flame',
 
+enemy: 'enemy',
 enemy_0:'enemy_0',
 enemy_1:'enemy_1',
 enemy_2:'enemy_2',

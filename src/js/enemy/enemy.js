@@ -2,17 +2,18 @@
 
 var Bombable = require('../objects/bombable.js'); //father
 var Point = require('../general/point.js');
+const config = require('../config.js');
 
 var Identifiable = require('../id/identifiable.js'); //deploy power ups
 
 
 //default enemy values
-var enemySpritePath = 'enemy';
-var enemyExtraOffset = new Point(0, 0);
+const enemySpritePath = config.keys.enemy;
+const enemyExtraOffset = config.enemyExtraOffset;
 
-var enemyImmovable = false;
-var enemyInvecibleTime = 2500; //maybe reduce
-var bombableTimer = 500; //to sync with flames
+const enemyImmovable = config.enemyImmovable;
+const enemyInvecibleTime = config.enemyInvecibleTime; //maybe reduce
+const bombableTimer = config.bombableTimer; //to sync with flames
 
 var enemyDataBase = require('./enemyDataBase.js');
 

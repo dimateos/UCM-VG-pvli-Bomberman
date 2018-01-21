@@ -4,17 +4,20 @@ var config = require('../config.js');
 var Bombable = require('../objects/bombable.js');
 var Point = require('../general/point.js');
 var Enemy = require('../enemy/enemy.js'); //to spawn them
-var defaultEnemyType = config.defaultEnemyType;
 
-var portalImmovable = config.portalImmovable;
-var portalInvencible = config.portalInvencible;
+const defaultEnemyType = config.defaultEnemyType;
 
-var portalSprite = config.keys.portal;
-var portalDropId = config.portalDropId; //always
-var portalSpinVel = config.portalSpinVel;
+const portalImmovable = config.portalImmovable;
+const portalInvencible = config.portalInvencible;
 
-var portalBombTimer = config.portalBombTimer; //to sync with flames
-var portalSpawnTimer = config.portalSpawnTimer; //cooldown to spawn enemies
+const portalSprite = config.keys.portal;
+const portalDropId = config.portalDropId; //always
+const portalSpinVel = config.portalSpinVel;
+
+const portalBombTimer = config.portalBombTimer; //to sync with flames
+const portalSpawnTimer = config.portalSpawnTimer; //cooldown to spawn enemies
+
+const portalAnchor = config.portalAnchor;
 
 var portalSound;
 
@@ -97,7 +100,7 @@ Portal.prototype.spawnPortal = function () {
     this.position = new Point( //moves and anchors to rotate
         this.body.position.x + this.body.width,
         this.body.position.y + this.body.height);
-    this.anchor.setTo(0.5, 0.5);
+    this.anchor.setTo(portalAnchor.x, portalAnchor.y);
 
     this.portalSound.loopFull(0.3);
 

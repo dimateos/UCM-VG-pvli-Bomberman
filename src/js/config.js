@@ -38,6 +38,18 @@ const config = {
     pvp_maxPlayers: 4,
 
 
+    //MAP
+
+    debugMapPos: new Point(40, 504),
+    debugColor: "yellow",
+    defaultBodyOffset: new Point(),
+    defaultImmovable: true,
+    defaultBombableLives: 1,
+    defaultBombableInvencibleTime: 0,
+    deathZoneTimeStart: 2*60*1000,
+    deathZoneTimeLoop: 5*1000,
+
+
     //PLAYER
 
     //  playerBodySize: new Point(48, 48), //little smaller
@@ -81,6 +93,14 @@ const config = {
     bombFlameTimer: 500,
 
 
+    //ENEMY
+
+    enemyExtraOffset: new Point(0, 0),
+    enemyImmovable: false,
+    enemyInvecibleTime: 2500, //maybe reduce
+    bombableTimer: 500,
+
+
     //PORTAL
 
     defaultEnemyType: 0,
@@ -90,6 +110,7 @@ const config = {
     portalSpinVel: 0.05,
     portalBombTimer: 500,
     portalSpawnTimer: 1500,
+    portalAnchor: new Point(0.5, 0.5),
 
 
     //PLAYERINFO HUD
@@ -107,6 +128,26 @@ const config = {
     HUDBombPos: new Point(0, 10),
     HUDBombAnchor: new Point(0.5, 0),
     HUDBombScale: new Point(1.2, 1.2),
+
+    
+    //GAME OVER
+
+    gmOverSignAnchor: new Point(0.5, 0.5),
+    goToMenuAnchor: new Point(1, 1), 
+
+
+    //AUDIO HUD
+
+    muteMusicButtonPos: new Point(10, 40),
+    muteMusicButtonScale: new Point(0.1, 0.1),
+    mutedMusicButtonPos: new Point(10, 40),
+    mutedMusicButtonScale: new Point(0.1, 0.1),
+    lessVolButtonPos: new Point(10, 10),
+    lessVolButtonScale: new Point(0.04, 0.04),
+    moreVolButtonPos: new Point(30, 10),
+    moreVolButtonAnchor: new Point(1, 1),
+    moreVolButtonScale: new Point(0.04, 0.04),
+    moreVolButtonAngle: 180,
 
 
     //PAUSE MENU

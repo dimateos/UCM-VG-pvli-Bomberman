@@ -5,6 +5,17 @@ const keys = config.keys;
 const winWidth = config.winWidth;
 const winHeight = config.winHeight;
 
+const muteMusicButtonPos = config.muteMusicButtonPos;
+const muteMusicButtonScale = config.mutedMusicButtonScale;
+const mutedMusicButtonPos = config.mutedMusicButtonPos;
+const mutedMusicButtonScale = config.mutedMusicButtonScale;
+const lessVolButtonPos = config.lessVolButtonPos;
+const lessVolButtonScale = config.lessVolButtonScale;
+const moreVolButtonPos = config.moreVolButtonPos;
+const moreVolButtonScale = config.moreVolButtonScale;
+const moreVolButtonAnchor = config.moreVolButtonAnchor;
+const moreVolButtonAngle = config.moreVolButtonAngle;
+
 var muteMusicButton;
 var mutedMusicButton;
 var lessVolButton;
@@ -23,18 +34,18 @@ var audioHUD = {
         game.sound.mute = true; //la pauso que me morido quedo loco
 
         //buttons
-        muteMusicButton = game.add.button(10, 40, 'unmuted', this.toggleMute, game);
-        muteMusicButton.scale.setTo(0.1, 0.1);
-        mutedMusicButton = game.add.button(10, 40, 'muted', this.toggleMute, game);
-        mutedMusicButton.scale.setTo(0.1, 0.1);
+        muteMusicButton = game.add.button(muteMusicButtonPos.x, muteMusicButtonPos.y, 'unmuted', this.toggleMute, game);
+        muteMusicButton.scale.setTo(muteMusicButtonScale.x, muteMusicButtonScale.y);
+        mutedMusicButton = game.add.button(mutedMusicButtonPos.x, mutedMusicButtonPos.y, 'muted', this.toggleMute, game);
+        mutedMusicButton.scale.setTo(mutedMusicButtonScale.x, mutedMusicButtonScale.y);
 
-        lessVolButton = game.add.button(10, 10, 'volArrow', this.lessVol, game);
-        lessVolButton.scale.setTo(0.04, 0.04);
+        lessVolButton = game.add.button(lessVolButtonPos.x, lessVolButtonPos.y, 'volArrow', this.lessVol, game);
+        lessVolButton.scale.setTo(lessVolButtonScale.x, lessVolButtonScale.y);
 
-        moreVolButton = game.add.button(30, 10, 'volArrow', this.moreVol, game);
-        moreVolButton.anchor.setTo(1, 1);
-        moreVolButton.scale.setTo(0.04, 0.04);
-        moreVolButton.angle = 180;
+        moreVolButton = game.add.button(moreVolButtonPos.x, moreVolButtonPos.y, 'volArrow', this.moreVol, game);
+        moreVolButton.anchor.setTo(moreVolButtonAnchor.x, moreVolButtonAnchor.y);
+        moreVolButton.scale.setTo(moreVolButtonScale.x, moreVolButtonScale.y);
+        moreVolButton.angle = moreVolButtonAngle;
 
     },
 
