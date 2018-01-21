@@ -7,7 +7,24 @@ const Point = require('../general/point.js');
 const winWidth = config.winWidth;
 const winHeight = config.winHeight;
 
-const HUDbombHeadPos = new Point(60, 10);
+const HUDbombHeadPos = config.HUDbombHeadPos;
+const HUDbombHeadScale = config.HUDbombHeadScale;
+
+const HUD2Pos = config.HUD2Pos;
+const HUD2Scale = config.HUD2Scale;
+
+const HUDlivesPos = config.HUDlivesPos;
+const HUDlivesScale = config.HUDlivesScale;
+
+const HUDPointsNumberPos = config.HUDPointsNumberPos;
+const HUDPointsNumberScale = config.HUDPointsNumberScale;
+
+const HUDPressXPos = config.HUDPressXPos;
+const HUDPressXScale = config.HUDPressXScale;
+
+const HUDBombPos = config.HUDBombPos;
+const HUDBombAnchor = config.HUDBombAnchor;
+const HUDBombScale = config.HUDBombScale;
 
 var HUDPressX;
 var HUDBomb;
@@ -20,22 +37,22 @@ var playerInfoHUD = function (game, HUDbombHead, playerNum, pvpMode) {
     else posX = HUDbombHeadPos.x + ((winWidth / 5) * playerNum);
 
     HUDbombHead[playerNum] = game.add.sprite(posX, HUDbombHeadPos.y, 'player_' + playerNum + 'Clock');
-    HUDbombHead[playerNum].scale.setTo(0.75, 0.70);
+    HUDbombHead[playerNum].scale.setTo(HUDbombHeadScale.x, HUDbombHeadScale.y);
 
-    this.HUD2 = game.add.sprite(posX + 35, -5, 'HUD2');
-    this.HUD2.scale.setTo(0.75, 0.75);
+    this.HUD2 = game.add.sprite(posX + HUD2Pos.x, HUD2Pos.y, 'HUD2');
+    this.HUD2.scale.setTo(HUD2Scale.x, HUD2Scale.y);
 
-    this.HUDlives = game.add.text(this.HUD2.position.x + 42, 15, "",
+    this.HUDlives = game.add.text(this.HUD2.position.x + HUDlivesPos.x, HUDlivesPos.y, "",
         { font: "45px Comic Sans MS", fill: "#f9e000", align: "center" });
-    this.HUDlives.anchor.setTo(0.2, 0);
+    this.HUDlives.anchor.setTo(HUDlivesScale.x, HUDlivesScale.y);
 
     if (!pvpMode) {
         // this.HUDPointsWord = game.add.sprite(posX + 100, -5, 'HUDPoints');
         // this.HUDPointsWord.scale.setTo(0.45, 0.7);
 
-        this.HUDPointsNumber = game.add.text(posX + 170, 8, "",
+        this.HUDPointsNumber = game.add.text(posX + HUDPointsNumberPos.x, HUDPointsNumberPos.y, "",
             { font: "50px Comic Sans MS", fill: "#f9e000", align: "right" });
-        this.HUDPointsNumber.anchor.setTo(0.2, 0);
+        this.HUDPointsNumber.anchor.setTo(HUDPointsNumberScale.x, HUDPointsNumberScale.y);
 
         if (playerNum === 1 && HUDPressX !== undefined) HUDPressX.destroy();
     }
@@ -53,8 +70,8 @@ playerInfoHUD.prototype.updatePlayerInfoHud = function (player, pvpMode) {
 
 playerInfoHUD.drawPressX = function (game) {
 
-    HUDPressX = game.add.sprite(winWidth / 2 + 90, -10, 'HUDPressX');
-    HUDPressX.scale.setTo(0.75, 0.75);
+    HUDPressX = game.add.sprite(winWidth / 2 + HUDPressXPos.x, HUDPressXPos.y, 'HUDPressX');
+    HUDPressX.scale.setTo(HUDPressXScale.x, HUDPressXScale.y);
     HUDPressX.visible = true;
 }
 
@@ -64,9 +81,9 @@ playerInfoHUD.drawBombHud = function (game, pvpMode) {
     if (!pvpMode) posX = winWidth/2;
     else posX = winWidth - winWidth/10;
 
-    HUDBomb = game.add.sprite(posX, 10, 'bomb');
-    HUDBomb.anchor.setTo(0.5, 0);
-    HUDBomb.scale.setTo(1.2, 1.2);
+    HUDBomb = game.add.sprite(posX + HUDBombPos.x, HUDBombPos.y, 'bomb');
+    HUDBomb.anchor.setTo(HUDBombAnchor.x, HUDBombAnchor.y);
+    HUDBomb.scale.setTo(HUDBombScale.x, HUDBombScale.y);
 }
 
 module.exports = playerInfoHUD;

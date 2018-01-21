@@ -1,19 +1,20 @@
 'use strict';
+var config = require('../config.js');
 
 var Bombable = require('../objects/bombable.js');
 var Point = require('../general/point.js');
 var Enemy = require('../enemy/enemy.js'); //to spawn them
-var defaultEnemyType = 0;
+var defaultEnemyType = config.defaultEnemyType;
 
-var portalImmovable = true;
-var portalInvencible = true;
+var portalImmovable = config.portalImmovable;
+var portalInvencible = config.portalInvencible;
 
-var portalSprite = "portal";
-var portalDropId = undefined; //always
-var portalSpinVel = 0.05;
+var portalSprite = config.keys.portal;
+var portalDropId = config.portalDropId; //always
+var portalSpinVel = config.portalSpinVel;
 
-var portalBombTimer = 500; //to sync with flames
-var portalSpawnTimer = 1500; //cooldown to spawn enemies
+var portalBombTimer = config.portalBombTimer; //to sync with flames
+var portalSpawnTimer = config.portalSpawnTimer; //cooldown to spawn enemies
 
 var portalSound;
 

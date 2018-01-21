@@ -79,6 +79,46 @@ const config = {
     bombPower: 1,
     bombTimer: 2000,
     bombFlameTimer: 500,
+
+
+    //PORTAL
+
+    defaultEnemyType: 0,
+    portalImmovable: true,
+    portalInvencible: true,
+    portalDropId: undefined,
+    portalSpinVel: 0.05,
+    portalBombTimer: 500,
+    portalSpawnTimer: 1500,
+
+
+    //PLAYERINFO HUD
+
+    HUDbombHeadPos: new Point(60, 10),
+    HUDbombHeadScale: new Point(0.75, 0.70),
+    HUD2Pos: new Point(35, -5),
+    HUD2Scale: new Point(0.75, 0.75),
+    HUDlivesPos: new Point(42, 15),
+    HUDlivesScale: new Point(0.2, 0),
+    HUDPointsNumberPos: new Point(170, 8),
+    HUDPointsNumberScale: new Point(0.2, 0),
+    HUDPressXPos: new Point(90, -10),
+    HUDPressXScale: new Point(0.75, 0.75),
+    HUDBombPos: new Point(0, 10),
+    HUDBombAnchor: new Point(0.5, 0),
+    HUDBombScale: new Point(1.2, 1.2),
+
+
+    //PAUSE MENU
+
+    pausePanelAnchor: new Point(0.5, 0.5),
+    pausePanelAlpha: 0.5,
+    unpauseButtonPos: new Point(0, 50),
+    unpauseButtonAnchor: new Point(0.5, 0.5),
+    unpauseButtonScale: new Point(0.75, 0.75),
+    gotoMenuButtonPos: new Point(0, 50),
+    gotoMenuButtonAnchor: new Point(0.5, 0.5), 
+    gotoMenuButtonScale: new Point(0.75, 0.75),
 };
 
 module.exports = config;

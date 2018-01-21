@@ -5,6 +5,17 @@ const DEBUG = config.DEBUG;
 const winWidth = config.winWidth;
 const winHeight = config.winHeight;
 
+const pausePanelAnchor = config.pausePanelAnchor;
+const pausePanelAlpha = config.pausePanelAlpha;
+
+const unpauseButtonPos = config.unpauseButtonPos;
+const unpauseButtonAnchor = config.unpauseButtonAnchor;
+const unpauseButtonScale = config.unpauseButtonScale;
+
+const gotoMenuButtonPos = config.gotoMenuButtonPos;
+const gotoMenuButtonAnchor = config.gotoMenuButtonAnchor;
+const gotoMenuButtonScale = config.gotoMenuButtonScale;
+
 var pausePanel;
 var unpauseButton;
 var gotoMenuButton;
