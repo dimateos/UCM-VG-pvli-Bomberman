@@ -49,30 +49,31 @@ function Map(game, worldNum, levelNum, groups, tileData, maxPlayers, pvpMode) {
     this.types = baseMapData.squaresTypes;
     this.playerSpawns = baseMapData.playerSpawns;
 
+    if (config.endless_rnd_map_gen) this.rndGen = 0;
     this.generateMap(worldNum, levelNum);
 
-    if(pvpMode) this.restartDeathZoneCountdowns();
+    if (pvpMode) this.restartDeathZoneCountdowns();
 };
 
 //only used in pvp
 Map.prototype.battleRoyale = function () {
 
-    for (var col = this.deathZoneExpansion; col < this.map[0].length-this.deathZoneExpansion; col++) {
+    for (var col = this.deathZoneExpansion; col < this.map[0].length - this.deathZoneExpansion; col++) {
         var squareIndexPos = new Point(col, this.deathZoneExpansion).applyTileData(this.tileData);
         this.groups.flame.add(new Flame(this.game, squareIndexPos, this.tileData.Scale));
     }
-    for (var col = this.deathZoneExpansion; col < this.map[0].length-this.deathZoneExpansion; col++) {
-        var squareIndexPos = new Point(col, this.map.length-1-this.deathZoneExpansion).applyTileData(this.tileData);
+    for (var col = this.deathZoneExpansion; col < this.map[0].length - this.deathZoneExpansion; col++) {
+        var squareIndexPos = new Point(col, this.map.length - 1 - this.deathZoneExpansion).applyTileData(this.tileData);
         this.groups.flame.add(new Flame(this.game, squareIndexPos, this.tileData.Scale));
     }
 
-    for (var fil = 1+this.deathZoneExpansion; fil < this.map.length-1-this.deathZoneExpansion; fil++) {
+    for (var fil = 1 + this.deathZoneExpansion; fil < this.map.length - 1 - this.deathZoneExpansion; fil++) {
         var squareIndexPos = new Point(this.deathZoneExpansion, fil).applyTileData(this.tileData);
         this.groups.flame.add(new Flame(this.game, squareIndexPos, this.tileData.Scale));
     }
 
-    for (var fil = 1+this.deathZoneExpansion; fil < this.map.length-1-this.deathZoneExpansion; fil++) {
-        var squareIndexPos = new Point(this.map[0].length-1-this.deathZoneExpansion, fil).applyTileData(this.tileData);
+    for (var fil = 1 + this.deathZoneExpansion; fil < this.map.length - 1 - this.deathZoneExpansion; fil++) {
+        var squareIndexPos = new Point(this.map[0].length - 1 - this.deathZoneExpansion, fil).applyTileData(this.tileData);
         this.groups.flame.add(new Flame(this.game, squareIndexPos, this.tileData.Scale));
     }
 
@@ -100,7 +101,13 @@ Map.prototype.generateMap = function (worldNum, levelNum) {
     this.map = baseMapData.copyMap(baseMapData.squares); //copy
 
     this.mapNumber = { world: worldNum, level: levelNum };
-    this.levelData = levelsDataBase[worldNum][levelNum];
+
+    if (config.endless_rnd_map_gen) {
+        console.log(this.rndGen);
+        this.levelData = baseMapData.rndGeneration(this.game, this.rndGen);
+        this.rndGen++;
+    }
+    else this.levelData = levelsDataBase[worldNum][levelNum];
 
     this.bombableIdsPowerUps = this.generateIdsPowerUps(this.levelData.powerUps);
     this.enemiesIdsPowerUps = this.generateIdsPowerUps(this.levelData.enemiesDrops);
@@ -117,26 +124,28 @@ Map.prototype.generateNewMap = function (worldNum, levelNum) {
     // console.log(this.game.time.events.events);
 
     this.mapNumber = { world: worldNum, level: levelNum };
-    this.levelData = levelsDataBase[worldNum][levelNum];
     this.generateMap(worldNum, levelNum);
 
     this.groups.player.callAll('respawn'); //resets players' pos
-    if(this.pvpMode) this.restartDeathZoneCountdowns();
+    if (this.pvpMode) this.restartDeathZoneCountdowns();
 };
 Map.prototype.regenerateMap = function () {
     this.generateNewMap(this.mapNumber.world, this.mapNumber.level)
 };
 Map.prototype.generateNextMap = function () { //based on number of levels in the world
 
-    if (levelsDataBase[this.mapNumber.world].length === this.mapNumber.level + 1) {
-        if (levelsDataBase.length === this.mapNumber.world + 1)
-            this.game.debug.text(this.mapNumber.world + " , " + this.mapNumber.level
-                + " is the last map...", debugPos.x, debugPos.y, debugColor);
+    if (config.endless_rnd_map_gen) this.generateNewMap(this.mapNumber.world, this.mapNumber.level);
 
-        else this.generateNewMap(this.mapNumber.world + 1, 0);
+    else {
+        if (levelsDataBase[this.mapNumber.world].length === this.mapNumber.level + 1) {
+            if (levelsDataBase.length === this.mapNumber.world + 1)
+                this.game.debug.text(this.mapNumber.world + " , " + this.mapNumber.level
+                    + " is the last map...", debugPos.x, debugPos.y, debugColor);
+
+            else this.generateNewMap(this.mapNumber.world + 1, 0);
+        }
+        else this.generateNewMap(this.mapNumber.world, this.mapNumber.level + 1);
     }
-
-    else this.generateNewMap(this.mapNumber.world, this.mapNumber.level + 1);
 };
 
 

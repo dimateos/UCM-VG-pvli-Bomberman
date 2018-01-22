@@ -23,6 +23,7 @@ const config = {
         Offset: new Point(40, 80), //space for hud
     },
 
+    endless_rnd_map_gen: true,
 
     //PvE
     initialMapPveDEBUG: { world: 0, level: 0 },
