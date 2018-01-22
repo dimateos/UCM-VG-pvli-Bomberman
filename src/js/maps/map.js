@@ -130,7 +130,8 @@ Map.prototype.generateNewMap = function (worldNum, levelNum) {
     if (this.pvpMode) this.restartDeathZoneCountdowns();
 };
 Map.prototype.regenerateMap = function () {
-    this.generateNewMap(this.mapNumber.world, this.mapNumber.level)
+    this.rndGen--;
+    this.generateNewMap(this.mapNumber.world, this.mapNumber.level);
 };
 Map.prototype.generateNextMap = function () { //based on number of levels in the world
 

@@ -26,8 +26,11 @@ const HUDBombPos = config.HUDBombPos;
 const HUDBombAnchor = config.HUDBombAnchor;
 const HUDBombScale = config.HUDBombScale;
 
+const HUDBombPosText = config.HUDBombPosText;
+
 var HUDPressX;
 var HUDBomb;
+var HUDBombText;
 
 
 var playerInfoHUD = function (game, HUDbombHead, playerNum, pvpMode) {
@@ -63,6 +66,8 @@ playerInfoHUD.prototype.updatePlayerInfoHud = function (player, pvpMode) {
     if (!pvpMode) {
         this.HUDlives.text = player.lives;
         this.HUDPointsNumber.text = player.points;
+
+        if (config.endless_rnd_map_gen) HUDBombText.text = player.level.rndGen;
     }
     else this.HUDlives.text = player.wins;
 }
@@ -78,12 +83,16 @@ playerInfoHUD.drawPressX = function (game) {
 playerInfoHUD.drawBombHud = function (game, pvpMode) {
 
     var posX;
-    if (!pvpMode) posX = winWidth/2;
-    else posX = winWidth - winWidth/10;
+    if (pvpMode) posX = winWidth - winWidth/10;
+    else posX = winWidth/2;
 
-    HUDBomb = game.add.sprite(posX + HUDBombPos.x, HUDBombPos.y, 'bomb');
+    HUDBomb = game.add.sprite(posX + HUDBombPos.x, HUDBombPos.y, config.keys.HUDbomb);
     HUDBomb.anchor.setTo(HUDBombAnchor.x, HUDBombAnchor.y);
     HUDBomb.scale.setTo(HUDBombScale.x, HUDBombScale.y);
+
+    if (!pvpMode && config.endless_rnd_map_gen)
+        HUDBombText = game.add.text(posX + HUDBombPosText.x, HUDBombPos.y + HUDBombPosText.y, "",
+        { font: "30px Comic Sans MS", fill: "#f9e000", align: "center" });
 }
 
 module.exports = playerInfoHUD;

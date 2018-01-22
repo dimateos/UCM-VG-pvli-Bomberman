@@ -61,6 +61,7 @@ var baseMapData = {
         const tutorialDrops = 1;
         const baseEnemies = 4;
 
+        const portalId = 0;
         const diffTiers = 3;
 
         const maxMinEnemies = 8;
@@ -73,7 +74,7 @@ var baseMapData = {
         var powerUps = [1, 2, 2];
         var theme = "basic";
 
-        var enemies, enemiesDrops = [], structedEnemies = [];
+        var enemies, structedEnemies = [], enemiesDrops = [portalId];
 
         if (level === 0) {
             structedEnemies.push(tutorialEnemies);

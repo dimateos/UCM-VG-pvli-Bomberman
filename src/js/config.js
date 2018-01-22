@@ -31,12 +31,17 @@ const config = {
     pve_initialPlayers: 1,
     pve_maxPlayers: 2, //needed for the map generation
 
+    playerLifeTime: 3 * 60 * 1000,
+    hudAnimSpeed: 10 / (3 * 60), //animation lasts 3 min
 
     //PvP
     initialMapPvP: { world: 1, level: 0 },
     pvp_initialPlayers: 4,
     pvp_maxPlayers: 4,
 
+    deathZoneTimeStart: 2 * 60 * 1000, //sync with hud anim
+    deathZoneTimeLoop: 5 * 1000,
+    hudAnimSpeedPvp: 10 / (2 * 60), //animation lasts 2 min
 
     //MAP
 
@@ -46,9 +51,6 @@ const config = {
     defaultImmovable: true,
     defaultBombableLives: 1,
     defaultBombableInvencibleTime: 0,
-
-    deathZoneTimeStart: 2 * 60 * 1000, //sync with hud anim
-    deathZoneTimeLoop: 5 * 1000,
 
 
     //PLAYER
@@ -68,12 +70,10 @@ const config = {
     playerInvencibleTime: 5000,
     playerRespawnedStoppedTime: 1000,
     playerDeathTime: 1500,
-    playerLifeTime: 60 * 3 * 1000,
 
     step: Math.PI * 2 / 360, //degrees
     playerInitialAlphaAngle: 30, //sin(playerInitialAlphaAnlge) -> alpha
     alphaWavingSpeed: 1.75,
-    hudAnimSpeed: 10 / (2 * 60), //animation lasts 2 min
 
     playerVelocity: 140, //max=playerVelocity+5*10 (depends on powerUps)
     playerVelocityTurning: 105, //140 105
@@ -150,9 +150,10 @@ const config = {
     HUDPointsNumberScale: new Point(0.2, 0),
     HUDPressXPos: new Point(90, -10),
     HUDPressXScale: new Point(0.75, 0.75),
-    HUDBombPos: new Point(0, 10),
+    HUDBombPos: new Point(0, 0),
     HUDBombAnchor: new Point(0.5, 0),
-    HUDBombScale: new Point(1.2, 1.2),
+    HUDBombScale: new Point(1.1, 1.1),
+    HUDBombPosText: new Point(-8, 20),
 
 
     //GAME OVER
