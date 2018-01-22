@@ -28,6 +28,8 @@ var PreloaderScene = {
         this.game.load.image(keys.powerUpBombUp, 'images/Sprites/Powerups/BombPowerup.png');
         this.game.load.image(keys.powerUpFlameUp, 'images/Sprites/Powerups/FlamePowerup.png');
         this.game.load.image(keys.powerUpSpeedUp, 'images/Sprites/Powerups/SpeedPowerup.png');
+        this.game.load.image(keys.pointsUp, 'images/Sprites/Powerups/PointPowerup.png');
+        this.game.load.image(keys.pointsUpPlus, 'images/Sprites/Powerups/PointPowerupPlus.png');
 
         this.game.load.spritesheet(keys.bomb, 'images/Sprites/Bomb/Bomb_f1.png', 48, 48);
         this.game.load.spritesheet(keys.flame, 'images/Sprites/Flame/flames.png', 48, 48);

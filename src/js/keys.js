@@ -29,6 +29,8 @@ portal:'portal',
 powerUpBombUp:'powerUpBombUp',
 powerUpFlameUp:'powerUpFlameUp',
 powerUpSpeedUp:'powerUpSpeedUp',
+pointsUp:'pointsUp',
+pointsUpPlus:'pointsUpPlus',
 
 bomb:'bomb',
 flame:'flame',

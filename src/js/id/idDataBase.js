@@ -1,4 +1,6 @@
 'use strict';
+var config = require('../config.js');
+
 
 var modsFunctions = require('./modsFunctions.js'); //all the database
 //*A previous version with types of mods (instead of all functions)
@@ -15,19 +17,30 @@ var idDataBase = [
         },*/
     ],
 
-    [ //tier 1 //maybe sprite more generic + add name?
+    [ //tier 1
         {   //0
-            sprite: 'powerUpBombUp', pts: 10,
+            sprite: config.keys.powerUpBombUp, pts: 200,
             mods: [modsFunctions.bombUp]
         },
         {   //1
-            sprite: 'powerUpFlameUp', pts: 200,
+            sprite: config.keys.powerUpFlameUp, pts: 300,
             mods: [modsFunctions.flameUp]
         },
         {   //2
-            sprite: 'powerUpSpeedUp', pts: 400,
+            sprite: config.keys.powerUpSpeedUp, pts: 100,
             mods: [modsFunctions.speedUp]
         }
+    ],
+
+    [ //tier 2 //only points items
+        {   //0
+            sprite: config.keys.pointsUp, pts: 50,
+            mods: []
+        },
+        {   //1
+            sprite: config.keys.pointsUpPlus, pts: 500,
+            mods: []
+        },
     ]
 ];
 

@@ -204,11 +204,13 @@ Player.prototype.addPoints = function (pts) {
     this.points += pts;
 
     if (this.points >= playerExtraLifePoints) {
-        var n = this.points / (playerExtraLifePoints - this.points % playerExtraLifePoints);
+        var n = (this.points - this.points % playerExtraLifePoints) / playerExtraLifePoints;
 
         if (n > this.extraLives) {
+
             this.extraLives++;
             this.lives++;
+            // console.log(n, this.extraLives,  this.lives);
         }
     }
 }

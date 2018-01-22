@@ -50,7 +50,7 @@ var levelDataBase = [
         {   //1
             extraWalls: 8,
             bombables: 33,      //some bombables drop power ups
-            powerUps: [1, 2],    //first 1 portal, 2 tier 1 power ups...
+            powerUps: [1, 2, 25],    //first 1 portal, 2 tier 1 power ups...
             enemies: [3],       //3 tier 0 enemies
             enemiesDrops: [0, 2],//they could drop portals but nope
             theme: "basic"

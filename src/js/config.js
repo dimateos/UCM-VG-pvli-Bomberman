@@ -10,7 +10,7 @@ const config = {
 
     keys: keys,
 
-    DEBUG: true,
+    DEBUG: false,
     debugPos: new Point(32, height - 96),
     debugColor: "yellow",
 
@@ -27,7 +27,7 @@ const config = {
     //PvE
     initialMapPveDEBUG: { world: 0, level: 0 },
     initialMapPve: { world: 1, level: 1 },
-    pve_initialPlayers: 2,
+    pve_initialPlayers: 1,
     pve_maxPlayers: 2, //needed for the map generation
 
 
@@ -60,8 +60,8 @@ const config = {
 
     playerImmovable: false,
 
-    playerLives: 1,
-    playerExtraLifePoints: 1000,
+    playerLives: 3,
+    playerExtraLifePoints: 3000,
     playerNumBombs: 1,
 
     playerInvencibleTime: 5000,
