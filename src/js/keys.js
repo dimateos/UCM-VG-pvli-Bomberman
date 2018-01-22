@@ -9,6 +9,9 @@ preloader:'preloader',
 mainMenu:'mainMenu',
 pve:'pve',
 pvp:'pvp',
+numbers: 'numbers',
+done: 'done',
+manyWins: 'wins',
 
 
 //SPRITES

@@ -37,14 +37,26 @@ const initialPlayers = config.pvp_initialPlayers;
 const maxPlayers = config.pvp_maxPlayers; //needed for the map generation
 var players;
 
+var winsNec;
+
 const tileData = config.tileData;
 
 
 var PlayScene = {
 
+  init: function (winsNecessary) {
+    winsNec = winsNecessary;
+  },
+
   preload: function () {
     this.game.stage.backgroundColor = 'black';
     if (DEBUG) this.startTime = Date.now(); //to calculate booting time
+  },
+
+  endGameScreen: function () {
+    //Cosas del endGame.
+    
+
   },
 
 
@@ -83,6 +95,8 @@ var PlayScene = {
 
   update: function () {
 
+    
+
     this.game.physics.arcade.collide(groups.player, groups.wall);
     this.game.physics.arcade.collide(groups.player, groups.box);
     this.game.physics.arcade.collide(groups.player, groups.bomb);
@@ -90,8 +104,13 @@ var PlayScene = {
     this.game.world.bringToTop(groups.flame);
     this.game.world.bringToTop(groups.player); //array doesnt work
 
-    for (var numPlayer = 0; numPlayer < playerInfoHUDs.length; numPlayer++)
+    for (var numPlayer = 0; numPlayer < playerInfoHUDs.length; numPlayer++) {
       playerInfoHUDs[numPlayer].updatePlayerInfoHud(players[numPlayer], pvpMode);
+      if(players[numPlayer].wins === winsNec)
+      {
+        this.endGameScreen();
+      }
+    }
 
     // gameOver.check(this.game, players);
     audioHUD.checkVisible();

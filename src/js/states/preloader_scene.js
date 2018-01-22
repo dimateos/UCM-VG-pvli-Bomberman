@@ -52,6 +52,10 @@ var PreloaderScene = {
         this.game.load.image(keys.muted, 'images/Sprites/Menu/Muted.png');
         this.game.load.image(keys.volArrow, 'images/Sprites/Menu/VolumeArrow.png');
 
+        this.game.load.spritesheet(keys.numbers, 'images/Sprites/Menu/Numbers.png', 64, 137);
+        this.game.load.image(keys.done, 'images/Sprites/Menu/Done.png');
+        this.game.load.image(keys.manyWins, 'images/Sprites/Menu/HowManyWins.png');
+
         //HUD sprites
         this.game.load.image(keys.HUDPoints, 'images/Sprites/HUD/HUDPoints.png');
         this.game.load.image(keys.HUD2, 'images/Sprites/HUD/HUD2.png');

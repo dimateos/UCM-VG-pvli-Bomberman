@@ -33,7 +33,7 @@ const config = {
     pve_maxPlayers: 2, //needed for the map generation
 
 
-    //PvE
+    //PvP
     pvp_initialPlayers: 4,
     pvp_maxPlayers: 4,
 
@@ -92,6 +92,13 @@ const config = {
     bombTimer: 2000,
     bombFlameTimer: 500,
 
+
+    //FLAMES
+
+    flameBodySize: new Point(48, 48),
+    flameBodyOffset: new Point(0, 0),
+    flameExtraOffset: new Point(5, 5),
+    flameImmovable: true,
 
     //ENEMY
 

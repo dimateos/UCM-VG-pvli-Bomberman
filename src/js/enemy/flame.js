@@ -1,14 +1,15 @@
 'use strict';
+const config = require('../config.js');
 
 var Physical = require('../objects/physical.js');
 var Point = require('../general/point.js');
 
 //default flameentifiable values
-var flameBodySize = new Point(48, 48); //little smaller
-var flameBodyOffset = new Point(0, 0);
-var flameExtraOffset = new Point(5, 5); //flame body is not full res
-var flameImmovable = true;
-var flameSprite = 'flame';
+var flameBodySize = config.flameBodySize; //little smaller
+var flameBodyOffset = config.flameBodyOffset;
+var flameExtraOffset = config.flameExtraOffset; //flame body is not full res
+var flameImmovable = config.flameImmovable;
+var flameSprite = config.keys.flame;
 
 function Flame (game, position, scale, player) {
 
