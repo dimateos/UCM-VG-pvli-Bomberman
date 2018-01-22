@@ -11,11 +11,11 @@ const config = {
     keys: keys,
 
     DEBUG: true,
-    winWidth: width,
-    winHeight: height,
-
     debugPos: new Point(32, height - 96),
     debugColor: "yellow",
+
+    winWidth: width,
+    winHeight: height,
 
     tileData: {
         Res: new Point(64, 64),
@@ -23,17 +23,16 @@ const config = {
         Offset: new Point(40, 80), //space for hud
     },
 
-    initialMapPveDEBUG: { world: 0, level: 0 },
-    initialMapPve: { world: 1, level: 1 },
-    initialMapPvP: { world: 1, level: 0 },
-
 
     //PvE
+    initialMapPveDEBUG: { world: 0, level: 0 },
+    initialMapPve: { world: 1, level: 1 },
     pve_initialPlayers: 2,
     pve_maxPlayers: 2, //needed for the map generation
 
 
     //PvP
+    initialMapPvP: { world: 1, level: 0 },
     pvp_initialPlayers: 4,
     pvp_maxPlayers: 4,
 
@@ -46,8 +45,9 @@ const config = {
     defaultImmovable: true,
     defaultBombableLives: 1,
     defaultBombableInvencibleTime: 0,
-    deathZoneTimeStart: 2*60*1000,
-    deathZoneTimeLoop: 5*1000,
+
+    deathZoneTimeStart: 2 * 60 * 1000, //sync with hud anim
+    deathZoneTimeLoop: 5 * 1000,
 
 
     //PLAYER
@@ -72,10 +72,26 @@ const config = {
     step: Math.PI * 2 / 360, //degrees
     playerInitialAlphaAngle: 30, //sin(playerInitialAlphaAnlge) -> alpha
     alphaWavingSpeed: 1.75,
-    hudAnimSpeed: 1 / 18, //1/18 is the correct
+    hudAnimSpeed: 10 / (2 * 60), //animation lasts 2 min
 
     playerVelocity: 140, //max=playerVelocity+5*10 (depends on powerUps)
     playerVelocityTurning: 105, //140 105
+
+    //POWEUPS
+
+    bombsKey: "numBombs",
+    bombsAdd: 1,
+    bombsMin: 1,
+    bombsMax: 10,
+
+    flameKey: "power",
+    flameAdd: 1,
+    flameMax: 10, //no flame min needed
+
+    speedKey: "velocity",
+    speedAdd: 25,
+    speedMin: 200,
+    speedLimit: 200 + 25 * 8,
 
 
     //BOMB
@@ -99,6 +115,7 @@ const config = {
     flameBodyOffset: new Point(0, 0),
     flameExtraOffset: new Point(5, 5),
     flameImmovable: true,
+
 
     //ENEMY
 
@@ -136,11 +153,11 @@ const config = {
     HUDBombAnchor: new Point(0.5, 0),
     HUDBombScale: new Point(1.2, 1.2),
 
-    
+
     //GAME OVER
 
     gmOverSignAnchor: new Point(0.5, 0.5),
-    goToMenuAnchor: new Point(1, 1), 
+    goToMenuAnchor: new Point(1, 1),
 
 
     //AUDIO HUD
@@ -165,7 +182,7 @@ const config = {
     unpauseButtonAnchor: new Point(0.5, 0.5),
     unpauseButtonScale: new Point(0.75, 0.75),
     gotoMenuButtonPos: new Point(0, 50),
-    gotoMenuButtonAnchor: new Point(0.5, 0.5), 
+    gotoMenuButtonAnchor: new Point(0.5, 0.5),
     gotoMenuButtonScale: new Point(0.75, 0.75),
 };
 

@@ -65,10 +65,10 @@ movementLogic: function () {
     //console.log(this.prioritizedDirs.first.x, this.prioritizedDirs.first.y, " - ", this.prioritizedDirs.second.x, this.prioritizedDirs.second.y);
 
     //moves the player (only if dir is not null)
-    if (fixedFinalDir.x === 1) this.body.velocity.x = this.velocity;
-    else if (fixedFinalDir.x === -1) this.body.velocity.x = -this.velocity;
-    else if (fixedFinalDir.y === 1) this.body.velocity.y = this.velocity;
-    else if (fixedFinalDir.y === -1) this.body.velocity.y = -this.velocity;
+    if (fixedFinalDir.x === 1) this.body.velocity.x = this[config.speedKey];
+    else if (fixedFinalDir.x === -1) this.body.velocity.x = -this[config.speedKey];
+    else if (fixedFinalDir.y === 1) this.body.velocity.y = this[config.speedKey];
+    else if (fixedFinalDir.y === -1) this.body.velocity.y = -this[config.speedKey];
 
     //callback
     function unlockTurning() { this.blockedBacktrack.turn = false }
@@ -156,7 +156,7 @@ prioritizeInputs: function (nextDirX, nextDirY) {
 fixedDirMovement: function (dir) {
 
     var fixedDir;
-    this.velocity = playerVelocity; //mey be slowed down
+    this[config.speedKey] = playerVelocity; //mey be slowed down
 
     //virtual map pos and extra pos
     var positionMap = new Point(this.position.x, this.position.y)
@@ -180,7 +180,7 @@ fixedDirMovement: function (dir) {
         else { //next square is free but the player is not aligned
             //needs to be aligned, moves in negative extraPosMap
             // console.log("3");
-            this.velocity = playerVelocityTurning;
+            this[config.speedKey] = playerVelocityTurning;
             fixedDir = new Point(-extraPosMap.x, -extraPosMap.y);
         }
     }
@@ -194,7 +194,7 @@ fixedDirMovement: function (dir) {
         //it moves along (dir) and gets closer to the blocked square
         else if (extraPosMap.isParallel(dir)) {
             // console.log("5");
-            this.velocity = playerVelocityTurning;
+            this[config.speedKey] = playerVelocityTurning;
             fixedDir = new Point(dir.x, dir.y);
         }
         else {//if not aligned, moves towards the direction it's leaning to
@@ -207,7 +207,7 @@ fixedDirMovement: function (dir) {
 
             //check the diagonal square
             if (this.level.isNextSquareFree(positionMap, diagonalDir)) {
-                this.velocity = playerVelocityTurning;
+                this[config.speedKey] = playerVelocityTurning;
                 fixedDir = new Point(extraPosMap.x, extraPosMap.y);
             }
             else fixedDir = new Point(); //if diagonal is blocked too, do nothing

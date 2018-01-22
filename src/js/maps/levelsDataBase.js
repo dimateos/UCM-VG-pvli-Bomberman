@@ -71,6 +71,7 @@ var levelDataBase = [
             enemiesDrops: [0, 1], //?
             theme: "basic" //"wood"
         },
+        //could randomize these values and make it endless
     ]
 ];
 

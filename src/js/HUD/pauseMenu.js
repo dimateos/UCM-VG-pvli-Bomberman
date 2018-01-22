@@ -40,19 +40,21 @@ var pauseMenu = {
 
         function unPause() {
           if (game.paused) {
-            if (game.input.mousePointer.position.x > unpauseButton.position.x - unpauseButton.texture.width / 2
-              && game.input.mousePointer.position.x < unpauseButton.position.x + unpauseButton.texture.width / 2
-              && game.input.mousePointer.position.y > unpauseButton.position.y - unpauseButton.texture.height / 2
-              && game.input.mousePointer.position.y < unpauseButton.position.y + unpauseButton.texture.height / 2)
-              game.paused = false;
+            if (checkBorders(game.input, unpauseButton)) game.paused = false;
 
-            else if (game.input.mousePointer.position.x > gotoMenuButton.position.x - gotoMenuButton.texture.width / 2
-              && game.input.mousePointer.position.x < gotoMenuButton.position.x + gotoMenuButton.texture.width / 2
-              && game.input.mousePointer.position.y > gotoMenuButton.position.y - gotoMenuButton.texture.height / 2
-              && game.input.mousePointer.position.y < gotoMenuButton.position.y + gotoMenuButton.texture.height / 2)
-              { game.state.start('mainMenu'); game.paused = false; }
+            else if (checkBorders(game.input, gotoMenuButton)) {
+              game.state.start('mainMenu');
+              game.paused = false;
+            }
           }
         };
+
+        function checkBorders(inputPointer, button) {
+          return (inputPointer.position.x > button.position.x - button.texture.width / 2
+          && inputPointer.position.x < button.position.x + button.texture.width / 2
+          && inputPointer.position.y > button.position.y - button.texture.height / 2
+          && inputPointer.position.y < button.position.y + button.texture.height / 2)
+        }
     },
 
     resumedMenu: function (music, gInputs, game) {

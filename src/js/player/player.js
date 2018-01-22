@@ -86,7 +86,7 @@ function Player(game, level, numPlayer, tileData, groups, hudVidas) {
     this.groups = groups;
     this.groups.player.add(this); //adds itself to the group
 
-    this.numBombs = playerNumBombs;
+    this[config.bombsKey] = playerNumBombs;
     this.mods = [];
     this.bombMods = [];
     Identifiable.addPowerUps(playerInitialModsIds, this);
@@ -102,7 +102,7 @@ Player.prototype.constructor = Player;
 
 //Restarts all movements variables
 Player.prototype.restartMovement = function () {
-    this.velocity = playerMovAndInputs.getVel();
+    this[config.speedKey] = playerMovAndInputs.getVel();
     this.dirs = { dirX: new Point(), dirY: new Point };
     this.prioritizedDirs = { first: this.dirs.dirX, second: this.dirs.dirY };
     this.blockedBacktrack = { x: false, y: false, turn: false };
@@ -225,14 +225,14 @@ Player.prototype.fixedDirMovement = playerMovAndInputs.fixedDirMovement;
 
 //all the bomb deploying logic
 Player.prototype.bombLogic = function () {
-    if (this.inputs.bomb.button.isDown && !this.inputs.bomb.ff && this.numBombs > 0
+    if (this.inputs.bomb.button.isDown && !this.inputs.bomb.ff && this[config.bombsKey] > 0
         && !this.game.physics.arcade.overlap(this, this.groups.bomb)) {
         //checks if the player is over a bomb
 
         //console.log(this.groups.bomb.children)
         //console.log(this.groups.flame.children)
 
-        this.numBombs--;
+        this[config.bombsKey]--;
 
         var bombPosition = new Point(this.position.x, this.position.y)
             .getMapSquarePos(this.tileData, playerExtraOffset)

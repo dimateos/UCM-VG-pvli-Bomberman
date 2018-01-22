@@ -37,13 +37,13 @@ const initialPlayers = config.pvp_initialPlayers;
 const maxPlayers = config.pvp_maxPlayers; //needed for the map generation
 var players;
 
-var winsNec;
-
 const tileData = config.tileData;
 
+var winsNec;
 
 var PlayScene = {
 
+  //parameter sent from the menu
   init: function (winsNecessary) {
     winsNec = winsNecessary;
   },
@@ -55,7 +55,7 @@ var PlayScene = {
 
   endGameScreen: function () {
     //Cosas del endGame.
-    
+    console.log("AND THE WINNER IS PIPO");
 
   },
 
@@ -77,7 +77,7 @@ var PlayScene = {
     for (var numPlayer = 0; numPlayer < initialPlayers; numPlayer++) {
       playerInfoHUDs.push(new playerInfoHUD(this.game, HUDBombHead, numPlayer, pvpMode));
     }
-    playerInfoHUD.drawBombHud(this.game, pvpMode); //little bomb
+    playerInfoHUD.drawBombHud(this.game, pvpMode); //little bomb at the right
 
     //player/s (initialPlayers)
     players = [];
@@ -95,18 +95,19 @@ var PlayScene = {
 
   update: function () {
 
-    
-
     this.game.physics.arcade.collide(groups.player, groups.wall);
     this.game.physics.arcade.collide(groups.player, groups.box);
     this.game.physics.arcade.collide(groups.player, groups.bomb);
 
     this.game.world.bringToTop(groups.flame);
-    this.game.world.bringToTop(groups.player); //array doesnt work
+    this.game.world.bringToTop(groups.player); //array doesnt work so group
 
+    //update HUD + check for win (so no iterate players twice)
     for (var numPlayer = 0; numPlayer < playerInfoHUDs.length; numPlayer++) {
+
       playerInfoHUDs[numPlayer].updatePlayerInfoHud(players[numPlayer], pvpMode);
-      if(players[numPlayer].wins === winsNec)
+
+      if(players[numPlayer].wins === winsNec) //end of the match
       {
         this.endGameScreen();
       }

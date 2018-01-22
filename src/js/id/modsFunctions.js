@@ -1,24 +1,19 @@
 'use strict';
+const config = require('../config.js');
 
-//they all look the same xd should improve it
-//but allows modifications
+var bombsKey = config.bombsKey;
+var bombsAdd = config.bombsAdd;
+var bombsMin = config.bombsMin;
+var bombsMax = config.bombsMax;
 
-//this should all be based on player
-//so maybe add references (min values etc)
+var flameKey = config.flameKey;
+var flameAdd = config.flameAdd;
+var flameMax = config.flameMax; //no flame min needed
 
-var bombsKey = "numBombs";
-var bombsAdd = 1;
-var bombsMin = 1;
-var bombsMax = 10;
-
-var flameKey = "power";
-var flameAdd = 1;
-var flameMax = 10; //no flame min needed
-
-var speedKey = "velocity";
-var speedAdd = 25;
-var speedMin = 200;
-var speedLimit = speedMin + speedAdd*8;
+var speedKey = config.speedKey;
+var speedAdd = config.speedAdd;
+var speedMin = config.speedMin;
+var speedLimit = config.speedLimit;
 
 
 //contains the different powerUp's functions. Unordered.

@@ -35,7 +35,7 @@ function Bomb (game, level, position, tileData, groups, player, bombMods) {
 
     this.timer = bombTimer;
     this.flameTimer = bombFlameTimer;
-    this.power = bombPower;
+    this[config.flameKey] = bombPower;
 
     this.groups = groups;
     this.player = player; //link to restore bomb etc
@@ -138,7 +138,7 @@ Bomb.prototype.expandFlames = function(flames, positionMap) {
         var tmpPositionMap = new Point (positionMap.x, positionMap.y)
             .reverseTileData(this.tileData, bombExtraOffset);
 
-        while(expansion <= this.power && !obstacle && !bombable && !bomb/* && !flame*/) {
+        while(expansion <= this[config.flameKey] && !obstacle && !bombable && !bomb/* && !flame*/) {
 
             //checks if the next square is free
             if (this.level.isNextSquareNotWall(tmpPositionMap, directions[i])) {

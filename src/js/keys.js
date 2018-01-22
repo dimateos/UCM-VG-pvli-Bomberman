@@ -9,12 +9,13 @@ preloader:'preloader',
 mainMenu:'mainMenu',
 pve:'pve',
 pvp:'pvp',
-numbers: 'numbers',
-done: 'done',
-manyWins: 'wins',
 
 
 //SPRITES
+
+numbers: 'numbers',
+done: 'done',
+manyWins: 'wins',
 
 preloader_logo: 'preloader_logo',
 
