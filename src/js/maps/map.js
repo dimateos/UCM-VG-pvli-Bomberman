@@ -49,7 +49,7 @@ function Map(game, worldNum, levelNum, groups, tileData, maxPlayers, pvpMode) {
     this.types = baseMapData.squaresTypes;
     this.playerSpawns = baseMapData.playerSpawns;
 
-    if (config.endless_rnd_map_gen) this.rndGen = 0;
+    if (config.endless_rnd_map_gen && !this.pvpMode) this.rndGen = 0;
     this.generateMap(worldNum, levelNum);
 
     if (pvpMode) this.restartDeathZoneCountdowns();
@@ -102,8 +102,7 @@ Map.prototype.generateMap = function (worldNum, levelNum) {
 
     this.mapNumber = { world: worldNum, level: levelNum };
 
-    if (config.endless_rnd_map_gen) {
-        console.log(this.rndGen);
+    if (config.endless_rnd_map_gen && !this.pvpMode) {
         this.levelData = baseMapData.rndGeneration(this.game, this.rndGen);
         this.rndGen++;
     }
@@ -130,7 +129,7 @@ Map.prototype.generateNewMap = function (worldNum, levelNum) {
     if (this.pvpMode) this.restartDeathZoneCountdowns();
 };
 Map.prototype.regenerateMap = function () {
-    this.rndGen--;
+    if (config.endless_rnd_map_gen && !this.pvpMode) this.rndGen--;
     this.generateNewMap(this.mapNumber.world, this.mapNumber.level);
 };
 Map.prototype.generateNextMap = function () { //based on number of levels in the world

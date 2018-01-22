@@ -10,6 +10,8 @@ const config = {
 
     keys: keys,
 
+    HACKS: false, //extra controls (rebuild level, next level, show bodys)
+
     DEBUG: false,
     debugPos: new Point(32, height - 96),
     debugColor: "yellow",
@@ -39,8 +41,8 @@ const config = {
     pvp_initialPlayers: 4,
     pvp_maxPlayers: 4,
 
-    deathZoneTimeStart: 2 * 60 * 1000, //sync with hud anim
-    deathZoneTimeLoop: 5 * 1000,
+    deathZoneTimeStart: 1.5 * 60 * 1000, //sync with hud anim
+    deathZoneTimeLoop: 2.5 * 1000,
     hudAnimSpeedPvp: 10 / (2 * 60), //animation lasts 2 min
 
     //MAP

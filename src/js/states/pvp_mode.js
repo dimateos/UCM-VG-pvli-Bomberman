@@ -116,8 +116,10 @@ var PlayScene = {
     // gameOver.check(this.game, players);
     audioHUD.checkVisible();
 
-    globalControls.debugModeControl(gInputs, this.game, groups.player);
-    globalControls.resetLevelControl(gInputs, level);
+    if (config.HACKS) {
+      globalControls.debugModeControl(gInputs, this.game, groups.player);
+      globalControls.resetLevelControl(gInputs, level);
+    }
 
     pauseMenu.offPauseMenuControl(this.game, gInputs);
   },
