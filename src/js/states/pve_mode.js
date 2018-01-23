@@ -122,6 +122,10 @@ var PlayScene = {
       this.game.debug.bodyInfo(players[0], debugPos.x, debugPos.y, debugColor);
     }
   },
+
+  shutdown: function () {
+    audioHUD.destruction(this.game);
+  },
 };
 
 module.exports = PlayScene;

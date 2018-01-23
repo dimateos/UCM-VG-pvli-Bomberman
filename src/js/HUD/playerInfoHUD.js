@@ -68,9 +68,13 @@ playerInfoHUD.prototype.updatePlayerInfoHud = function (player, pvpMode) {
 }
 
 
-playerInfoHUD.drawPressX = function (game) {
-
-    HUDPressX = game.add.sprite(winWidth / 2 + HUDPressXPos.x, HUDPressXPos.y, 'HUDPressX');
+playerInfoHUD.drawPressX = function (game, pvpMode) {
+    if (!pvpMode) {
+        HUDPressX = game.add.sprite(winWidth / 2 + HUDPressXPos.x, HUDPressXPos.y, 'HUDPressX');
+    }
+    else {
+        HUDPressX = game.add.sprite(winWidth / 2 + HUDPressXPos.x - 100, HUDPressXPos.y, 'HUDPressX');
+    }
     HUDPressX.scale.setTo(HUDPressXScale.x, HUDPressXScale.y);
     HUDPressX.visible = true;
 }
@@ -78,8 +82,8 @@ playerInfoHUD.drawPressX = function (game) {
 playerInfoHUD.drawBombHud = function (game, pvpMode) {
 
     var posX;
-    if (!pvpMode) posX = winWidth/2;
-    else posX = winWidth - winWidth/10;
+    if (!pvpMode) posX = winWidth / 2;
+    else posX = winWidth - winWidth / 10;
 
     HUDBomb = game.add.sprite(posX + HUDBombPos.x, HUDBombPos.y, 'bomb');
     HUDBomb.anchor.setTo(HUDBombAnchor.x, HUDBombAnchor.y);

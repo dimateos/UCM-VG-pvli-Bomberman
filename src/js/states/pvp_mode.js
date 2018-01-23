@@ -77,6 +77,7 @@ var PlayScene = {
     for (var numPlayer = 0; numPlayer < initialPlayers; numPlayer++) {
       playerInfoHUDs.push(new playerInfoHUD(this.game, HUDBombHead, numPlayer, pvpMode));
     }
+    if (initialPlayers <= 2) playerInfoHUD.drawPressX(this.game, true);    
     playerInfoHUD.drawBombHud(this.game, pvpMode); //little bomb at the right
 
     //player/s (initialPlayers)
@@ -116,6 +117,7 @@ var PlayScene = {
     // gameOver.check(this.game, players);
     audioHUD.checkVisible();
 
+    globalControls.addPlayerControl(gInputs, players, maxPlayers, playerInfoHUDs);
     globalControls.debugModeControl(gInputs, this.game, groups.player);
     globalControls.resetLevelControl(gInputs, level);
 
@@ -140,6 +142,10 @@ var PlayScene = {
       this.game.debug.bodyInfo(players[0], debugPos.x, debugPos.y, debugColor);
     }
 
+  },
+
+  shutdown: function () {
+    audioHUD.destruction(this.game);
   },
 };
 

@@ -27,13 +27,13 @@ const config = {
     //PvE
     initialMapPveDEBUG: { world: 0, level: 0 },
     initialMapPve: { world: 1, level: 1 },
-    pve_initialPlayers: 2,
+    pve_initialPlayers: 1,
     pve_maxPlayers: 2, //needed for the map generation
 
 
     //PvP
     initialMapPvP: { world: 1, level: 0 },
-    pvp_initialPlayers: 4,
+    pvp_initialPlayers: 2,
     pvp_maxPlayers: 4,
 
 

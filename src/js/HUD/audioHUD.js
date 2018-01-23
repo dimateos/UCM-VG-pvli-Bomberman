@@ -2,6 +2,8 @@
 const config = require('../config.js');
 const keys = config.keys;
 
+var muted = true;
+
 const winWidth = config.winWidth;
 const winHeight = config.winHeight;
 
@@ -28,10 +30,10 @@ var audioHUD = {
 
     creation: function (game) {
 
-        //music
+        //music 
         this.music = game.add.audio('music');
         this.music.loopFull(0.4);
-        game.sound.mute = true; //la pauso que me morido quedo loco
+        game.sound.mute = muted; //la pauso que me morido quedo loco
 
         //buttons
         muteMusicButton = game.add.button(muteMusicButtonPos.x, muteMusicButtonPos.y, 'unmuted', this.toggleMute, game);
@@ -47,6 +49,11 @@ var audioHUD = {
         moreVolButton.scale.setTo(moreVolButtonScale.x, moreVolButtonScale.y);
         moreVolButton.angle = moreVolButtonAngle;
 
+    },
+
+    destruction: function(game) {
+        muted = game.sound.mute;
+        this.music.destroy(); 
     },
 
     checkVisible: function () {
