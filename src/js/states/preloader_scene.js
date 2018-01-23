@@ -28,6 +28,8 @@ var PreloaderScene = {
         this.game.load.image(keys.powerUpBombUp, 'images/Sprites/Powerups/BombPowerup.png');
         this.game.load.image(keys.powerUpFlameUp, 'images/Sprites/Powerups/FlamePowerup.png');
         this.game.load.image(keys.powerUpSpeedUp, 'images/Sprites/Powerups/SpeedPowerup.png');
+        this.game.load.image(keys.pointsUp, 'images/Sprites/Powerups/PointPowerup.png');
+        this.game.load.image(keys.pointsUpPlus, 'images/Sprites/Powerups/PointPowerupPlus.png');
 
         this.game.load.spritesheet(keys.bomb, 'images/Sprites/Bomb/Bomb_f1.png', 48, 48);
         this.game.load.spritesheet(keys.flame, 'images/Sprites/Flame/flames.png', 48, 48);
@@ -47,6 +49,7 @@ var PreloaderScene = {
         this.game.load.image(keys.resume, 'images/Sprites/Menu/Resume.png');
 
         this.game.load.image(keys.gameOver, 'images/Sprites/HUD/GameOver.png')
+        this.game.load.image(keys.HUDbomb, 'images/Sprites/HUD/HudBomb.png');
 
         this.game.load.image(keys.unmuted, 'images/Sprites/Menu/unMuted.png');
         this.game.load.image(keys.muted, 'images/Sprites/Menu/Muted.png');

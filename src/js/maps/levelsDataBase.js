@@ -50,7 +50,7 @@ var levelDataBase = [
         {   //1
             extraWalls: 8,
             bombables: 33,      //some bombables drop power ups
-            powerUps: [1, 2],    //first 1 portal, 2 tier 1 power ups...
+            powerUps: [1, 2, 2],    //first 1 portal, 2 tier 1 power ups...
             enemies: [3],       //3 tier 0 enemies
             enemiesDrops: [0, 2],//they could drop portals but nope
             theme: "basic"
@@ -58,7 +58,7 @@ var levelDataBase = [
         {   //2
             extraWalls: 6,
             bombables: 35,
-            powerUps: [1, 2],
+            powerUps: [1, 2, 2],
             enemies: [3, 2], //[3,2]
             enemiesDrops: [0, 2],
             theme: "basic"
@@ -66,12 +66,28 @@ var levelDataBase = [
         {   //3
             extraWalls: 6,
             bombables: 35,
-            powerUps: [1], //?
+            powerUps: [1, 1, 2], //?
             enemies: [0, 0, 9], //[0,0,9]
             enemiesDrops: [0, 1], //?
             theme: "basic" //"wood"
         },
-        //could randomize these values and make it endless
+        {   //4
+            extraWalls: 6,
+            bombables: 36,
+            powerUps: [1, 2, 2],
+            enemies: [3, 2, 4],
+            enemiesDrops: [0, 2],
+            theme: "basic"
+        },
+        {   //5
+            extraWalls: 6,
+            bombables: 36,
+            powerUps: [1, 2, 2],
+            enemies: [0, 3, 5],
+            enemiesDrops: [0, 1],
+            theme: "basic"
+        },
+        //no more cause we istead use the rnd generation
     ]
 ];
 

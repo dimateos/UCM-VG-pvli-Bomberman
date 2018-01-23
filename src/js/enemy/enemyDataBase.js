@@ -16,14 +16,14 @@ var enemyDataBase = [
     {
         lives: 2,
         velocity: basicVelocity,
-        pts: 400,
+        pts: 250,
         bodySize: new Point(50, 50),
         bodyOffset: new Point(6, 6),
     },
     {
         lives: 1,
         velocity: basicVelocity*1.1,
-        pts: 200,
+        pts: 150,
         bodySize: new Point(42, 42),
         bodyOffset: new Point(10, 10),
     },

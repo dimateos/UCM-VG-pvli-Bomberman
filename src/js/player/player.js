@@ -31,7 +31,6 @@ const playerLifeTime = config.playerLifeTime;
 const step = config.step; //degrees
 const playerInitialAlphaAngle = config.playerInitialAlphaAngle; //sin(playerInitialAlphaAnlge) -> alpha
 const alphaWavingSpeed = config.alphaWavingSpeed;
-const hudAnimSpeed = config.hudAnimSpeed; //1/18 is the correct
 
 
 const Id = Identifiable.Id; //the mini factory is in Identifiable
@@ -50,7 +49,10 @@ function Player(game, level, numPlayer, tileData, groups, hudVidas) {
 
     this.hudVidas = hudVidas;
     this.hudVidaAnim = hudVidas[numPlayer].animations.add('Clock');
-    this.hudVidaAnim.play(hudAnimSpeed, true);
+
+    if (level.pvpMode) var animSpeed = config.hudAnimSpeedPvp;
+    else var animSpeed = config.hudAnimSpeed;
+    this.hudVidaAnim.play(animSpeed, true);
     this.hudVidaAnim.onLoop.add(this.die, this, 0, 0);
 
     this.wins = 0; //for pvp
@@ -204,11 +206,13 @@ Player.prototype.addPoints = function (pts) {
     this.points += pts;
 
     if (this.points >= playerExtraLifePoints) {
-        var n = this.points / (playerExtraLifePoints - this.points % playerExtraLifePoints);
+        var n = (this.points - this.points % playerExtraLifePoints) / playerExtraLifePoints;
 
         if (n > this.extraLives) {
+
             this.extraLives++;
             this.lives++;
+            // console.log(n, this.extraLives,  this.lives);
         }
     }
 }

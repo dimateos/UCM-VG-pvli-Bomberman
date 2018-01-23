@@ -10,7 +10,9 @@ const config = {
 
     keys: keys,
 
-    DEBUG: true,
+    HACKS: false, //extra controls (rebuild level, next level, show bodys)
+
+    DEBUG: false,
     debugPos: new Point(32, height - 96),
     debugColor: "yellow",
 
@@ -23,6 +25,7 @@ const config = {
         Offset: new Point(40, 80), //space for hud
     },
 
+    endless_rnd_map_gen: true,
 
     //PvE
     initialMapPveDEBUG: { world: 0, level: 0 },
@@ -30,12 +33,17 @@ const config = {
     pve_initialPlayers: 1,
     pve_maxPlayers: 2, //needed for the map generation
 
+    playerLifeTime: 3 * 60 * 1000,
+    hudAnimSpeed: 10 / (3 * 60), //animation lasts 3 min
 
     //PvP
     initialMapPvP: { world: 1, level: 0 },
     pvp_initialPlayers: 2,
     pvp_maxPlayers: 4,
 
+    deathZoneTimeStart: 1.5 * 60 * 1000, //sync with hud anim
+    deathZoneTimeLoop: 2.5 * 1000,
+    hudAnimSpeedPvp: 10 / (2 * 60), //animation lasts 2 min
 
     //MAP
 
@@ -45,9 +53,6 @@ const config = {
     defaultImmovable: true,
     defaultBombableLives: 1,
     defaultBombableInvencibleTime: 0,
-
-    deathZoneTimeStart: 2 * 60 * 1000, //sync with hud anim
-    deathZoneTimeLoop: 5 * 1000,
 
 
     //PLAYER
@@ -60,19 +65,17 @@ const config = {
 
     playerImmovable: false,
 
-    playerLives: 1,
-    playerExtraLifePoints: 1000,
+    playerLives: 3,
+    playerExtraLifePoints: 3000,
     playerNumBombs: 1,
 
     playerInvencibleTime: 5000,
     playerRespawnedStoppedTime: 1000,
     playerDeathTime: 1500,
-    playerLifeTime: 60 * 3 * 1000,
 
     step: Math.PI * 2 / 360, //degrees
     playerInitialAlphaAngle: 30, //sin(playerInitialAlphaAnlge) -> alpha
     alphaWavingSpeed: 1.75,
-    hudAnimSpeed: 10 / (2 * 60), //animation lasts 2 min
 
     playerVelocity: 140, //max=playerVelocity+5*10 (depends on powerUps)
     playerVelocityTurning: 105, //140 105
@@ -149,9 +152,10 @@ const config = {
     HUDPointsNumberScale: new Point(0.2, 0),
     HUDPressXPos: new Point(90, -10),
     HUDPressXScale: new Point(0.75, 0.75),
-    HUDBombPos: new Point(0, 10),
+    HUDBombPos: new Point(0, 0),
     HUDBombAnchor: new Point(0.5, 0),
-    HUDBombScale: new Point(1.2, 1.2),
+    HUDBombScale: new Point(1.1, 1.1),
+    HUDBombPosText: new Point(-8, 20),
 
 
     //GAME OVER

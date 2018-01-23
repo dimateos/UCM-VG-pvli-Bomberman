@@ -100,9 +100,12 @@ var PlayScene = {
     audioHUD.checkVisible();
 
     globalControls.addPlayerControl(gInputs, players, maxPlayers, playerInfoHUDs);
-    globalControls.debugModeControl(gInputs, this.game, groups.player);
-    globalControls.resetLevelControl(gInputs, level);
-    globalControls.nextLevelControl(gInputs, level);
+
+    if (config.HACKS) {
+      globalControls.debugModeControl(gInputs, this.game, groups.player);
+      globalControls.resetLevelControl(gInputs, level);
+      globalControls.nextLevelControl(gInputs, level);
+    }
 
     pauseMenu.offPauseMenuControl(this.game, gInputs);
 

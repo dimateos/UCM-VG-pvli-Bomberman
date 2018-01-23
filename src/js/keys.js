@@ -13,10 +13,6 @@ pvp:'pvp',
 
 //SPRITES
 
-numbers: 'numbers',
-done: 'done',
-manyWins: 'wins',
-
 preloader_logo: 'preloader_logo',
 
 player: 'player_',
@@ -29,6 +25,8 @@ portal:'portal',
 powerUpBombUp:'powerUpBombUp',
 powerUpFlameUp:'powerUpFlameUp',
 powerUpSpeedUp:'powerUpSpeedUp',
+pointsUp:'pointsUp',
+pointsUpPlus:'pointsUpPlus',
 
 bomb:'bomb',
 flame:'flame',
@@ -50,6 +48,10 @@ resume:'resume',
 
 gameOver:'gameOver',
 
+numbers: 'numbers',
+done: 'done',
+manyWins: 'wins',
+
 unmuted:'unmuted',
 muted:'muted',
 volArrow:'volArrow',
@@ -58,7 +60,7 @@ volArrow:'volArrow',
 HUDPoints:'HUDPoints',
 HUD2:'HUD2',
 HUDPressX:'HUDPressX',
-
+HUDbomb: 'HUDbomb',
 
 //MUSIC AND AUDIO
 
