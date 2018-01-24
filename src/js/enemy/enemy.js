@@ -13,11 +13,12 @@ const enemyExtraOffset = config.enemyExtraOffset;
 
 const enemyImmovable = config.enemyImmovable;
 const enemyInvecibleTime = config.enemyInvecibleTime; //maybe reduce
-const bombableTimer = config.bombableTimer; //to sync with flames
+const bombFlameTimer = config.bombFlameTimer; //to sync with flames
+const tmpInvenTime = config.tmpInvenTime; //to sync with flames
 
 var enemyDataBase = require('./enemyDataBase.js');
 
-function Enemy (game, position, level, enemyType, tileData, groups, dropId) {
+function Enemy(game, position, level, enemyType, tileData, groups, dropId) {
 
     this.groups = groups;
     this.tileData = tileData;
@@ -55,7 +56,7 @@ function Enemy (game, position, level, enemyType, tileData, groups, dropId) {
 Enemy.prototype = Object.create(Bombable.prototype);
 Enemy.prototype.constructor = Enemy;
 
-Enemy.prototype.update = function() {
+Enemy.prototype.update = function () {
 
     this.checkFlames(); //bombable method
 
@@ -65,13 +66,14 @@ Enemy.prototype.update = function() {
         this.body.velocity.y = 0;
     }
     else {
+        if (this.tmpInven) this.invencibleAlpha();
         this.logicMovement();
 
-        if(this.body.velocity.x > 0){
+        if (this.body.velocity.x > 0) {
             // this.scale.setTo(this.tileData.Scale.x, this.tileData.Scale.y);
             this.animations.play("walking_right");
         }
-        else if (this.body.velocity.x < 0){
+        else if (this.body.velocity.x < 0) {
             // this.scale.setTo(this.tileData.Scale.x*-1, this.tileData.Scale.y);
             this.animations.play("walking_left");
         }
@@ -79,12 +81,11 @@ Enemy.prototype.update = function() {
             this.animations.play("walking_down");
         else if (this.body.velocity.y < 0)
             this.animations.play("walking_up");
-        else
-            {
-                this.pickDirection();
-                if (this.dir.x !== 0 || this.dir.y !== 0) this.setSpeed(this.dir);
-                this.animations.stop();
-            }
+        else {
+            this.pickDirection();
+            if (this.dir.x !== 0 || this.dir.y !== 0) this.setSpeed(this.dir);
+            this.animations.stop();
+        }
     }
 }
 
@@ -93,22 +94,23 @@ Enemy.prototype.update = function() {
 Enemy.prototype.die = function (flame) {
     // console.log("checkin enemie die");
     this.lives--;
-    this.invencibleAlpha();
+
     if (this.lives <= 0) {
         this.dead = true;
+        this.alpha /= 2; //half alpha
 
         //if it has a power up, drops it
         if (this.dropId !== undefined)
-            this.game.time.events.add(bombableTimer - 5, drop, this);
+            this.game.time.events.add(bombFlameTimer - 5, drop, this);
 
         if (flame.player !== undefined) flame.player.addPoints(this.pts);
 
         //then destroy itself
-        this.game.time.events.add(bombableTimer + 5, this.destroy, this);
+        this.game.time.events.add(bombFlameTimer + 5, this.destroy, this);
     }
-    else this.game.time.events.add(bombableTimer, flipInven, this);
+    else this.game.time.events.add(enemyInvecibleTime, flipInven, this);
 
-    function flipInven() { this.tmpInven = false; }
+    function flipInven() { this.tmpInven = false; this.alpha = 1; }
     function drop() {
 
         this.groups.powerUp.add(
@@ -118,12 +120,12 @@ Enemy.prototype.die = function (flame) {
 
 
 //all the IA is just movement
-Enemy.prototype.logicMovement = function() {
+Enemy.prototype.logicMovement = function () {
 
     //virtual map pos and extra pos to cehck collisions
     var positionMap = new Point(this.position.x, this.position.y)
         .getMapSquarePos(this.tileData, enemyExtraOffset);
-    var extraPosMap = new Point (this.position.x, this.position.y)
+    var extraPosMap = new Point(this.position.x, this.position.y)
         .getMapSquareExtraPos(this.tileData, enemyExtraOffset);
 
     //first we check if the path is blocked
@@ -142,19 +144,19 @@ Enemy.prototype.logicMovement = function() {
     else if (this.checkEnemyOverlap(positionMap)) {
         this.body.velocity.x *= -1; //inverts its velocity
         this.body.velocity.y *= -1;
-        this.dir.multiply(-1,-1); //and dir accordingly too
+        this.dir.multiply(-1, -1); //and dir accordingly too
     }
 }
 
 //Picks a new rnd direction (free)
-Enemy.prototype.pickDirection = function() {
+Enemy.prototype.pickDirection = function () {
 
     var positionMap = new Point(this.position.x, this.position.y)
         .getMapSquarePos(this.tileData, enemyExtraOffset);
 
     var freeSurroungings = this.level.getSurroundingFreeSquares(positionMap);
 
-    var rnd = this.game.rnd.integerInRange(0,freeSurroungings.length-1);
+    var rnd = this.game.rnd.integerInRange(0, freeSurroungings.length - 1);
 
     // console.log(positionMap, freeSurroungings, rnd);
 
@@ -163,20 +165,20 @@ Enemy.prototype.pickDirection = function() {
 }
 
 //Simple method to set speed
-Enemy.prototype.setSpeed = function(dir) {
-    if (this.dir.x ===1) this.body.velocity.x = this.velocity;
-    else if (this.dir.x ===-1) this.body.velocity.x = -this.velocity;
-    else if (this.dir.y ===1) this.body.velocity.y = this.velocity;
-    else if (this.dir.y ===-1) this.body.velocity.y = -this.velocity;
+Enemy.prototype.setSpeed = function (dir) {
+    if (this.dir.x === 1) this.body.velocity.x = this.velocity;
+    else if (this.dir.x === -1) this.body.velocity.x = -this.velocity;
+    else if (this.dir.y === 1) this.body.velocity.y = this.velocity;
+    else if (this.dir.y === -1) this.body.velocity.y = -this.velocity;
 }
 
 //checks if the enmy is getting closer to a block
-Enemy.prototype.checkCollision = function(positionMap, extraPosMap) {
+Enemy.prototype.checkCollision = function (positionMap, extraPosMap) {
     var blocked = false;
 
     //checks if the next square is free and if the enemy is in the center
     if ((!this.level.isNextSquareFree(positionMap, this.dir))
-    && extraPosMap.isNull()) {
+        && extraPosMap.isNull()) {
         // console.log("Enemy turning");
         blocked = true;
     }
@@ -185,7 +187,7 @@ Enemy.prototype.checkCollision = function(positionMap, extraPosMap) {
 }
 
 //checks for enemies blocking the path
-Enemy.prototype.checkEnemyOverlap = function(positionMap) {
+Enemy.prototype.checkEnemyOverlap = function (positionMap) {
 
     var enemyBlocking = false;
     this.game.physics.arcade.overlap(this, this.groups.enemy, checkPositions);
@@ -194,7 +196,7 @@ Enemy.prototype.checkEnemyOverlap = function(positionMap) {
 
     //only matters if the other enemy is blocking the path
     //(we do nothing if thisEnemy is the onw blocking otherEnemy)
-    function checkPositions (thisEnemy, otherEnemy) {
+    function checkPositions(thisEnemy, otherEnemy) {
 
         if (thisEnemy !== otherEnemy) { //not overlap with itself
             //console.log("Enemy overlapping");
@@ -206,19 +208,19 @@ Enemy.prototype.checkEnemyOverlap = function(positionMap) {
             var nextPos = new Point(positionMap.x, positionMap.y)
                 .add(thisEnemy.dir.x, thisEnemy.dir.y)
 
-            var positionsToCheck = getPositionsToCheck (nextPos, thisEnemy);
+            var positionsToCheck = getPositionsToCheck(nextPos, thisEnemy);
             // console.log(positionsToCheck);
 
             for (var i = 0; i < positionsToCheck.length; i++) {
 
                 if (positionsToCheck[i].isEqual(otherEnemyPos))
-                        enemyBlocking = true;
+                    enemyBlocking = true;
             }
         }
     }
 
     //returns an array with the next dir and the diagonals
-    function getPositionsToCheck (nextPos, thisEnemy) {
+    function getPositionsToCheck(nextPos, thisEnemy) {
 
         var positions = [positionMap, nextPos]; //array container
 
@@ -231,11 +233,11 @@ Enemy.prototype.checkEnemyOverlap = function(positionMap) {
         //calculates the diagonal by adding and then fixing
         function getDiagonal(parameter) {
 
-            var diagonalDir = new Point (thisEnemy.dir.x, thisEnemy.dir.y)
+            var diagonalDir = new Point(thisEnemy.dir.x, thisEnemy.dir.y)
                 .add(parameter, parameter);
 
-            if (diagonalDir.x%2 === 0) diagonalDir.x = 0;
-            if (diagonalDir.y%2 === 0) diagonalDir.y = 0;
+            if (diagonalDir.x % 2 === 0) diagonalDir.x = 0;
+            if (diagonalDir.y % 2 === 0) diagonalDir.y = 0;
 
             return new Point(nextPos.x, nextPos.y)
                 .add(diagonalDir.x, diagonalDir.y);

@@ -10,7 +10,7 @@ const config = {
 
     keys: keys,
 
-    HACKS: false, //extra controls (rebuild level, next level, show bodys)
+    HACKS: true, //extra controls (rebuild level, next level, show bodys)
 
     DEBUG: false,
     debugPos: new Point(32, height - 96),
@@ -125,7 +125,6 @@ const config = {
     enemyExtraOffset: new Point(0, 0),
     enemyImmovable: false,
     enemyInvecibleTime: 2500, //maybe reduce
-    bombableTimer: 500,
 
 
     //PORTAL

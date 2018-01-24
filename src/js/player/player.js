@@ -28,11 +28,6 @@ const playerRespawnedStoppedTime = config.playerRespawnedStoppedTime;
 const playerDeathTime = config.playerDeathTime;
 const playerLifeTime = config.playerLifeTime;
 
-const step = config.step; //degrees
-const playerInitialAlphaAngle = config.playerInitialAlphaAngle; //sin(playerInitialAlphaAnlge) -> alpha
-const alphaWavingSpeed = config.alphaWavingSpeed;
-
-
 const Id = Identifiable.Id; //the mini factory is in Identifiable
 const playerInitialModsIds = [/*new Id(1,2), new Id(1, 1), new Id(1,0)*/];
 const playerPVPModsIds = [new Id(1, 2), new Id(1, 1)];
@@ -161,21 +156,6 @@ Player.prototype.update = function () {
     }
 }
 
-// //changes alpha to simulate being invulnerable
-// Player.prototype.invencibleAlpha = function () {
-
-//     var tStep = Math.sin(this.counterAngle);
-//     // console.log(this.counterAngle/step);
-
-//     this.counterAngle += step * alphaWavingSpeed;
-
-//     //only positive sin (no negative alpha)
-//     if (this.counterAngle >= (180 - playerInitialAlphaAngle) * step) {
-//         this.counterAngle = playerInitialAlphaAngle * step;
-//     }
-
-//     this.alpha = tStep;
-// }
 
 //checks for powerUps and takes them
 Player.prototype.checkPowerUps = function () {
