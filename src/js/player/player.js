@@ -95,7 +95,7 @@ function Player(game, level, numPlayer, tileData, groups, hudVidas) {
 
     this.deathCallback = undefined;
 
-    this.counterAngle = playerInitialAlphaAngle * step;
+    // this.counterAngle = playerInitialAlphaAngle * step;
 };
 
 Player.prototype = Object.create(Bombable.prototype);
@@ -161,21 +161,21 @@ Player.prototype.update = function () {
     }
 }
 
-//changes alpha to simulate being invulnerable
-Player.prototype.invencibleAlpha = function () {
+// //changes alpha to simulate being invulnerable
+// Player.prototype.invencibleAlpha = function () {
 
-    var tStep = Math.sin(this.counterAngle);
-    // console.log(this.counterAngle/step);
+//     var tStep = Math.sin(this.counterAngle);
+//     // console.log(this.counterAngle/step);
 
-    this.counterAngle += step * alphaWavingSpeed;
+//     this.counterAngle += step * alphaWavingSpeed;
 
-    //only positive sin (no negative alpha)
-    if (this.counterAngle >= (180 - playerInitialAlphaAngle) * step) {
-        this.counterAngle = playerInitialAlphaAngle * step;
-    }
+//     //only positive sin (no negative alpha)
+//     if (this.counterAngle >= (180 - playerInitialAlphaAngle) * step) {
+//         this.counterAngle = playerInitialAlphaAngle * step;
+//     }
 
-    this.alpha = tStep;
-}
+//     this.alpha = tStep;
+// }
 
 //checks for powerUps and takes them
 Player.prototype.checkPowerUps = function () {

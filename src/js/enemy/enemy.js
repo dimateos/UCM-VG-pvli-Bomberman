@@ -93,7 +93,7 @@ Enemy.prototype.update = function() {
 Enemy.prototype.die = function (flame) {
     // console.log("checkin enemie die");
     this.lives--;
-
+    this.invencibleAlpha();
     if (this.lives <= 0) {
         this.dead = true;
 

@@ -4,12 +4,17 @@ var Physical = require('./physical.js'); //father
 //some drop powerUps
 var Identifiable = require('../id/identifiable.js');
 
+const config = require('../config.js');
+
 //default bombable values
 var bombableTimer = 500; //to sync with flames
 
 //var Id = Identifiable.Id; //the mini factory is in Identifiable
 //var bombableDropId = new Id (1,1);
 
+const alphaWavingSpeed = config.alphaWavingSpeed;
+const playerInitialAlphaAngle = config.playerInitialAlphaAngle; //sin(playerInitialAlphaAnlge) -> alpha
+const step = config.step; //degrees
 
 function Bombable(game, level, groups, position, sprite, scale, bodySize, bodyOffSet, immovable, lives, invencibleTime, dropId) {
 
@@ -34,7 +39,11 @@ function Bombable(game, level, groups, position, sprite, scale, bodySize, bodyOf
         this.endInvencibilityCallback = this.game.time.events.add(invencibleTime, this.endInvencibility, this);
     }
 
+
     this.dropId = dropId;
+    this.counterAngle = playerInitialAlphaAngle * step;
+
+
 }
 
 Bombable.prototype = Object.create(Physical.prototype);
@@ -42,7 +51,7 @@ Bombable.prototype.constructor = Bombable;
 
 
 Bombable.prototype.update = function () {
-    this.checkFlames(); //player and bomb rewrite (extend) update
+    this.checkFlames(); //player and bomb rewrite (extend) update 
 }
 
 //common for all bombables
@@ -66,6 +75,22 @@ Bombable.prototype.checkFlames = function () {
         //this.game.time.events.add(bombableTimer, this.die, this);
         this.die(flame);
     }
+}
+
+//changes alpha to simulate being invulnerable
+Bombable.prototype.invencibleAlpha = function () {
+
+    var tStep = Math.sin(this.counterAngle);
+    // console.log(this.counterAngle/step);
+
+    this.counterAngle += step * alphaWavingSpeed;
+
+    //only positive sin (no negative alpha)
+    if (this.counterAngle >= (180 - playerInitialAlphaAngle) * step) {
+        this.counterAngle = playerInitialAlphaAngle * step;
+    }
+
+    this.alpha = tStep;
 }
 
 //player, bomb, enemie, etc will extend this
