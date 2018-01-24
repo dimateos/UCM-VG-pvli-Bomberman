@@ -2,8 +2,6 @@
 const config = require('../config.js');
 const keys = config.keys;
 
-var muted = true;
-
 const winWidth = config.winWidth;
 const winHeight = config.winHeight;
 
@@ -23,17 +21,28 @@ var mutedMusicButton;
 var lessVolButton;
 var moreVolButton;
 
+const defaultVolume = config.default_volume;
+const volume_increment = config.volume_increment;
+const volume_Max = config.volume_Max;
+const volume_Min = config.volume_Min;
+
+var muted = config.default_muted;
 
 var audioHUD = {
 
     music: {},
 
-    creation: function (game) {
+    init: function (game) {
 
-        //music 
+        //music
         this.music = game.add.audio('music');
         this.music.loopFull(0.4);
         game.sound.mute = muted; //la pauso que me morido quedo loco
+        game.sound.volume = defaultVolume;
+
+    },
+
+    creation: function (game) {
 
         //buttons
         muteMusicButton = game.add.button(muteMusicButtonPos.x, muteMusicButtonPos.y, 'unmuted', this.toggleMute, game);
@@ -51,25 +60,31 @@ var audioHUD = {
 
     },
 
-    destruction: function(game) {
+    destruction: function (game) {
         muted = game.sound.mute;
-        this.music.destroy(); 
+        this.music.destroy();
     },
 
     checkVisible: function () {
-        if(this.music.mute) muteMusicButton.visible = false;
-        else   muteMusicButton.visible = true;
+        if (this.music.mute) muteMusicButton.visible = false;
+        else muteMusicButton.visible = true;
 
-        if(!this.music.mute) mutedMusicButton.visible = false;
+        if (!this.music.mute) mutedMusicButton.visible = false;
         else mutedMusicButton.visible = true;
     },
 
     //game is the context
     toggleMute: function () { this.sound.mute = !this.sound.mute; },
 
-    moreVol: function () { if(this.sound.volume < 1) this.sound.volume += 0.1; },
+    moreVol: function () {
+        if (!this.sound.mute && this.sound.volume < volume_Max)
+            this.sound.volume += volume_increment;
+    },
 
-    lessVol: function () { if(this.sound.volume > 0.2) this.sound.volume -= 0.1; },
+    lessVol: function () {
+        if (!this.sound.mute && this.sound.volume > volume_Min)
+            this.sound.volume -= volume_increment;
+    },
 
 }
 

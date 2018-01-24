@@ -296,9 +296,7 @@ Player.prototype.respawn = function () {
 
     if (this.lives > 0) {
         this.visible = true;
-    this.animations.play("respawn");
-
-        this.animations.play("spawn");
+        this.animations.play("respawn");
 
         this.restartMovement(); //so it doesnt move inside walls
         this.restartCountdown(true);

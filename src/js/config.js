@@ -27,6 +27,9 @@ const config = {
 
     endless_rnd_map_gen: true,
 
+    default_muted: false,
+    default_volume: 0.25,
+
     //PvE
     initialMapPveDEBUG: { world: 0, level: 0 },
     initialMapPve: { world: 1, level: 1 },
@@ -164,6 +167,10 @@ const config = {
 
 
     //AUDIO HUD
+
+    volume_increment: 0.10,
+    volume_Max: 1,
+    volume_Min: 0.10,
 
     muteMusicButtonPos: new Point(10, 40),
     muteMusicButtonScale: new Point(0.1, 0.1),
