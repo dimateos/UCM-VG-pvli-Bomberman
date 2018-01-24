@@ -1,5 +1,8 @@
 # Planificacion
 
+Very close to final implementation:
+![Herencia](2-Diagram.png)
+
 - [Planificacion](#planificacion)
     - [Historias de usuario](#historias-de-usuario)
         - [Hechas](#hechas)

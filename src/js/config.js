@@ -1,7 +1,7 @@
 'use strict';
 
-const Point = require('./general/point.js');
 const keys = require('./keys.js');
+const Point = require('./general/point.js');
 
 const width = 800;
 const height = 600;
@@ -11,6 +11,11 @@ const config = {
     keys: keys,
 
     HACKS: true, //extra controls (rebuild level, next level, show bodys)
+
+    endless_rnd_map_gen: true,
+
+    default_muted: true,
+    default_volume: 0.25,
 
     DEBUG: false,
     debugPos: new Point(32, height - 96),
@@ -25,10 +30,6 @@ const config = {
         Offset: new Point(40, 80), //space for hud
     },
 
-    endless_rnd_map_gen: true,
-
-    default_muted: false,
-    default_volume: 0.25,
 
     //PvE
     initialMapPveDEBUG: { world: 0, level: 0 },

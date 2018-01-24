@@ -37,8 +37,8 @@ var audioHUD = {
         //music
         this.music = game.add.audio('music');
         this.music.loopFull(0.4);
-        game.sound.mute = muted; //la pauso que me morido quedo loco
         game.sound.volume = defaultVolume;
+        game.sound.mute = muted; //la pauso que me morido quedo loco
 
     },
 

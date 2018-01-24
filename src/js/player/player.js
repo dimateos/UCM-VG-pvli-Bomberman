@@ -6,6 +6,7 @@ const Point = require('../general/point.js');
 
 const Inputs = require('../general/inputs.js');
 const Identifiable = require('../id/identifiable.js');
+const Id = Identifiable.Id; //the mini factory is in Identifiable
 const Bomb = require('./bomb.js');
 
 //default player values
@@ -28,9 +29,9 @@ const playerRespawnedStoppedTime = config.playerRespawnedStoppedTime;
 const playerDeathTime = config.playerDeathTime;
 const playerLifeTime = config.playerLifeTime;
 
-const Id = Identifiable.Id; //the mini factory is in Identifiable
-const playerInitialModsIds = [/*new Id(1,2), new Id(1, 1), new Id(1,0)*/];
-const playerPVPModsIds = [new Id(1, 2), new Id(1, 1)];
+const playerInitialModsIds = [new Id(1,2), new Id(1, 1), new Id(1,0)];
+const playerPVPModsIds = [/*new Id(1, 2), new Id(1, 1)*/]; //funnier
+const playerOnDeathModsIds = [new Id(1,2), new Id(1, 1), new Id(1,0)]; //removed at deat;
 
 const playerMovAndInputs = require('./playerMovAndInputs.js'); //big chunk of code
 var bodyVelocity;
@@ -86,7 +87,9 @@ function Player(game, level, numPlayer, tileData, groups, hudVidas) {
     this[config.bombsKey] = playerNumBombs;
     this.mods = [];
     this.bombMods = [];
-    Identifiable.addPowerUps(playerInitialModsIds, this);
+
+    if(level.pvpMode) Identifiable.addPowerUps(playerPVPModsIds, this);
+    else Identifiable.addPowerUps(playerInitialModsIds, this);
 
     this.deathCallback = undefined;
 
@@ -255,9 +258,14 @@ Player.prototype.die = function (flame) {
 
     if (!this.level.pvpMode) {
         this.lives--;
+
         this.restartMovement();
+
+        Identifiable.addPowerUps(playerOnDeathModsIds, this, true);
+
         this.game.time.events.add(playerDeathTime, this.respawn, this);
-        if (this.lives <= 0) {
+
+        if (config.DEBUG && this.lives <= 0) {
             console.log("P" + this.numPlayer + ", you ded (0 lives)");
         }
     }

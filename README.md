@@ -23,7 +23,6 @@ Battle in rounds up to 2 minutes. At the 1.5 minutes mark, rings of flames will 
 
 The last one standing recieves a point and the battle starts again (until a player reaches the amount of points selected to win).
 
-
 ## Controls
 
 * **Movement + bomb**:
@@ -33,14 +32,22 @@ The last one standing recieves a point and the battle starts again (until a play
   * **Player 4**: `IJKL + O`
 
 * **Other**:
-  * Add second player in PVE: `X`
+  * Add extra players: `X`
   * Pause menu: `ESC`
     * Also triggered when the focus is not on the game
 
-* **Hacks**: *(maybe disabled)*
+* **Hacks**: *(if HACK enabled)*
   * Show debug: `C`
   * Rebuild map: `B`
   * Next map: `N`
+
+## Extended GDD  ***(in Spanish)***
+
+If you are interested, it can be found [here](planification/readme.md).
+
+* And [here](planification/Diseño.md) is where we analysed the original Super Bomberman mechanics.
+
+* [Here](planification/Planificacion.md), some planification and class structures.
 
 ## Resources
 
