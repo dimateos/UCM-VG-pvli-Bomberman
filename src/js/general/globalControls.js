@@ -19,7 +19,7 @@ var globalControls = {
             var pSample = players[0]; //to use its values
             var hudSample = playerInfoHUDs[0];
 
-            playerInfoHUDs.push(new hudSample.constructor(pSample.game, pSample.hudVidas, players.length, false))
+            playerInfoHUDs.push(new hudSample.constructor(pSample.game, pSample.hudVidas, players.length, pSample.level.pvpMode))
 
             //even use its constructor to create the new  player
             players.push(new pSample.constructor(pSample.game, pSample.level,

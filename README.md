@@ -9,32 +9,20 @@
 
 ![Bomboozleman](src/images/bomboozleman.png)
 
-## Table of contents
-- [Gamemodes](#gamemodes)
-  - [Pve - up to 2 players](#pve---up-to-2-players)
-  - [PvP - up to 4 players](#pvp---up-to-4-players)
-- [Controls](#controls)
-- [Resources](#resources)
-- [Installation - *in case you fork*](#installation---in-case-you-fork)
-  - [Requirements](#requirements)
-  - [Build](#build)
-  - [Development](#development)
-
 ## Gamemodes
 
 ### Pve - up to 2 players
+![Pve](planification/pve.png)
 
-Gather points and advance through generated levels full of enemies and power ups. Alone or with a friend!
+Gather points and advance through endless randomly generated levels full of enemies and power ups. Alone or with a friend!
 
 ### PvP - up to 4 players
+![Pvp](planification/pvp.png)
 
-Battle in rounds up to 3 minutes.
+Battle in rounds up to 2 minutes. At the 1.5 minutes mark, rings of flames will start to appear to reduce the arena size.
 
-* Many power ups generated with the map.
+The last one standing recieves a point and the battle starts again (until a player reaches the amount of points selected to win).
 
-* The last one standing recieves a point and the battle starts again.
-
-* At the 2 minutes mark, ring flames will start to appear to reduce the arena size.
 
 ## Controls
 

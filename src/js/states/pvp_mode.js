@@ -77,7 +77,7 @@ var PlayScene = {
     for (var numPlayer = 0; numPlayer < initialPlayers; numPlayer++) {
       playerInfoHUDs.push(new playerInfoHUD(this.game, HUDBombHead, numPlayer, pvpMode));
     }
-    if (initialPlayers <= 2) playerInfoHUD.drawPressX(this.game, true);    
+    if (initialPlayers <= 2) playerInfoHUD.drawPressX(this.game, true);
     playerInfoHUD.drawBombHud(this.game, pvpMode); //little bomb at the right
 
     //player/s (initialPlayers)

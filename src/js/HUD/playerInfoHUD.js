@@ -49,6 +49,7 @@ var playerInfoHUD = function (game, HUDbombHead, playerNum, pvpMode) {
         { font: "45px Comic Sans MS", fill: "#f9e000", align: "center" });
     this.HUDlives.anchor.setTo(HUDlivesScale.x, HUDlivesScale.y);
 
+
     if (!pvpMode) {
         // this.HUDPointsWord = game.add.sprite(posX + 100, -5, 'HUDPoints');
         // this.HUDPointsWord.scale.setTo(0.45, 0.7);
@@ -58,6 +59,10 @@ var playerInfoHUD = function (game, HUDbombHead, playerNum, pvpMode) {
         this.HUDPointsNumber.anchor.setTo(HUDPointsNumberScale.x, HUDPointsNumberScale.y);
 
         if (playerNum === 1 && HUDPressX !== undefined) HUDPressX.destroy();
+    }
+
+    else if (playerNum === 2 && HUDPressX !== undefined) {
+        HUDPressX.destroy();
     }
 
 }

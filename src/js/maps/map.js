@@ -86,7 +86,7 @@ Map.prototype.restartDeathZoneCountdowns = function () {
     if (this.deathZoneCallback !== undefined) this.game.time.events.remove(this.deathCallback);
     if (this.deathZoneStartCallback !== undefined) this.game.time.events.remove(this.deathZoneStartCallback);
 
-    console.log(deathZoneTimeStart, this.deathZoneExpansion);
+    // console.log(deathZoneTimeStart, this.deathZoneExpansion);
     this.deathZoneStartCallback = this.game.time.events.add(deathZoneTimeStart, this.deathZoneExpansionFunction, this);
 }
 
