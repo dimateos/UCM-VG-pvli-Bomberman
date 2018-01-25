@@ -1,7 +1,7 @@
 'use strict';
 
-const Point = require('./general/point.js');
 const keys = require('./keys.js');
+const Point = require('./general/point.js');
 
 const width = 800;
 const height = 600;
@@ -10,7 +10,12 @@ const config = {
 
     keys: keys,
 
-    HACKS: false, //extra controls (rebuild level, next level, show bodys)
+    HACKS: true, //extra controls (rebuild level, next level, show bodys)
+
+    endless_rnd_map_gen: true,
+
+    default_muted: true,
+    default_volume: 0.25,
 
     DEBUG: false,
     debugPos: new Point(32, height - 96),
@@ -25,7 +30,6 @@ const config = {
         Offset: new Point(40, 80), //space for hud
     },
 
-    endless_rnd_map_gen: true,
 
     //PvE
     initialMapPveDEBUG: { world: 0, level: 0 },
@@ -125,7 +129,6 @@ const config = {
     enemyExtraOffset: new Point(0, 0),
     enemyImmovable: false,
     enemyInvecibleTime: 2500, //maybe reduce
-    bombableTimer: 500,
 
 
     //PORTAL
@@ -144,19 +147,28 @@ const config = {
 
     HUDbombHeadPos: new Point(60, 10),
     HUDbombHeadScale: new Point(0.75, 0.70),
+    HUDPressXPos: new Point(90, -10),
+    HUDPressXScale: new Point(0.75, 0.75),
+
     HUD2Pos: new Point(35, -5),
     HUD2Scale: new Point(0.75, 0.75),
     HUDlivesPos: new Point(42, 15),
     HUDlivesScale: new Point(0.2, 0),
+
     HUDPointsNumberPos: new Point(170, 8),
     HUDPointsNumberScale: new Point(0.2, 0),
-    HUDPressXPos: new Point(90, -10),
-    HUDPressXScale: new Point(0.75, 0.75),
-    HUDBombPos: new Point(0, 0),
-    HUDBombAnchor: new Point(0.5, 0),
-    HUDBombScale: new Point(1.1, 1.1),
-    HUDBombPosText: new Point(-8, 20),
 
+    HUDBombPos: new Point(0, 17),
+    HUDBombAnchor: new Point(0.5, 0),
+    HUDBombScale: new Point(1.2, 1.2),
+
+    // HUDBombPos: new Point(0, 0),
+    // HUDBombAnchor: new Point(0.5, 0),
+    HUDFlameOffset: new Point(0, -16),
+    HUDFlameScale: new Point(1.5, 1.5),
+
+    HUDBombPosText: new Point(-8, 8),
+    HUDBombPosOffset: new Point(-5,0),
 
     //GAME OVER
 
@@ -165,6 +177,10 @@ const config = {
 
 
     //AUDIO HUD
+
+    volume_increment: 0.10,
+    volume_Max: 1,
+    volume_Min: 0.10,
 
     muteMusicButtonPos: new Point(10, 40),
     muteMusicButtonScale: new Point(0.1, 0.1),

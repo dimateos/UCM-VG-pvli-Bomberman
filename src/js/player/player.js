@@ -6,6 +6,7 @@ const Point = require('../general/point.js');
 
 const Inputs = require('../general/inputs.js');
 const Identifiable = require('../id/identifiable.js');
+const Id = Identifiable.Id; //the mini factory is in Identifiable
 const Bomb = require('./bomb.js');
 
 //default player values
@@ -28,14 +29,9 @@ const playerRespawnedStoppedTime = config.playerRespawnedStoppedTime;
 const playerDeathTime = config.playerDeathTime;
 const playerLifeTime = config.playerLifeTime;
 
-const step = config.step; //degrees
-const playerInitialAlphaAngle = config.playerInitialAlphaAngle; //sin(playerInitialAlphaAnlge) -> alpha
-const alphaWavingSpeed = config.alphaWavingSpeed;
-
-
-const Id = Identifiable.Id; //the mini factory is in Identifiable
-const playerInitialModsIds = [/*new Id(1,2), new Id(1, 1), new Id(1,0)*/];
-const playerPVPModsIds = [new Id(1, 2), new Id(1, 1)];
+const playerInitialModsIds = [new Id(1, 2), new Id(1, 1), new Id(1, 0)];
+const playerPVPModsIds = [/*new Id(1, 2), new Id(1, 1)*/]; //funnier
+const playerOnDeathModsIds = [new Id(1, 2), new Id(1, 1), new Id(1, 0)]; //removed at deat;
 
 const playerMovAndInputs = require('./playerMovAndInputs.js'); //big chunk of code
 var bodyVelocity;
@@ -48,12 +44,13 @@ function Player(game, level, numPlayer, tileData, groups, hudVidas) {
     this.extraLives = 0;
 
     this.hudVidas = hudVidas;
-    this.hudVidaAnim = hudVidas[numPlayer].animations.add('Clock');
 
-    if (level.pvpMode) var animSpeed = config.hudAnimSpeedPvp;
-    else var animSpeed = config.hudAnimSpeed;
-    this.hudVidaAnim.play(animSpeed, true);
-    this.hudVidaAnim.onLoop.add(this.die, this, 0, 0);
+    if (!level.pvpMode) {
+        this.hudVidaAnim = hudVidas[numPlayer].animations.add('Clock');
+        this.hudVidaAnim.play(config.hudAnimSpeed, true);
+        this.hudVidaAnim.onLoop.add(this.die, this, 0, 0);
+        this.deathCallback = undefined;
+    }
 
     this.wins = 0; //for pvp
     this.selfKills = 0;
@@ -76,9 +73,9 @@ function Player(game, level, numPlayer, tileData, groups, hudVidas) {
     this.animations.add("walking_down", [8, 9, 10, 11, 12, 13, 14, 15], 10, true);
 
     this.animations.add("dying", [32, 33, 34, 35, 36], 10);
-    this.animations.add("spawn", [8], 15);
     this.animations.add("respawn", [36, 35, 34, 33, 32], 10);
 
+    this.animations.add("spawn", [8], 15);
     this.animations.play("spawn");
 
     this.restartMovement();
@@ -91,11 +88,10 @@ function Player(game, level, numPlayer, tileData, groups, hudVidas) {
     this[config.bombsKey] = playerNumBombs;
     this.mods = [];
     this.bombMods = [];
-    Identifiable.addPowerUps(playerInitialModsIds, this);
 
-    this.deathCallback = undefined;
+    if (level.pvpMode) Identifiable.addPowerUps(playerPVPModsIds, this);
+    else Identifiable.addPowerUps(playerInitialModsIds, this);
 
-    // this.counterAngle = playerInitialAlphaAngle * step;
 };
 
 Player.prototype = Object.create(Bombable.prototype);
@@ -161,21 +157,6 @@ Player.prototype.update = function () {
     }
 }
 
-// //changes alpha to simulate being invulnerable
-// Player.prototype.invencibleAlpha = function () {
-
-//     var tStep = Math.sin(this.counterAngle);
-//     // console.log(this.counterAngle/step);
-
-//     this.counterAngle += step * alphaWavingSpeed;
-
-//     //only positive sin (no negative alpha)
-//     if (this.counterAngle >= (180 - playerInitialAlphaAngle) * step) {
-//         this.counterAngle = playerInitialAlphaAngle * step;
-//     }
-
-//     this.alpha = tStep;
-// }
 
 //checks for powerUps and takes them
 Player.prototype.checkPowerUps = function () {
@@ -275,9 +256,14 @@ Player.prototype.die = function (flame) {
 
     if (!this.level.pvpMode) {
         this.lives--;
+
         this.restartMovement();
+
+        Identifiable.addPowerUps(playerOnDeathModsIds, this, true);
+
         this.game.time.events.add(playerDeathTime, this.respawn, this);
-        if (this.lives <= 0) {
+
+        if (config.DEBUG && this.lives <= 0) {
             console.log("P" + this.numPlayer + ", you ded (0 lives)");
         }
     }
@@ -290,22 +276,25 @@ Player.prototype.die = function (flame) {
 //different behavior
 Player.prototype.pvpModeDeath = function () {
 
-    this.visible = false;
+    this.game.time.events.add(playerDeathTime, dieAndCheckOver, this);
 
-    var alive = 0;
-    for (var i = 0; i < this.groups.player.children.length; i++) {
-        if ((this.groups.player.children[i] !== this) && (!this.groups.player.children[i].dead))
-            alive++;
-    }
+    function dieAndCheckOver() {
+        this.visible = false;
 
-    if (alive <= 1) {
+        var alive = 0;
         for (var i = 0; i < this.groups.player.children.length; i++) {
-            if (!this.groups.player.children[i].dead)
-                this.groups.player.children[i].wins++;
+            if ((this.groups.player.children[i] !== this) && (!this.groups.player.children[i].dead))
+                alive++;
         }
-        this.level.regenerateMap();
-    }
 
+        if (alive <= 1) {
+            for (var i = 0; i < this.groups.player.children.length; i++) {
+                if (!this.groups.player.children[i].dead)
+                    this.groups.player.children[i].wins++;
+            }
+            this.level.regenerateMap();
+        }
+    }
 }
 
 //Resets the player basically
@@ -316,12 +305,12 @@ Player.prototype.respawn = function () {
 
     if (this.lives > 0) {
         this.visible = true;
-    this.animations.play("respawn");
-
-        this.animations.play("spawn");
+        this.animations.play("respawn");
 
         this.restartMovement(); //so it doesnt move inside walls
-        this.restartCountdown(true);
+
+        if (!this.level.pvpMode) this.restartCountdown(true);
+
         this.position = new Point(this.respawnPos.x, this.respawnPos.y);
 
         //callback to make end player's invulnerability

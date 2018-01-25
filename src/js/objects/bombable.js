@@ -1,10 +1,9 @@
 'use strict';
+const config = require('../config.js');
 
 var Physical = require('./physical.js'); //father
 //some drop powerUps
 var Identifiable = require('../id/identifiable.js');
-
-const config = require('../config.js');
 
 //default bombable values
 var bombableTimer = 500; //to sync with flames
@@ -39,11 +38,8 @@ function Bombable(game, level, groups, position, sprite, scale, bodySize, bodyOf
         this.endInvencibilityCallback = this.game.time.events.add(invencibleTime, this.endInvencibility, this);
     }
 
-
     this.dropId = dropId;
     this.counterAngle = playerInitialAlphaAngle * step;
-
-
 }
 
 Bombable.prototype = Object.create(Physical.prototype);
@@ -51,7 +47,7 @@ Bombable.prototype.constructor = Bombable;
 
 
 Bombable.prototype.update = function () {
-    this.checkFlames(); //player and bomb rewrite (extend) update 
+    this.checkFlames(); //player and bomb rewrite (extend) update
 }
 
 //common for all bombables
@@ -130,6 +126,7 @@ Bombable.prototype.die = function () {
 
 //Usesd as callback to remove te temporal inbvulnerability
 Bombable.prototype.endInvencibility = function () {
+    this.alpha = 1;
     this.invencible = false;
 }
 //To correctly cancel the callback (if exists)

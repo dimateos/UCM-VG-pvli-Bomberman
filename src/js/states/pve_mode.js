@@ -20,6 +20,8 @@ const audioHUD = require('../HUD/audioHUD.js');
 const playerInfoHUD = require('../HUD/playerInfoHUD.js');
 var playerInfoHUDs;
 var HUDBombHead = [];
+const BombHUD = require('../HUD/bombHUD.js');
+var bombHUD;
 
 const Groups = require('../general/groups.js');
 var groups;
@@ -67,7 +69,8 @@ var PlayScene = {
       playerInfoHUDs.push(new playerInfoHUD(this.game, HUDBombHead, numPlayer, pvpMode));
     }
     if (initialPlayers === 1) playerInfoHUD.drawPressX(this.game);
-    playerInfoHUD.drawBombHud(this.game, pvpMode); //little bomb
+
+    bombHUD = new BombHUD(this.game, pvpMode); //little bomb
 
     //player/s (initialPlayers)
     players = [];
@@ -96,6 +99,7 @@ var PlayScene = {
     for (var numPlayer = 0; numPlayer < playerInfoHUDs.length; numPlayer++)
       playerInfoHUDs[numPlayer].updatePlayerInfoHud(players[numPlayer], pvpMode);
 
+    bombHUD.updateBombHud(level, pvpMode);
     gameOver.check(this.game, players);
     audioHUD.checkVisible();
 
@@ -111,7 +115,7 @@ var PlayScene = {
 
   },
 
-  paused: function() {
+  paused: function () {
     pauseMenu.pausedCreate(audioHUD.music, this.game);
   },
 

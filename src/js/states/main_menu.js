@@ -1,6 +1,8 @@
 'use strict';
 const config = require('../config.js');
 
+const audioHUD = require('../HUD/audioHUD.js');
+
 const DEBUG = config.DEBUG;
 const winWidth = config.winWidth;
 const winHeight = config.winHeight;
@@ -17,8 +19,8 @@ var moreWinsButton;
 var doneButton;
 var howManyWins;
 var numbers;
-var winsNecessary = 1;
 
+var winsNecessary = 1;
 var minWinsNec = 1;
 var maxWinsNec = 9;
 
@@ -46,7 +48,8 @@ var MainMenu = {
         mMenuPVP.scale.setTo(0.7, 0.7);
         mMenuPVP.anchor.setTo(0.5, 0.5);
 
-        // mMenuButton.onInputOver.add(this.over, this);
+        audioHUD.init(this.game);
+        audioHUD.creation(this.game);
 
         mMenuTitle = this.game.add.sprite(50,100, 'mMenuTitle');
     },
@@ -90,9 +93,7 @@ var MainMenu = {
 
     update: function() {
 
-        // if(this.game.input.mousePointer.leftButton.isDown && this.game.input.mousePointer.position.x == this.mMenuButton.x
-        //     && this.game.input.mousePointer.position.y == this.mMenuButton.y)
-        //     this.game.state.start('pve');
+        audioHUD.checkVisible();
     }
 
 };
