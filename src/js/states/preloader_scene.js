@@ -49,7 +49,7 @@ var PreloaderScene = {
         this.game.load.image(keys.resume, 'images/Sprites/Menu/Resume.png');
 
         this.game.load.image(keys.gameOver, 'images/Sprites/HUD/GameOver.png')
-        this.game.load.image(keys.gameOverPvpBg, 'images/Sprites/HUD/HUDBg.png')
+        this.game.load.image(keys.gameOverPvpBg, 'images/Sprites/Menu/overPvp.png')
         this.game.load.image(keys.HUDbomb, 'images/Sprites/HUD/HudBomb.png');
 
         this.game.load.image(keys.unmuted, 'images/Sprites/Menu/unMuted.png');

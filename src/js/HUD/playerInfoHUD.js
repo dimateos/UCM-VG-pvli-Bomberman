@@ -31,7 +31,7 @@ var playerInfoHUD = function (game, HUDbombHead, playerNum, pvpMode) {
     if (!pvpMode) posX = HUDbombHeadPos.x + ((winWidth / 2) * playerNum);
     else posX = HUDbombHeadPos.x + ((winWidth / 5) * playerNum);
 
-    HUDbombHead[playerNum] = game.add.sprite(posX, HUDbombHeadPos.y, 'player_' + playerNum + 'Clock');
+    HUDbombHead[playerNum] = game.add.sprite(posX, HUDbombHeadPos.y, keys.player + playerNum + 'Clock');
     HUDbombHead[playerNum].scale.setTo(HUDbombHeadScale.x, HUDbombHeadScale.y);
 
     this.HUD2 = game.add.sprite(posX + HUD2Pos.x, HUD2Pos.y, 'HUD2');

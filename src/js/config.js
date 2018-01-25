@@ -175,6 +175,16 @@ const config = {
     gmOverSignAnchor: new Point(0.5, 0.5),
     goToMenuAnchor: new Point(1, 1),
 
+    pvpOverPos: new Point(width/2, height/2+40),
+    pvpOverAnchor: new Point(0.5, 0.5),
+    pvpOverScale: new Point(1, 1),
+    pvpOverPlayerOffset: new Point(-115, 20),
+    pvpOverPlayerScale: new Point(1.7, 1.7),
+
+    pvpOverText0Offset: new Point(-180, -140),
+    pvpOverText1Offset: new Point(-20, -70),
+    pvpOverText2Offset: new Point(-20, -10),
+    pvpOverText3Offset: new Point(-20, 50),
 
     //AUDIO HUD
 
@@ -196,6 +206,7 @@ const config = {
 
     //PAUSE MENU
 
+    pausePanelPos: new Point(width/2, height/2+40),
     pausePanelAnchor: new Point(0.5, 0.5),
     pausePanelAlpha: 0.5,
     unpauseButtonPos: new Point(0, 50),

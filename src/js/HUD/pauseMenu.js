@@ -5,6 +5,7 @@ const DEBUG = config.DEBUG;
 const winWidth = config.winWidth;
 const winHeight = config.winHeight;
 
+const pausePanelPos = config.pausePanelPos;
 const pausePanelAnchor = config.pausePanelAnchor;
 const pausePanelAlpha = config.pausePanelAlpha;
 
@@ -26,15 +27,15 @@ var pauseMenu = {
         game.stage.disableVisibilityChange = true;
         game.input.onDown.add(unPause, this);
 
-        pausePanel = game.add.sprite(winWidth / 2, winHeight / 2, 'pausePanel');
+        pausePanel = game.add.sprite(pausePanelPos.x, pausePanelPos.y, 'pausePanel');
         pausePanel.anchor.setTo(0.5, 0.5);
         pausePanel.alpha = 0.5;
 
-        unpauseButton = game.add.sprite(winWidth / 2, winHeight / 2 - 50, 'resume');
+        unpauseButton = game.add.sprite(pausePanelPos.x, pausePanelPos.y - 50, 'resume');
         unpauseButton.anchor.setTo(0.5, 0.5);
         unpauseButton.scale.setTo(0.75, 0.75);
 
-        gotoMenuButton = game.add.sprite(winWidth / 2, winHeight / 2 + 50, 'quitToMenu');
+        gotoMenuButton = game.add.sprite(pausePanelPos.x, pausePanelPos.y + 50, 'quitToMenu');
         gotoMenuButton.anchor.setTo(0.5, 0.5);
         gotoMenuButton.scale.setTo(0.75, 0.75);
 

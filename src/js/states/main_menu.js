@@ -36,8 +36,8 @@ var MainMenu = {
 
         mMenuBG = this.game.add.sprite(0, 0, 'mMenuBG');
         mMenuBG.scale.y = 1.05; //just a little bigger
-        mMenuPVE = this.game.add.button(winWidth/2, winHeight/2 + 70, 'mMenuButton1', this.nextStatePVE, this);
-        mMenuPVP = this.game.add.button(winWidth/2, winHeight/2 + 140, 'mMenuButton2', this.createWinsChoice, this);
+        mMenuPVE = this.game.add.button(winWidth/2, winHeight/2 + 90, 'mMenuButton1', this.nextStatePVE, this);
+        mMenuPVP = this.game.add.button(winWidth/2, winHeight/2 + 160, 'mMenuButton2', this.createWinsChoice, this);
 
         mMenuBG.width = winWidth;
         mMenuBG.heigth = winHeight;
@@ -51,7 +51,7 @@ var MainMenu = {
         audioHUD.init(this.game);
         audioHUD.creation(this.game);
 
-        mMenuTitle = this.game.add.sprite(50,100, 'mMenuTitle');
+        mMenuTitle = this.game.add.sprite(50, winHeight/2 -175, 'mMenuTitle');
     },
 
     nextStatePVE: function() { this.game.state.start('pve');  },

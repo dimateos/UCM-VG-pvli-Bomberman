@@ -40,6 +40,9 @@ function Map(game, worldNum, levelNum, groups, tileData, maxPlayers, pvpMode) {
 
     this.pvpMode = pvpMode;
 
+    this.deathZoneTimer = this.game.time.create(false);
+
+    this.deathZoneTimerEvent = undefined;
     this.deathZoneCallback = undefined;
 
     //Always same base map values
@@ -84,18 +87,26 @@ Map.prototype.restartDeathZoneCountdowns = function () {
     this.deathZoneExpansion = 0;
     this.deathZoneStarted = false;
 
-    this.deathZoneTimer = this.game.time.create();
     this.deathZoneTimer.stop();
-    this.deathZoneTimerEvent = this.deathZoneTimer.add(60 * 1000, stopAndCall, this);
-    this.deathZoneTimer.start();
 
     if (this.deathZoneCallback !== undefined) this.game.time.events.remove(this.deathCallback);
+    if (this.deathZoneTimerEvent !== undefined) this.deathZoneTimer.remove(this.deathZoneTimerEvent);
+
+    this.deathZoneTimerEvent = this.deathZoneTimer.add(15 * 1000, stopAndCall, this);
+    this.deathZoneTimer.start();
 
     function stopAndCall() {
         this.deathZoneStarted = true;
         this.deathZoneTimer.stop();
         this.deathZoneExpansionFunction();
     }
+}
+
+Map.prototype.deathZoneStop = function () {
+    this.deathZoneStarted = true;
+    this.deathZoneTimer.stop();
+    if (this.deathZoneCallback !== undefined) this.game.time.events.remove(this.deathCallback);
+    if (this.deathZoneTimerEvent !== undefined) this.deathZoneTimer.removeAll();
 }
 
 Map.prototype.deathZoneExpansionFunction = function () {
@@ -127,6 +138,7 @@ Map.prototype.generateMap = function (worldNum, levelNum) {
 //generates a new map (resets groups and players'positions)
 Map.prototype.generateNewMap = function (worldNum, levelNum) {
     this.game.time.events.removeAll(); //required cause we are going to destry
+    this.game.debug.reset(); //required cause we are going to destry
     this.groups.clearGroups(this.game); //clears all grups but player
     // console.log(this.game.time.events.events);
 
