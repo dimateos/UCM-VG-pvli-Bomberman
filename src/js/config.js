@@ -147,19 +147,28 @@ const config = {
 
     HUDbombHeadPos: new Point(60, 10),
     HUDbombHeadScale: new Point(0.75, 0.70),
+    HUDPressXPos: new Point(90, -10),
+    HUDPressXScale: new Point(0.75, 0.75),
+
     HUD2Pos: new Point(35, -5),
     HUD2Scale: new Point(0.75, 0.75),
     HUDlivesPos: new Point(42, 15),
     HUDlivesScale: new Point(0.2, 0),
+
     HUDPointsNumberPos: new Point(170, 8),
     HUDPointsNumberScale: new Point(0.2, 0),
-    HUDPressXPos: new Point(90, -10),
-    HUDPressXScale: new Point(0.75, 0.75),
-    HUDBombPos: new Point(0, 0),
-    HUDBombAnchor: new Point(0.5, 0),
-    HUDBombScale: new Point(1.1, 1.1),
-    HUDBombPosText: new Point(-8, 20),
 
+    HUDBombPos: new Point(0, 17),
+    HUDBombAnchor: new Point(0.5, 0),
+    HUDBombScale: new Point(1.2, 1.2),
+
+    // HUDBombPos: new Point(0, 0),
+    // HUDBombAnchor: new Point(0.5, 0),
+    HUDFlameOffset: new Point(0, -16),
+    HUDFlameScale: new Point(1.5, 1.5),
+
+    HUDBombPosText: new Point(-8, 8),
+    HUDBombPosOffset: new Point(-5,0),
 
     //GAME OVER
 

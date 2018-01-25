@@ -39,9 +39,8 @@ function Map(game, worldNum, levelNum, groups, tileData, maxPlayers, pvpMode) {
     this.maxPlayers = maxPlayers;
 
     this.pvpMode = pvpMode;
-    this.deathZoneExpansion = 0;
+
     this.deathZoneCallback = undefined;
-    this.deathZoneStartCallback = undefined;
 
     //Always same base map values
     this.cols = baseMapData.cols;
@@ -83,11 +82,20 @@ Map.prototype.battleRoyale = function () {
 //Starts the countdown to the battleRoyale mode
 Map.prototype.restartDeathZoneCountdowns = function () {
     this.deathZoneExpansion = 0;
-    if (this.deathZoneCallback !== undefined) this.game.time.events.remove(this.deathCallback);
-    if (this.deathZoneStartCallback !== undefined) this.game.time.events.remove(this.deathZoneStartCallback);
+    this.deathZoneStarted = false;
 
-    // console.log(deathZoneTimeStart, this.deathZoneExpansion);
-    this.deathZoneStartCallback = this.game.time.events.add(deathZoneTimeStart, this.deathZoneExpansionFunction, this);
+    this.deathZoneTimer = this.game.time.create();
+    this.deathZoneTimer.stop();
+    this.deathZoneTimerEvent = this.deathZoneTimer.add(15 * 1000, stopAndCall, this);
+    this.deathZoneTimer.start();
+
+    if (this.deathZoneCallback !== undefined) this.game.time.events.remove(this.deathCallback);
+
+    function stopAndCall() {
+        this.deathZoneStarted = true;
+        this.deathZoneTimer.stop();
+        this.deathZoneExpansionFunction();
+    }
 }
 
 Map.prototype.deathZoneExpansionFunction = function () {
