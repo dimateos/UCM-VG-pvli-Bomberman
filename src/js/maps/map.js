@@ -86,7 +86,7 @@ Map.prototype.restartDeathZoneCountdowns = function () {
 
     this.deathZoneTimer = this.game.time.create();
     this.deathZoneTimer.stop();
-    this.deathZoneTimerEvent = this.deathZoneTimer.add(15 * 1000, stopAndCall, this);
+    this.deathZoneTimerEvent = this.deathZoneTimer.add(60 * 1000, stopAndCall, this);
     this.deathZoneTimer.start();
 
     if (this.deathZoneCallback !== undefined) this.game.time.events.remove(this.deathCallback);

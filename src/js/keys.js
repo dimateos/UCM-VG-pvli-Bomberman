@@ -47,6 +47,7 @@ quitToMenu:'quitToMenu',
 resume:'resume',
 
 gameOver:'gameOver',
+gameOverPvpBg:'gameOverPvpBg',
 
 numbers: 'numbers',
 done: 'done',

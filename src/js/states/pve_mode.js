@@ -100,7 +100,7 @@ var PlayScene = {
       playerInfoHUDs[numPlayer].updatePlayerInfoHud(players[numPlayer], pvpMode);
 
     bombHUD.updateBombHud(level, pvpMode);
-    gameOver.check(this.game, players);
+    gameOver.checkPve(this.game, players);
     audioHUD.checkVisible();
 
     globalControls.addPlayerControl(gInputs, players, maxPlayers, playerInfoHUDs);

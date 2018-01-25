@@ -10,7 +10,7 @@ const goToMenuAnchor = config.goToMenuAnchor;
 
 var gameOver = {
 
-    check: function (game, players) {
+    checkPve: function (game, players) {
 
         var deathCount = 0;
         for (var i = 0; i < players.length; i++) {
@@ -19,11 +19,19 @@ var gameOver = {
         }
 
         if (deathCount === players.length) {
-            this.menu(game);
+            this.menuPve(game);
         }
     },
 
-    menu: function (game) {
+    checkPvp: function (game, players, winsNec) {
+
+        for (var i = 0; i < players.length; i++) {
+            if (players[i].wins === winsNec) //end of the match
+                this.menuPvp(players);
+        }
+    },
+
+    menuPve: function (game) {
         // var gmOverBg = this.game.add.sprite(0, 0, 'mMenuBG');
 
         var gmOverSign = game.add.sprite(winWidth / 2, winHeight / 2, keys.gameOver);
@@ -34,6 +42,13 @@ var gameOver = {
         goToMenu.anchor.setTo(goToMenuAnchor.x, goToMenuAnchor.y);
     },
 
+    menuPvp: function (players) {
+
+        for (var i = 0; i < players.length; i++)
+            players[i].dead = true; //no one moves
+
+        console.log("AND THE WINNER IS PIPO");
+    },
 }
 
 module.exports = gameOver;

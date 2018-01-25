@@ -37,8 +37,8 @@ const config = {
     pve_initialPlayers: 1,
     pve_maxPlayers: 2, //needed for the map generation
 
-    playerLifeTime: 3 * 60 * 1000,
-    hudAnimSpeed: 10 / (3 * 60), //animation lasts 3 min
+    playerLifeTime: 0.5 * 60 * 1000,
+    hudAnimSpeed: 10 / (0.5 * 60), //animation lasts 3 min
 
     //PvP
     initialMapPvP: { world: 1, level: 0 },

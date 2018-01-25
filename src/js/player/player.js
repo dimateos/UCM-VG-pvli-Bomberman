@@ -44,9 +44,11 @@ function Player(game, level, numPlayer, tileData, groups, hudVidas) {
     this.extraLives = 0;
 
     this.hudVidas = hudVidas;
+    this.hudVidaAnim = hudVidas[numPlayer].animations.add('Clock');
+    this.hudVidaDead = hudVidas[numPlayer].animations.add('Dead', [11]);
+    this.hudVidaSpawn = hudVidas[numPlayer].animations.add('Spawn', [0]);
 
     if (!level.pvpMode) {
-        this.hudVidaAnim = hudVidas[numPlayer].animations.add('Clock');
         this.hudVidaAnim.play(config.hudAnimSpeed, true);
         this.hudVidaAnim.onLoop.add(this.die, this, 0, 0);
         this.deathCallback = undefined;
@@ -238,10 +240,11 @@ Player.prototype.bombLogic = function () {
 
 //player concrete logic for die
 Player.prototype.die = function (flame) {
-    console.log("checkin player die", this.level.pvpMode);
+    // console.log("checkin player die", this.level.pvpMode);
 
     this.dead = true; //to disable movement
 
+    this.restartMovement();
     this.animations.play("dying");
 
     if (flame !== undefined && flame !== this.hudVidas[this.numPlayer] && flame.player !== undefined) {
@@ -257,7 +260,6 @@ Player.prototype.die = function (flame) {
     if (!this.level.pvpMode) {
         this.lives--;
 
-        this.restartMovement();
 
         Identifiable.addPowerUps(playerOnDeathModsIds, this, true);
 
@@ -280,6 +282,7 @@ Player.prototype.pvpModeDeath = function () {
 
     function dieAndCheckOver() {
         this.visible = false;
+        this.hudVidaDead.play();
 
         var alive = 0;
         for (var i = 0; i < this.groups.player.children.length; i++) {
@@ -301,6 +304,7 @@ Player.prototype.pvpModeDeath = function () {
 Player.prototype.respawn = function () {
 
     this.invencible = true;
+    this.tmpInven = false;
     this.dead = true; //so he cannot move
 
     if (this.lives > 0) {
@@ -310,6 +314,7 @@ Player.prototype.respawn = function () {
         this.restartMovement(); //so it doesnt move inside walls
 
         if (!this.level.pvpMode) this.restartCountdown(true);
+        else this.hudVidaSpawn.play();
 
         this.position = new Point(this.respawnPos.x, this.respawnPos.y);
 
@@ -319,7 +324,10 @@ Player.prototype.respawn = function () {
         //callback used to give back the control to the player
         this.game.time.events.add(playerRespawnedStoppedTime, revive, this);
     }
-    else this.visible = false;
+    else {
+        this.hudVidaDead.play();
+        this.visible = false;
+    }
 
     function revive() {
         //fix for a bug: sometimes the position recives a tick of the velocity...
@@ -331,7 +339,7 @@ Player.prototype.respawn = function () {
 
 //just extended to see the player number
 Player.prototype.endInvencibility = function () {
-    console.log("P" + this.numPlayer + " invencibility ended");
+    if (config.DEBUG) console.log("P" + this.numPlayer + " invencibility ended");
     this.invencible = false;
     this.alpha = 1;
 }

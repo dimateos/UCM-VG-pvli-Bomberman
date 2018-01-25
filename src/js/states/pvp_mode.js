@@ -55,12 +55,6 @@ var PlayScene = {
     if (DEBUG) this.startTime = Date.now(); //to calculate booting time
   },
 
-  endGameScreen: function () {
-    //Cosas del endGame.
-    console.log("AND THE WINNER IS PIPO");
-
-  },
-
 
   create: function () {
 
@@ -93,7 +87,6 @@ var PlayScene = {
       console.log("\n PLAYER: ", players[0]);
       console.log("\n MAP: ", level.map);
     }
-
   },
 
 
@@ -106,19 +99,12 @@ var PlayScene = {
     this.game.world.bringToTop(groups.flame);
     this.game.world.bringToTop(groups.player); //array doesnt work so group
 
-    //update HUD + check for win (so no iterate players twice)
-    for (var numPlayer = 0; numPlayer < playerInfoHUDs.length; numPlayer++) {
-
+    //update HUD so no iterate players twice
+    for (var numPlayer = 0; numPlayer < playerInfoHUDs.length; numPlayer++)
       playerInfoHUDs[numPlayer].updatePlayerInfoHud(players[numPlayer], pvpMode);
 
-      if(players[numPlayer].wins === winsNec) //end of the match
-      {
-        this.endGameScreen();
-      }
-    }
-
     bombHUD.updateBombHud(level, pvpMode);
-    // gameOver.check(this.game, players);
+    gameOver.checkPvp(this.game, players, winsNec);
     audioHUD.checkVisible();
 
     globalControls.addPlayerControl(gInputs, players, maxPlayers, playerInfoHUDs);
