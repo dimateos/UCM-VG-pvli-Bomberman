@@ -6,7 +6,7 @@ var Physical = require('./physical.js'); //father
 var Identifiable = require('../id/identifiable.js');
 
 //default bombable values
-var bombableTimer = 500; //to sync with flames
+const bombableTimer = config.bombableTimer; //to sync with flames
 
 //var Id = Identifiable.Id; //the mini factory is in Identifiable
 //var bombableDropId = new Id (1,1);

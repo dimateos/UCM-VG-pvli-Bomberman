@@ -8,21 +8,33 @@ const winWidth = config.winWidth;
 const winHeight = config.winHeight;
 
 var mMenuTitle; //super bomboooooozle man
+const mMenuTitlePos;
 
 var mMenuBG;
+const mMenuBGPos = config.mMenuBGPos;
+const mMenuBGScale = config.mMenuBGScale;
 var mMenuPVE;
+const mMenuPVEPos = config.mMenuPVEPos;
+const mMenuPVEScale = config.mMenuPVEScale;
+const mMenuPVEAnchor = config.mMenuPVPAnchor;
 var mMenuPVP;
-var buttonCount = 1;
+const mMenuPVPPos = config.mMenuPVPPos;
+const mMenuPVPScale = config.mMenuPVPScale;
+const mMenuPVPAnchor = config.mMenuPVPAnchor;
+const buttonCount = config.buttonCount;
 
 var lessWinsButton;
 var moreWinsButton;
 var doneButton;
 var howManyWins;
 var numbers;
+const numberData = config.numbers;
+const doneData = config.doneButton;
+const HMWData = config.howManyWins;
 
-var winsNecessary = 1;
-var minWinsNec = 1;
-var maxWinsNec = 9;
+const winsNecessary = config.initWinsNecessary;
+const minWinsNec = config.minWinsNec;
+const maxWinsNec = config.maxWinsNec;
 
 
 var MainMenu = {
@@ -36,22 +48,22 @@ var MainMenu = {
 
         mMenuBG = this.game.add.sprite(0, 0, 'mMenuBG');
         mMenuBG.scale.y = 1.05; //just a little bigger
-        mMenuPVE = this.game.add.button(winWidth/2, winHeight/2 + 90, 'mMenuButton1', this.nextStatePVE, this);
-        mMenuPVP = this.game.add.button(winWidth/2, winHeight/2 + 160, 'mMenuButton2', this.createWinsChoice, this);
+        mMenuPVE = this.game.add.button(winWidth/2 + mMenuPVEPos.x, winHeight/2 + mMenuPVEPos.y, 'mMenuButton1', this.nextStatePVE, this);
+        mMenuPVP = this.game.add.button(winWidth/2 + mMenuPVPPos.x, winHeight/2 + mMenuPVPPos.y, 'mMenuButton2', this.createWinsChoice, this);
 
         mMenuBG.width = winWidth;
         mMenuBG.heigth = winHeight;
 
-        mMenuPVE.scale.setTo(0.7, 0.7);
-        mMenuPVE.anchor.setTo(0.5, 0.5);
+        mMenuPVE.scale.setTo(mMenuPVEScale.x, mMenuPVEScale.y);
+        mMenuPVE.anchor.setTo(mMenuPVEAnchor.x, mMenuPVEAnchor.y);
 
-        mMenuPVP.scale.setTo(0.7, 0.7);
-        mMenuPVP.anchor.setTo(0.5, 0.5);
+        mMenuPVP.scale.setTo(mMenuPVPScale.x, mMenuPVPScale.y);
+        mMenuPVP.anchor.setTo(mMenuPVPAnchor.x, mMenuPVPAnchor.y);
 
         audioHUD.init(this.game);
         audioHUD.creation(this.game);
 
-        mMenuTitle = this.game.add.sprite(50, winHeight/2 -175, 'mMenuTitle');
+        mMenuTitle = this.game.add.sprite(mMenuTitlePos.x, winHeight/2 + mMenuTitlePos.y, 'mMenuTitle');
     },
 
     nextStatePVE: function() { this.game.state.start('pve');  },
@@ -66,9 +78,9 @@ var MainMenu = {
     createWinsChoice: function() {
         mMenuPVP.inputEnabled = false;
 
-        numbers = this.game.add.sprite(mMenuPVP.position.x + 260, mMenuPVP.y, config.keys.numbers, winsNecessary);
-        numbers.scale.setTo(0.5, 0.5);
-        numbers.anchor.setTo(0.4, 0.4);
+        numbers = this.game.add.sprite(mMenuPVP.position.x + numberData.pos.x, mMenuPVP.y + numberData.pos.y, config.keys.numbers, winsNecessary);
+        numbers.scale.setTo(numberData.scale.x, numberData.scale.y);
+        numbers.anchor.setTo(numberData.anchor.x, numberData.anchor.y);
 
         lessWinsButton = this.game.add.button(mMenuPVP.position.x + 230, mMenuPVP.position.y, config.keys.volArrow, this.lessWins, this);
         lessWinsButton.scale.setTo(config.lessVolButtonScale.x, config.lessVolButtonScale.y);
@@ -78,13 +90,13 @@ var MainMenu = {
         moreWinsButton.scale.setTo(config.moreVolButtonScale.x, config.moreVolButtonScale.y);
         moreWinsButton.angle = config.moreVolButtonAngle;
 
-        doneButton = this.game.add.button(numbers.position.x, numbers.position.y + 50, config.keys.done, this.nextStatePVP, this);
-        doneButton.scale.setTo(0.5, 0.5);
-        doneButton.anchor.setTo(0.5, 0.5);
+        doneButton = this.game.add.button(numbers.position.x + doneData.pos.x, numbers.position.y + doneData.pos.y, config.keys.done, this.nextStatePVP, this);
+        doneButton.scale.setTo(doneData.scale.x, doneData.scale.y);
+        doneButton.anchor.setTo(doneData.anchor.x, doneData.anchor.y);
 
-        howManyWins = this.game.add.sprite(numbers.position.x, numbers.position.y - 50, config.keys.manyWins);
-        howManyWins.scale.setTo(0.3, 0.3);
-        howManyWins.anchor.setTo(0.5, 0.5);
+        howManyWins = this.game.add.sprite(numbers.position.x + HMWData.pos.x, numbers.position.y + HMWData.pos.y, config.keys.manyWins);
+        howManyWins.scale.setTo(HMWData.scale.x, HMWData.scale.y);
+        howManyWins.anchor.setTo(HMWData.anchor.x, HMWData.anchor.y);
     },
 
     // over: function() { buttonCount++; },

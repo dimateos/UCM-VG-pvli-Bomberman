@@ -2,14 +2,15 @@
 
 var Physical = require('../objects/physical.js');
 var Point = require('../general/point.js');
+const config = require('../config.js');
 
 var idDataBase = require('./idDataBase.js'); //all the database
 
 //default identifiable values
-var idBodySize = new Point(32, 32); //little smaller
-var idBodyOffset = new Point(0, 0);
-var idExtraOffset = new Point(14, 10); //id body is not full res
-var idImmovable = true;
+const idBodySize = config.idBodySize; //little smaller
+const idBodyOffset = config.idBodyOffset;
+const idExtraOffset = config.idExtraOffset; //id body is not full res
+const idImmovable = config.idImmovable;
 
 var powerUpSound;
 

@@ -77,12 +77,25 @@ const config = {
     playerRespawnedStoppedTime: 1000,
     playerDeathTime: 1500,
 
+    playerVelocity: 140, //max=playerVelocity+5*10 (depends on powerUps)
+    playerVelocityTurning: 105, //140 105
+    
+
+    //BOMBABLE
+    
+    bombableTimer: 500,
     step: Math.PI * 2 / 360, //degrees
     playerInitialAlphaAngle: 30, //sin(playerInitialAlphaAnlge) -> alpha
     alphaWavingSpeed: 1.75,
 
-    playerVelocity: 140, //max=playerVelocity+5*10 (depends on powerUps)
-    playerVelocityTurning: 105, //140 105
+
+    //IDENTIFIABLE
+
+    idBodySize: new Point(32, 32),
+    idBodyOffset: new Point(0, 0),
+    idExtraOffset: new Point(14, 10),
+    idImmovable: true,
+
 
     //POWEUPS
 
@@ -215,6 +228,26 @@ const config = {
     gotoMenuButtonPos: new Point(0, 50),
     gotoMenuButtonAnchor: new Point(0.5, 0.5),
     gotoMenuButtonScale: new Point(0.75, 0.75),
+
+
+    //MAIN MENU
+
+    buttonCount: 1,
+    initWinsNecessary: 1,
+    minWinsNec: 1,
+    maxWinsNec: 9,
+    mMenuBGPos: new Point(0, 0),
+    mMenuBGScale: new Point(1, 1.05),
+    mMenuPVEPos: new Point(0, 90),
+    mMenuPVEScale: new Point(0.7, 0.7),
+    mMenuPVEAnchor: new Point(0.5, 0.5),
+    mMenuPVPPos: new Point(0, 160),
+    mMenuPVPScale: new Point(0.7, 0.7),
+    mMenuPVPAnchor: new Point(0.5, 0.5),
+    mMenuTitlePos: new Point(50, -175),
+    numbers: { pos: new Point(260, 0), scale: new Point(0.5, 0.5), anchor: new Point(0.4, 0.4) },
+    doneButton: { pos: new Point(0, 50), scale: new Point(0.5, 0.5), anchor: new Point(0.5, 0.5) },
+    howManyWins: { pos: new Point(0, -50), scale: new Point(0.3, 0.3), anchor: new Point(0.5, 0.5) },
 };
 
 module.exports = config;
