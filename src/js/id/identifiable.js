@@ -43,7 +43,7 @@ Identifiable.pickPowerUp = function(powerUp, player) {
 //generic base id factorie
 Identifiable.Id = function (tier, num) {this.tier = tier; this.num = num;}
 //get tier size (for the map rnd generation)
-Identifiable.tierSize = function (tier) {return idDataBase[tier].length}
+Identifiable.tierSize = function (tier) {return idDataBase[tier].length;}
 
 
 Identifiable.addPowerUps = function(powerUpIds, target, reverseMode) {
