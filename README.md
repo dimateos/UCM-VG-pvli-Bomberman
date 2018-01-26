@@ -9,6 +9,18 @@
 
 ![Bomboozleman](src/images/bomboozleman.png)
 
+## Game story
+
+At the start of this semester we came across PVLI (Videogame Programming in Interpreted language) and our teacher Carlos told us: "You need to choose a game, a retro game, and you will remake it in Phaser". So we decided to pick a hard one: Bomberman. We liked the game a lot, and the challenge too.
+
+Our starting plan was to do both, Pve and Pvp modes, from the Super Bomberman (SNES 1993) and we ended up finishing both! (using free sprites to avoid copyright)
+
+The resulting game, Bomboozleman, turned out to be pretty fun too!
+* Endless levels alone or with a friend.
+* Battles up to 4 players that end up in a sea of flames (if you last too long).
+
+So stop waiting and try it out! And bring some friends to fight over the keyboard ;)
+
 ## Gamemodes
 
 ### Pve - up to 2 players
@@ -37,13 +49,13 @@ The last one standing recieves a point and the battle starts again (until a play
     * Also triggered when the focus is not on the game
 
 * **Hacks**: *(if HACK enabled)*
-  * Show debug: `C`
+  * Show debug + be invencible: `C`
   * Rebuild map: `B`
   * Next map: `N`
 
 ## Extended GDD  ***(in Spanish)***
 
-If you are interested, it can be found [here](planification/readme.md).
+If you are interested, it can be found [here](planification/README.md).
 
 * And [here](planification/Diseño.md) is where we analysed the original Super Bomberman mechanics.
 
