@@ -1,29 +1,784 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 'use strict';
+const config = require('../config.js');
+const keys = config.keys;
 
-var Bombable = require('../objects/bombable.js'); //father
-var Point = require('../general/point.js');
+const winWidth = config.winWidth;
+const winHeight = config.winHeight;
 
-var Identifiable = require('../id/identifiable.js'); //deploy power ups
+//Audio control buttons data
+const muteMusicButtonPos = config.muteMusicButtonPos;
+const muteMusicButtonScale = config.mutedMusicButtonScale;
+const mutedMusicButtonPos = config.mutedMusicButtonPos;
+const mutedMusicButtonScale = config.mutedMusicButtonScale;
+const lessVolButtonPos = config.lessVolButtonPos;
+const lessVolButtonScale = config.lessVolButtonScale;
+const moreVolButtonPos = config.moreVolButtonPos;
+const moreVolButtonScale = config.moreVolButtonScale;
+const moreVolButtonAnchor = config.moreVolButtonAnchor;
+const moreVolButtonAngle = config.moreVolButtonAngle;
 
+//Audio variables
+const defaultVolume = config.default_volume;
+const volume_increment = config.volume_increment;
+const volume_Max = config.volume_Max;
+const volume_Min = config.volume_Min;
+
+//Audio control buttons (this is not constructed object)
+var muteMusicButton;
+var mutedMusicButton;
+var lessVolButton;
+var moreVolButton;
+
+//Initial audio setup
+var muted = config.default_muted;
+
+//contains all the functions to draw/control audio
+var audioHUD = {
+
+    music: {}, //container
+
+    //Adds the music and sets it up to loop forever
+    init: function (game) {
+
+        this.music = game.add.audio('music');
+        this.music.loopFull(0.4);
+        game.sound.volume = defaultVolume;
+        game.sound.mute = muted; //muted default or not
+    },
+
+    //Creation of the buttons
+    creation: function (game) {
+
+        muteMusicButton = game.add.button(muteMusicButtonPos.x, muteMusicButtonPos.y, 'unmuted', this.toggleMute, game);
+        muteMusicButton.scale.setTo(muteMusicButtonScale.x, muteMusicButtonScale.y);
+        mutedMusicButton = game.add.button(mutedMusicButtonPos.x, mutedMusicButtonPos.y, 'muted', this.toggleMute, game);
+        mutedMusicButton.scale.setTo(mutedMusicButtonScale.x, mutedMusicButtonScale.y);
+
+        lessVolButton = game.add.button(lessVolButtonPos.x, lessVolButtonPos.y, 'volArrow', this.lessVol, game);
+        lessVolButton.scale.setTo(lessVolButtonScale.x, lessVolButtonScale.y);
+
+        moreVolButton = game.add.button(moreVolButtonPos.x, moreVolButtonPos.y, 'volArrow', this.moreVol, game);
+        moreVolButton.anchor.setTo(moreVolButtonAnchor.x, moreVolButtonAnchor.y);
+        moreVolButton.scale.setTo(moreVolButtonScale.x, moreVolButtonScale.y);
+        moreVolButton.angle = moreVolButtonAngle; //inversed
+
+    },
+
+    //Destruction of the music. Called when coming back to the Main Menu
+    destruction: function (game) {
+        muted = game.sound.mute;
+        this.music.destroy();
+    },
+
+    //Swaps visibility of the mute button
+    checkVisible: function () {
+        if (this.music.mute) muteMusicButton.visible = false;
+        else muteMusicButton.visible = true;
+
+        if (!this.music.mute) mutedMusicButton.visible = false;
+        else mutedMusicButton.visible = true;
+    },
+
+    //Game is the context in all this functions
+    //Toggles mute
+    toggleMute: function () { this.sound.mute = !this.sound.mute; },
+
+    //Increases volume
+    moreVol: function () {
+        if (!this.sound.mute && this.sound.volume < volume_Max)
+            this.sound.volume += volume_increment;
+    },
+
+    //Decreases volume
+    lessVol: function () {
+        if (!this.sound.mute && this.sound.volume > volume_Min)
+            this.sound.volume -= volume_increment;
+    },
+}
+
+module.exports = audioHUD;
+
+},{"../config.js":6}],2:[function(require,module,exports){
+'use strict';
+const config = require('../config.js');
+const keys = config.keys;
+
+const Point = require('../general/point.js');
+
+const winWidth = config.winWidth;
+const winHeight = config.winHeight;
+
+//Bomb HUD objects' data
+const HUDBombPos = config.HUDBombPos;
+const HUDBombAnchor = config.HUDBombAnchor;
+const HUDBombScale = config.HUDBombScale;
+
+const HUDFlameOffset = config.HUDFlameOffset;
+const HUDFlameScale = config.HUDFlameScale;
+
+const HUDBombPosText = config.HUDBombPosText;
+const HUDBombPosOffset = config.HUDBombPosOffset;
+
+
+//Bomb HUD constructor (countdown in pvp or lvl count in pve)
+var bombHUD = function (game, pvpMode) {
+
+    var posX; //different for the modes
+    if (pvpMode) posX = winWidth - winWidth / 10;
+    else posX = winWidth / 2;
+
+    //animated flame
+    this.HUDFlame = game.add.sprite(posX + HUDBombPos.x, HUDBombPos.y + HUDFlameOffset.y, config.keys.flame);
+    this.HUDFlame.anchor.setTo(HUDBombAnchor.x, HUDBombAnchor.y);
+    this.HUDFlame.scale.setTo(HUDFlameScale.x, HUDFlameScale.y);
+    this.HUDFlame.animations.add("flaming", [0, 1, 2, 3, 4], 9, true);
+    this.HUDFlame.animations.play("flaming");
+
+    //bomb over it
+    this.HUDBomb = game.add.sprite(posX + HUDBombPos.x, HUDBombPos.y, config.keys.bomb);
+    this.HUDBomb.anchor.setTo(HUDBombAnchor.x, HUDBombAnchor.y);
+    this.HUDBomb.scale.setTo(HUDBombScale.x, HUDBombScale.y);
+    this.HUDBomb.animations.add("red");
+    this.HUDBomb.animations.add("static", [0]);
+
+    //flip flops (so no callbacks)
+    this.HUDBombTextFF = false;
+    this.HUDBombFF = false;
+
+    //add the text
+    if (config.endless_rnd_map_gen || pvpMode) {
+        if (pvpMode) posX += HUDBombPosOffset.x;
+        this.HUDBombText = game.add.text(posX + HUDBombPosText.x, HUDBombPos.y + HUDBombPosText.y, "",
+            { font: "30px Comic Sans MS", fill: "#f9e000", align: "center" });
+    }
+};
+
+//Updates HUD depending on game mode
+bombHUD.prototype.updateBombHud = function (map, pvpMode) {
+
+    if (!pvpMode) this.updateBombHudPve(map);
+    else this.updateBombHudPvp(map);
+}
+
+//Updates HUD on PVE mode
+bombHUD.prototype.updateBombHudPve = function (map) {
+
+    if (config.endless_rnd_map_gen) {
+        this.HUDBombText.text = map.rndGen;
+
+        //if 2 digits recenters the numbers
+        if (map.rndGen > 9 && !this.HUDBombTextFF) {
+            this.HUDBombTextFF = true;
+            this.HUDBombText.position.x += HUDBombPosOffset.x;
+        }
+    }
+}
+
+//Updates HUD for PVP mode
+bombHUD.prototype.updateBombHudPvp = function (map) {
+
+    if (map.deathZoneStarted) { //If death zone has already started displays red bomb animation
+        if (!this.HUDBombFF) {
+            this.HUDBombFF = true;
+            this.HUDBombText.visible = false;
+            this.HUDBomb.animations.play("red", 4, true);
+        }
+    }
+    else { //If death zone hasn't started displays countdown until it does
+        this.HUDBombText.visible = true;
+        this.HUDBombFF = false;
+        this.HUDBomb.animations.play("static");
+    }
+
+    //gets the delay from the timer
+    var time = (map.deathZoneTimerEvent.delay - map.deathZoneTimer.ms) / 1000;
+    this.HUDBombText.text = Math.round(time);
+}
+
+module.exports = bombHUD;
+
+},{"../config.js":6,"../general/point.js":13}],3:[function(require,module,exports){
+'use strict';
+const config = require('../config.js');
+const keys = config.keys;
+
+const winWidth = config.winWidth;
+const winHeight = config.winHeight;
+
+//Game Over sprites data
+const gmOverSignAnchor = config.gmOverSignAnchor;
+const goToMenuAnchor = config.goToMenuAnchor;
+
+const pvpOverPos = config.pvpOverPos;
+const pvpOverAnchor = config.pvpOverAnchor;
+const pvpOverScale = config.pvpOverScale;
+const pvpOverPlayerOffset = config.pvpOverPlayerOffset;
+const pvpOverPlayerScale = config.pvpOverPlayerScale;
+
+//Game Over PVP texts Offset
+const pvpOverText0Offset = config.pvpOverText0Offset;
+const pvpOverText1Offset = config.pvpOverText1Offset;
+const pvpOverText2Offset = config.pvpOverText2Offset;
+const pvpOverText3Offset = config.pvpOverText3Offset;
+
+//contains all the functions required, each gamemode calls them as needed
+var gameOver = {
+
+    //Checks how many deaths happen in PVE
+    checkPve: function (game, players) {
+
+        var deathCount = 0;
+        for (var i = 0; i < players.length; i++) {
+            if (players[i].lives <= 0 && deathCount < players.length)
+                deathCount++;
+        }
+
+        if (deathCount === players.length) {
+            this.menuPve(game);
+        }
+    },
+
+    //Checks how many wins have the players in PVP
+    checkPvp: function (game, players, winsNec) {
+
+        for (var i = 0; i < players.length; i++) {
+            if (players[i].wins === winsNec) //end of the match
+                this.menuPvp(game, players, i);
+        }
+    },
+
+    //Go to menu and Game Over sign creation (PVE)
+    menuPve: function (game) {
+
+        var gmOverSign = game.add.sprite(winWidth / 2, winHeight / 2, keys.gameOver);
+        gmOverSign.anchor.setTo(gmOverSignAnchor.x, gmOverSignAnchor.y);
+
+        var goToMenu = game.add.button(winWidth, winHeight,
+            keys.quitToMenu, function () { game.state.start(keys.mainMenu); }, game);
+        goToMenu.anchor.setTo(goToMenuAnchor.x, goToMenuAnchor.y);
+    },
+
+    //Go to menu, Game Over sign and ending stats texts creation (PVP)
+    menuPvp: function (game, players, numPlayer) {
+
+        //Stops death zone
+        players[0].level.deathZoneStop();
+
+        for (var i = 0; i < players.length; i++)
+            players[i].dead = true; //no one moves
+
+        //back pannel
+        var pvpOver = game.add.sprite(pvpOverPos.x, pvpOverPos.y, keys.gameOverPvpBg);
+        pvpOver.anchor.setTo(pvpOverAnchor.x, pvpOverAnchor.y);
+        pvpOver.scale.setTo(pvpOverScale.x, pvpOverScale.y);
+
+        //specific winner sprite
+        var playerino = game.add.sprite(pvpOverPos.x + pvpOverPlayerOffset.x, pvpOverPos.y + pvpOverPlayerOffset.y,
+            keys.player + numPlayer + 'Clock');
+        playerino.anchor.setTo(pvpOverAnchor.x, pvpOverAnchor.y);
+        playerino.scale.setTo(pvpOverPlayerScale.x, pvpOverPlayerScale.y);
+
+        //all the texts (player winner, kills, selfkills, pts...)
+        var winner = game.add.text(pvpOverPos.x + pvpOverText0Offset.x, pvpOverPos.y + pvpOverText0Offset.y,
+            "The player " + (numPlayer+1) + " wins!", { font: "40px Comic Sans MS", fill: "#f9e000", align: "right" });
+
+        var winner = game.add.text(pvpOverPos.x + pvpOverText1Offset.x, pvpOverPos.y + pvpOverText1Offset.y,
+            "Kills: " + players[numPlayer].kills, { font: "35px Comic Sans MS", fill: "#f9e000", align: "right" });
+
+        var winner = game.add.text(pvpOverPos.x + pvpOverText2Offset.x, pvpOverPos.y + pvpOverText2Offset.y,
+            "Selfkills: " + players[numPlayer].selfKills, { font: "35px Comic Sans MS", fill: "#f9e000", align: "right" });
+
+        var winner = game.add.text(pvpOverPos.x + pvpOverText3Offset.x, pvpOverPos.y + pvpOverText3Offset.y,
+            "Pts: " + players[numPlayer].points, { font: "35px Comic Sans MS", fill: "#f9e000", align: "right" });
+
+        //also draws the go to menu button
+        var goToMenu = game.add.button(winWidth, winHeight,
+            keys.quitToMenu, function () { game.state.start(keys.mainMenu); }, game);
+        goToMenu.anchor.setTo(goToMenuAnchor.x, goToMenuAnchor.y);
+    },
+}
+
+module.exports = gameOver;
+
+},{"../config.js":6}],4:[function(require,module,exports){
+'use strict';
+const config = require('../config.js');
+
+const DEBUG = config.DEBUG;
+const winWidth = config.winWidth;
+const winHeight = config.winHeight;
+
+//Pause Menu objects' data
+const pausePanelPos = config.pausePanelPos;
+const pausePanelAnchor = config.pausePanelAnchor;
+const pausePanelAlpha = config.pausePanelAlpha;
+const pausePanelKey = config.keys.pausePanel;
+
+const unpauseButtonPos = config.unpauseButtonPos;
+const unpauseButtonAnchor = config.unpauseButtonAnchor;
+const unpauseButtonScale = config.unpauseButtonScale;
+const unpauseButtonKey = config.keys.resume;
+
+const gotoMenuButtonPos = config.gotoMenuButtonPos;
+const gotoMenuButtonAnchor = config.gotoMenuButtonAnchor;
+const gotoMenuButtonScale = config.gotoMenuButtonScale;
+const gotoMenuButtonKey = config.keys.quitToMenu;
+
+var pausePanel;
+var unpauseButton;
+var gotoMenuButton;
+
+//not a contructor, contains functions to create the pauseMenu and it objects
+var pauseMenu = {
+
+  //Works as a Pause method (a one tick method). Works when clicking out the window too
+  //Creates the needed objects for the pause menu and pauses music.
+  pausedCreate: function (music, game) {
+
+    music.pause();
+
+    //Disables changes on Game when leaving the game window
+    game.stage.disableVisibilityChange = true;
+
+    game.input.onDown.add(unPause, this);
+
+    //Create buttons and sprites
+    pausePanel = game.add.sprite(pausePanelPos.x, pausePanelPos.y, pausePanelKey);
+    pausePanel.anchor.setTo(pausePanelAnchor.x, pausePanelAnchor.y);
+    pausePanel.alpha = pausePanelAlpha;
+
+    unpauseButton = game.add.sprite(pausePanelPos.x + unpauseButtonPos.x, pausePanelPos.y + unpauseButtonPos.y, unpauseButtonKey);
+    unpauseButton.anchor.setTo(unpauseButtonAnchor.x, unpauseButtonAnchor.y);
+    unpauseButton.scale.setTo(unpauseButtonScale.x, unpauseButtonScale.y);
+
+    gotoMenuButton = game.add.sprite(pausePanelPos.x + gotoMenuButtonPos.x, pausePanelPos.y + gotoMenuButtonPos.y, gotoMenuButtonKey);
+    gotoMenuButton.anchor.setTo(gotoMenuButtonAnchor.x, gotoMenuButtonAnchor.y);
+    gotoMenuButton.scale.setTo(gotoMenuButtonScale.x, gotoMenuButtonScale.y);
+
+    //Unpausing by resuming the game or going back to the Main Menu
+    function unPause() {
+      if (game.paused) {
+        if (checkBorders(game.input, unpauseButton)) game.paused = false;
+
+        else if (checkBorders(game.input, gotoMenuButton)) {
+          game.state.start('mainMenu');
+          game.paused = false;
+        }
+      }
+    };
+
+    //Checks input on sprites (own-made buttons because of game pause problems)
+    function checkBorders(inputPointer, button) {
+      return (inputPointer.position.x > button.position.x - button.texture.width / 2
+        && inputPointer.position.x < button.position.x + button.texture.width / 2
+        && inputPointer.position.y > button.position.y - button.texture.height / 2
+        && inputPointer.position.y < button.position.y + button.texture.height / 2)
+    }
+  },
+
+  //Destroying pause menu things. Returning needed variables/objects to previous values
+  resumedMenu: function (music, gInputs, game) {
+    music.resume();
+    game.stage.disableVisibilityChange = false;
+    gInputs.pMenu.ff = false;
+
+    pausePanel.destroy();
+    unpauseButton.destroy();
+    gotoMenuButton.destroy();
+  },
+
+  //Stops the ability to use the menu
+  offPauseMenuControl: function (game, gInputs) {
+    if (gInputs.pMenu.button.isDown && !gInputs.pMenu.ff) {
+      gInputs.pMenu.ff = true;
+      game.paused = true;
+    }
+    else if (gInputs.pMenu.isUp)
+      gInputs.pMenu.ff = false;
+  }
+}
+
+module.exports = pauseMenu;
+
+},{"../config.js":6}],5:[function(require,module,exports){
+'use strict';
+const config = require('../config.js');
+const keys = config.keys;
+
+const Point = require('../general/point.js');
+
+const winWidth = config.winWidth;
+const winHeight = config.winHeight;
+
+//Player info HUD objects' data (sprites)
+const HUDbombHeadPos = config.HUDbombHeadPos;
+const HUDbombHeadScale = config.HUDbombHeadScale;
+
+const HUD2Pos = config.HUD2Pos;
+const HUD2Scale = config.HUD2Scale;
+
+const HUDlivesPos = config.HUDlivesPos;
+const HUDlivesScale = config.HUDlivesScale;
+
+const HUDPointsNumberPos = config.HUDPointsNumberPos;
+const HUDPointsNumberScale = config.HUDPointsNumberScale;
+
+const HUDPressXPos = config.HUDPressXPos;
+const HUDPressXScale = config.HUDPressXScale;
+
+var HUDPressX; //extra object (logic stored here)
+
+//Contructor. Creates all sprites and texts
+//each mode needs to call the updatePlayerInfoHud
+var playerInfoHUD = function (game, HUDbombHead, playerNum, pvpMode) {
+
+    var posX; //depends on pvpMode
+    if (!pvpMode) posX = HUDbombHeadPos.x + ((winWidth / 2) * playerNum);
+    else posX = HUDbombHeadPos.x + ((winWidth / 5) * playerNum);
+
+    //little player sprite to use as clock when required
+    HUDbombHead[playerNum] = game.add.sprite(posX, HUDbombHeadPos.y, keys.player + playerNum + 'Clock');
+    HUDbombHead[playerNum].scale.setTo(HUDbombHeadScale.x, HUDbombHeadScale.y);
+
+    //two points + text for lives
+    this.HUD2 = game.add.sprite(posX + HUD2Pos.x, HUD2Pos.y, keys.HUD2);
+    this.HUD2.scale.setTo(HUD2Scale.x, HUD2Scale.y);
+
+    this.HUDlives = game.add.text(this.HUD2.position.x + HUDlivesPos.x, HUDlivesPos.y, "",
+        { font: "45px Comic Sans MS", fill: "#f9e000", align: "center" });
+    this.HUDlives.anchor.setTo(HUDlivesScale.x, HUDlivesScale.y);
+
+    //draw points on pve
+    if (!pvpMode) {
+
+        this.HUDPointsNumber = game.add.text(posX + HUDPointsNumberPos.x, HUDPointsNumberPos.y, "",
+            { font: "50px Comic Sans MS", fill: "#f9e000", align: "right" });
+        this.HUDPointsNumber.anchor.setTo(HUDPointsNumberScale.x, HUDPointsNumberScale.y);
+
+        if (playerNum === 1 && HUDPressX !== undefined) HUDPressX.destroy();
+    }
+
+    //if only 1 player then draw the "press X"
+    else if (playerNum === 2 && HUDPressX !== undefined) {
+        HUDPressX.destroy();
+    }
+
+}
+
+//Updates player info
+playerInfoHUD.prototype.updatePlayerInfoHud = function (player, pvpMode) {
+
+    if (pvpMode) this.HUDlives.text = player.wins;
+    else {
+        this.HUDlives.text = player.lives;
+        this.HUDPointsNumber.text = player.points;
+    }
+}
+
+//Draws the 'Press X' sign when needed
+playerInfoHUD.drawPressX = function (game, pvpMode) {
+    var posX = winWidth / 2 + HUDPressXPos.x;
+    if (pvpMode) posX -=  100; //position depends on the mode
+
+    HUDPressX = game.add.sprite(posX, HUDPressXPos.y, keys.HUDPressX);
+
+    HUDPressX.scale.setTo(HUDPressXScale.x, HUDPressXScale.y);
+    HUDPressX.visible = true;
+}
+
+
+module.exports = playerInfoHUD;
+
+},{"../config.js":6,"../general/point.js":13}],6:[function(require,module,exports){
+'use strict';
+
+const keys = require('./keys.js');
+const Point = require('./general/point.js');
+
+const width = 800;
+const height = 600;
+
+const config = {
+
+    keys: keys,
+
+    HACKS: true, //extra controls (rebuild level, next level, show bodys)
+
+    endless_rnd_map_gen: true,
+
+    default_muted: true,
+    default_volume: 0.25,
+
+    DEBUG: false,
+    debugPos: new Point(32, height - 96),
+    debugColor: "yellow",
+
+    winWidth: width,
+    winHeight: height,
+
+    tileData: {
+        Res: new Point(64, 64),
+        Scale: new Point(0.75, 0.625), //64x64 to 48x40
+        Offset: new Point(40, 80), //space for hud
+    },
+
+
+    //PvE
+    initialMapPveDEBUG: { world: 0, level: 0 },
+    initialMapPve: { world: 1, level: 1 },
+    pve_initialPlayers: 1,
+    pve_maxPlayers: 2, //needed for the map generation
+
+    playerLifeTime: 2.5 * 60 * 1000,
+    hudAnimSpeed: 10 / (2.5 * 60), //animation lasts 3 min
+
+    //PvP
+    initialMapPvP: { world: 1, level: 0 },
+    pvp_initialPlayers: 2,
+    pvp_maxPlayers: 4,
+
+    deathZoneTimeStart: 1.5 * 60 * 1000, //sync with hud anim
+    deathZoneTimeLoop: 2.5 * 1000,
+    hudAnimSpeedPvp: 10 / (2 * 60), //animation lasts 2 min
+
+    //MAP
+
+    debugMapPos: new Point(40, 504),
+    defaultBodyOffset: new Point(),
+    defaultImmovable: true,
+    defaultBombableLives: 1,
+    defaultBombableInvencibleTime: 0,
+
+
+    //PLAYER
+
+    //doesnt affect to the controls, it's used for the debug ingame
+    stringsControls: ["WASD + E","ARROWS + Numpad_1","TFGH + Y","IJKL + O"],
+
+    playerBodySize: new Point(40, 32), //little smaller
+    playerBodyOffset: new Point(6, 48),
+    playerExtraOffset: new Point(6, -20), //reaquired because player body is not full res
+
+    playerImmovable: false,
+
+    playerLives: 3,
+    playerExtraLifePoints: 3000,
+    playerNumBombs: 1,
+
+    playerInvencibleTime: 5000,
+    playerRespawnedStoppedTime: 1000,
+    playerDeathTime: 1500,
+
+    playerVelocity: 140, //max=playerVelocity+5*10 (depends on powerUps)
+    playerVelocityTurning: 105, //140 105
+
+
+    //BOMBABLE
+
+    bombableTimer: 500,
+    step: Math.PI * 2 / 360, //degrees
+    playerInitialAlphaAngle: 30, //sin(playerInitialAlphaAnlge) -> alpha
+    alphaWavingSpeed: 1.75,
+
+
+    //IDENTIFIABLE
+
+    idBodySize: new Point(32, 32),
+    idBodyOffset: new Point(0, 0),
+    idExtraOffset: new Point(14, 10),
+    idImmovable: true,
+
+
+    //POWEUPS
+
+    bombsKey: "numBombs",
+    bombsAdd: 1,
+    bombsMin: 1,
+    bombsMax: 10,
+
+    flameKey: "power",
+    flameAdd: 1,
+    flameMax: 10, //no flame min needed
+
+    speedKey: "velocity",
+    speedAdd: 25,
+    speedMin: 200,
+    speedLimit: 200 + 25 * 8,
+
+
+    //BOMB
+
+    bombBodySize: new Point(48, 48), //little smaller
+    bombBodyOffset: new Point(0, 0),
+    bombExtraOffset: new Point(5, 5), //reaquired because bomb body is not full res
+
+    bombImmovable: true,
+    bombInvecibleTime: 0,
+
+    bombLives: 1,
+    bombPower: 1,
+    bombTimer: 2000,
+    bombFlameTimer: 500,
+
+
+    //FLAMES
+
+    flameBodySize: new Point(48, 48),
+    flameBodyOffset: new Point(0, 0),
+    flameExtraOffset: new Point(5, 5),
+    flameImmovable: true,
+
+
+    //ENEMY
+
+    enemyBasicVelocity: 90,
+    enemyExtraOffset: new Point(0, 0),
+    enemyImmovable: false,
+    enemyInvecibleTime: 2500, //maybe reduce
+
+
+    //PORTAL
+
+    defaultEnemyType: 0,
+    portalImmovable: true,
+    portalInvencible: true,
+    portalDropId: undefined,
+    portalSpinVel: 0.05,
+    portalBombTimer: 500,
+    portalSpawnTimer: 1500,
+    portalAnchor: new Point(0.5, 0.5),
+
+
+    //PLAYERINFO HUD
+
+    HUDbombHeadPos: new Point(60, 10),
+    HUDbombHeadScale: new Point(0.75, 0.70),
+    HUDPressXPos: new Point(90, -10),
+    HUDPressXScale: new Point(0.75, 0.75),
+
+    HUD2Pos: new Point(35, -5),
+    HUD2Scale: new Point(0.75, 0.75),
+    HUDlivesPos: new Point(42, 15),
+    HUDlivesScale: new Point(0.2, 0),
+
+    HUDPointsNumberPos: new Point(170, 8),
+    HUDPointsNumberScale: new Point(0.2, 0),
+
+    HUDBombPos: new Point(0, 17),
+    HUDBombAnchor: new Point(0.5, 0),
+    HUDBombScale: new Point(1.2, 1.2),
+
+    HUDFlameOffset: new Point(0, -16),
+    HUDFlameScale: new Point(1.5, 1.5),
+
+    HUDBombPosText: new Point(-8, 8),
+    HUDBombPosOffset: new Point(-5,0),
+
+    //GAME OVER
+
+    gmOverSignAnchor: new Point(0.5, 0.5),
+    goToMenuAnchor: new Point(1, 1),
+
+    pvpOverPos: new Point(width/2, height/2+40),
+    pvpOverAnchor: new Point(0.5, 0.5),
+    pvpOverScale: new Point(1, 1),
+    pvpOverPlayerOffset: new Point(-115, 20),
+    pvpOverPlayerScale: new Point(1.7, 1.7),
+
+    pvpOverText0Offset: new Point(-180, -140),
+    pvpOverText1Offset: new Point(-20, -70),
+    pvpOverText2Offset: new Point(-20, -10),
+    pvpOverText3Offset: new Point(-20, 50),
+
+    //AUDIO HUD
+
+    volume_increment: 0.10,
+    volume_Max: 1,
+    volume_Min: 0.10,
+
+    muteMusicButtonPos: new Point(10, 40),
+    muteMusicButtonScale: new Point(0.1, 0.1),
+    mutedMusicButtonPos: new Point(10, 40),
+    mutedMusicButtonScale: new Point(0.1, 0.1),
+    lessVolButtonPos: new Point(10, 10),
+    lessVolButtonScale: new Point(0.04, 0.04),
+    moreVolButtonPos: new Point(30, 10),
+    moreVolButtonAnchor: new Point(1, 1),
+    moreVolButtonScale: new Point(0.04, 0.04),
+    moreVolButtonAngle: 180,
+
+
+    //PAUSE MENU
+
+    pausePanelPos: new Point(width/2, height/2+40),
+    pausePanelAnchor: new Point(0.5, 0.5),
+    pausePanelAlpha: 0.5,
+    unpauseButtonPos: new Point(0, -50),
+    unpauseButtonAnchor: new Point(0.5, 0.5),
+    unpauseButtonScale: new Point(0.75, 0.75),
+    gotoMenuButtonPos: new Point(0, 50),
+    gotoMenuButtonAnchor: new Point(0.5, 0.5),
+    gotoMenuButtonScale: new Point(0.75, 0.75),
+
+
+    //MAIN MENU
+
+    buttonCount: 1,
+    initWinsNecessary: 1,
+    minWinsNec: 1,
+    maxWinsNec: 9,
+    mMenuBGPos: new Point(0, 0),
+    mMenuBGScale: new Point(1, 1.05),
+    mMenuPVEPos: new Point(0, 90),
+    mMenuPVEScale: new Point(0.7, 0.7),
+    mMenuPVEAnchor: new Point(0.5, 0.5),
+    mMenuPVPPos: new Point(0, 160),
+    mMenuPVPScale: new Point(0.7, 0.7),
+    mMenuPVPAnchor: new Point(0.5, 0.5),
+    mMenuTitlePos: new Point(50, -175),
+    numbers: { pos: new Point(260, 0), scale: new Point(0.5, 0.5), anchor: new Point(0.4, 0.4) },
+    doneButton: { pos: new Point(0, 50), scale: new Point(0.5, 0.5), anchor: new Point(0.5, 0.5) },
+    howManyWins: { pos: new Point(0, -50), scale: new Point(0.3, 0.3), anchor: new Point(0.5, 0.5) },
+
+
+    //INPUTS
+
+    debugPos: new Point(40, 504),
+    debugPosSeparation: 15,
+};
+
+module.exports = config;
+
+},{"./general/point.js":13,"./keys.js":17}],7:[function(require,module,exports){
+'use strict';
+const config = require('../config.js'); //configuration data
+
+const Bombable = require('../objects/bombable.js'); //father
+const Point = require('../general/point.js');
+const Identifiable = require('../id/identifiable.js'); //deploy power ups
 
 //default enemy values
-var enemySpritePath = 'enemy';
-var enemyExtraOffset = new Point(0, 0);
+const enemySpritePath = config.keys.enemy;
+const enemyExtraOffset = config.enemyExtraOffset;
 
-var enemyImmovable = false;
-var enemyInvecibleTime = 2500; //maybe reduce
-var bombableTimer = 500; //to sync with flames
+const enemyImmovable = config.enemyImmovable;
+const enemyInvecibleTime = config.enemyInvecibleTime; //maybe reduce
+const bombFlameTimer = config.bombFlameTimer; //to sync with flames
+const tmpInvenTime = config.tmpInvenTime; //to sync with flames
 
+//all the data (points, speed, sprite, bodysize)
 var enemyDataBase = require('./enemyDataBase.js');
 
-function Enemy (game, position, level, enemyType, tileData, groups, dropId) {
+//Enemy constructor. Inherits from Bombable.
+//The players detects overlap with these, and dies.
+function Enemy(game, position, level, enemyType, tileData, groups, dropId) {
 
-    this.groups = groups;
     this.tileData = tileData;
+    this.groups = groups;
     this.level = level;
 
-    this.enemyType = enemyType;
+    this.enemyType = enemyType; //not really used atm
     this.pts = enemyDataBase[enemyType].pts;
 
     var enemyBodySize = enemyDataBase[enemyType].bodySize;
@@ -36,6 +791,7 @@ function Enemy (game, position, level, enemyType, tileData, groups, dropId) {
         tileData.Scale, enemyBodySize, enemyBodyOffset, enemyImmovable,
         enemyDataBase[enemyType].lives, enemyInvecibleTime, dropId);
 
+    //Enemy animations
     this.animations.add("walking_left", [19, 20, 21, 22, 23, 24, 25], 10, true);
     this.animations.add("walking_right", [12, 13, 14, 15, 16, 17, 18], 10, true);
     this.animations.add("walking_up", [0, 1, 2, 3, 4, 5], 10, true);
@@ -48,30 +804,32 @@ function Enemy (game, position, level, enemyType, tileData, groups, dropId) {
     this.velocity = enemyDataBase[enemyType].velocity;
     this.pickDirection();
     this.setSpeed(this.dir);
-
-    this.salty = false;
 };
 
 Enemy.prototype = Object.create(Bombable.prototype);
 Enemy.prototype.constructor = Enemy;
 
-Enemy.prototype.update = function() {
+Enemy.prototype.update = function () {
 
     this.checkFlames(); //bombable method
 
-    if (this.dead) {
+    if (this.dead) { //not moving
         this.body.immovable = true;
         this.body.velocity.x = 0;
         this.body.velocity.y = 0;
     }
     else {
-        this.logicMovement();
+        //if hitted (and not dead) its alpha waves
+        if (this.tmpInven) this.invencibleAlpha();
 
-        if(this.body.velocity.x > 0){
+        this.logicMovement(); //basic IA
+
+        //animation
+        if (this.body.velocity.x > 0) {
             // this.scale.setTo(this.tileData.Scale.x, this.tileData.Scale.y);
             this.animations.play("walking_right");
         }
-        else if (this.body.velocity.x < 0){
+        else if (this.body.velocity.x < 0) {
             // this.scale.setTo(this.tileData.Scale.x*-1, this.tileData.Scale.y);
             this.animations.play("walking_left");
         }
@@ -79,38 +837,40 @@ Enemy.prototype.update = function() {
             this.animations.play("walking_down");
         else if (this.body.velocity.y < 0)
             this.animations.play("walking_up");
-        else
-            {
-                this.pickDirection();
-                if (this.dir.x !== 0 || this.dir.y !== 0) this.setSpeed(this.dir);
-                this.animations.stop();
-            }
+        else {
+            //pick direction if trapped to be able to scape afterwards
+            this.pickDirection();
+            if (this.dir.x !== 0 || this.dir.y !== 0) this.setSpeed(this.dir);
+            this.animations.stop();
+        }
     }
 }
 
 
-//player, bomb, enemie, etc will extend this
+//player, bomb, enemie, etc extend this (from bombable)
 Enemy.prototype.die = function (flame) {
     // console.log("checkin enemie die");
     this.lives--;
 
     if (this.lives <= 0) {
         this.dead = true;
+        this.alpha /= 2; //half alpha when killed
 
         //if it has a power up, drops it
         if (this.dropId !== undefined)
-            this.game.time.events.add(bombableTimer - 5, drop, this);
+            this.game.time.events.add(bombFlameTimer - 5, drop, this);
 
+        //gives points to the player
         if (flame.player !== undefined) flame.player.addPoints(this.pts);
 
-        //then destroy itself
-        this.game.time.events.add(bombableTimer + 5, this.destroy, this);
+        //then destroys itself
+        this.game.time.events.add(bombFlameTimer + 5, this.destroy, this);
     }
-    else this.game.time.events.add(bombableTimer, flipInven, this);
+    //if not killed then becomes vencible again
+    else this.game.time.events.add(enemyInvecibleTime, flipInven, this);
 
-    function flipInven() { this.tmpInven = false; }
+    function flipInven() { this.tmpInven = false; this.alpha = 1; }
     function drop() {
-
         this.groups.powerUp.add(
             new Identifiable(this.game, this.position, this.scale, this.dropId));
     }
@@ -118,12 +878,12 @@ Enemy.prototype.die = function (flame) {
 
 
 //all the IA is just movement
-Enemy.prototype.logicMovement = function() {
+Enemy.prototype.logicMovement = function () {
 
     //virtual map pos and extra pos to cehck collisions
     var positionMap = new Point(this.position.x, this.position.y)
         .getMapSquarePos(this.tileData, enemyExtraOffset);
-    var extraPosMap = new Point (this.position.x, this.position.y)
+    var extraPosMap = new Point(this.position.x, this.position.y)
         .getMapSquareExtraPos(this.tileData, enemyExtraOffset);
 
     //first we check if the path is blocked
@@ -132,7 +892,7 @@ Enemy.prototype.logicMovement = function() {
         this.body.velocity.x = 0; //stops the enemy
         this.body.velocity.y = 0;
 
-        this.pickDirection(); //simple AI to change direction
+        this.pickDirection(); //change direction
 
         //moves the enemy (if it is not totally blocked) **may change this
         if (this.dir.x !== 0 || this.dir.y !== 0)
@@ -142,41 +902,43 @@ Enemy.prototype.logicMovement = function() {
     else if (this.checkEnemyOverlap(positionMap)) {
         this.body.velocity.x *= -1; //inverts its velocity
         this.body.velocity.y *= -1;
-        this.dir.multiply(-1,-1); //and dir accordingly too
+        this.dir.multiply(-1, -1); //and dir accordingly too
     }
 }
 
 //Picks a new rnd direction (free)
-Enemy.prototype.pickDirection = function() {
+Enemy.prototype.pickDirection = function () {
 
     var positionMap = new Point(this.position.x, this.position.y)
         .getMapSquarePos(this.tileData, enemyExtraOffset);
 
+    //array with all free dirs
     var freeSurroungings = this.level.getSurroundingFreeSquares(positionMap);
 
-    var rnd = this.game.rnd.integerInRange(0,freeSurroungings.length-1);
+    var rnd = this.game.rnd.integerInRange(0, freeSurroungings.length - 1);
 
     // console.log(positionMap, freeSurroungings, rnd);
 
+    //picks a dir using rnd
     if (freeSurroungings.length === 0) this.dir = new Point();
     else this.dir = freeSurroungings[rnd];
 }
 
 //Simple method to set speed
-Enemy.prototype.setSpeed = function(dir) {
-    if (this.dir.x ===1) this.body.velocity.x = this.velocity;
-    else if (this.dir.x ===-1) this.body.velocity.x = -this.velocity;
-    else if (this.dir.y ===1) this.body.velocity.y = this.velocity;
-    else if (this.dir.y ===-1) this.body.velocity.y = -this.velocity;
+Enemy.prototype.setSpeed = function (dir) {
+    if (this.dir.x === 1) this.body.velocity.x = this.velocity;
+    else if (this.dir.x === -1) this.body.velocity.x = -this.velocity;
+    else if (this.dir.y === 1) this.body.velocity.y = this.velocity;
+    else if (this.dir.y === -1) this.body.velocity.y = -this.velocity;
 }
 
-//checks if the enmy is getting closer to a block
-Enemy.prototype.checkCollision = function(positionMap, extraPosMap) {
+//checks if the enemy is getting closer to a block
+Enemy.prototype.checkCollision = function (positionMap, extraPosMap) {
     var blocked = false;
 
     //checks if the next square is free and if the enemy is in the center
     if ((!this.level.isNextSquareFree(positionMap, this.dir))
-    && extraPosMap.isNull()) {
+        && extraPosMap.isNull()) {
         // console.log("Enemy turning");
         blocked = true;
     }
@@ -185,16 +947,16 @@ Enemy.prototype.checkCollision = function(positionMap, extraPosMap) {
 }
 
 //checks for enemies blocking the path
-Enemy.prototype.checkEnemyOverlap = function(positionMap) {
+Enemy.prototype.checkEnemyOverlap = function (positionMap) {
 
     var enemyBlocking = false;
     this.game.physics.arcade.overlap(this, this.groups.enemy, checkPositions);
 
-    return enemyBlocking;
+    return enemyBlocking; //the callback affects the bool...
 
     //only matters if the other enemy is blocking the path
-    //(we do nothing if thisEnemy is the onw blocking otherEnemy)
-    function checkPositions (thisEnemy, otherEnemy) {
+    //(we do nothing if thisEnemy is the one blocking otherEnemy)
+    function checkPositions(thisEnemy, otherEnemy) {
 
         if (thisEnemy !== otherEnemy) { //not overlap with itself
             //console.log("Enemy overlapping");
@@ -206,19 +968,21 @@ Enemy.prototype.checkEnemyOverlap = function(positionMap) {
             var nextPos = new Point(positionMap.x, positionMap.y)
                 .add(thisEnemy.dir.x, thisEnemy.dir.y)
 
-            var positionsToCheck = getPositionsToCheck (nextPos, thisEnemy);
+            //gets the array to check
+            var positionsToCheck = getPositionsToCheck(nextPos, thisEnemy);
             // console.log(positionsToCheck);
 
+            //if any of the pos are occupied then thepath is blocked
             for (var i = 0; i < positionsToCheck.length; i++) {
 
                 if (positionsToCheck[i].isEqual(otherEnemyPos))
-                        enemyBlocking = true;
+                    enemyBlocking = true;
             }
         }
     }
 
     //returns an array with the next dir and the diagonals
-    function getPositionsToCheck (nextPos, thisEnemy) {
+    function getPositionsToCheck(nextPos, thisEnemy) {
 
         var positions = [positionMap, nextPos]; //array container
 
@@ -231,11 +995,11 @@ Enemy.prototype.checkEnemyOverlap = function(positionMap) {
         //calculates the diagonal by adding and then fixing
         function getDiagonal(parameter) {
 
-            var diagonalDir = new Point (thisEnemy.dir.x, thisEnemy.dir.y)
+            var diagonalDir = new Point(thisEnemy.dir.x, thisEnemy.dir.y)
                 .add(parameter, parameter);
 
-            if (diagonalDir.x%2 === 0) diagonalDir.x = 0;
-            if (diagonalDir.y%2 === 0) diagonalDir.y = 0;
+            if (diagonalDir.x % 2 === 0) diagonalDir.x = 0;
+            if (diagonalDir.y % 2 === 0) diagonalDir.y = 0;
 
             return new Point(nextPos.x, nextPos.y)
                 .add(diagonalDir.x, diagonalDir.y);
@@ -246,54 +1010,57 @@ Enemy.prototype.checkEnemyOverlap = function(positionMap) {
 
 module.exports = Enemy;
 
-},{"../general/point.js":7,"../id/identifiable.js":9,"../objects/bombable.js":17,"./enemyDataBase.js":2}],2:[function(require,module,exports){
+},{"../config.js":6,"../general/point.js":13,"../id/identifiable.js":15,"../objects/bombable.js":24,"./enemyDataBase.js":8}],8:[function(require,module,exports){
 'use strict';
+const config = require('../config.js'); //configuration data
 
-var Point = require('../general/point.js');
+const Point = require('../general/point.js');
 
-const basicVelocity = 90;
+const basicVelocity = config.enemyBasicVelocity;
 
 var enemyDataBase = [
 
-    {
+    {   //Enemy 1 data
         lives: 1,
         velocity: basicVelocity,
         pts: 100,
         bodySize: new Point(48, 48),
         bodyOffset: new Point(8, 8),
     },
-    {
+    {   //Enemy 2 data
         lives: 2,
         velocity: basicVelocity,
-        pts: 400,
+        pts: 250,
         bodySize: new Point(50, 50),
         bodyOffset: new Point(6, 6),
     },
-    {
+    {   //Enemy 3 data
         lives: 1,
         velocity: basicVelocity*1.1,
-        pts: 200,
+        pts: 150,
         bodySize: new Point(42, 42),
         bodyOffset: new Point(10, 10),
     },
-
-]
+];
 
 module.exports = enemyDataBase;
 
-},{"../general/point.js":7}],3:[function(require,module,exports){
+},{"../config.js":6,"../general/point.js":13}],9:[function(require,module,exports){
 'use strict';
+const config = require('../config.js');
 
-var Physical = require('../objects/physical.js');
-var Point = require('../general/point.js');
+const Physical = require('../objects/physical.js');
+const Point = require('../general/point.js');
 
-//default flameentifiable values
-var flameBodySize = new Point(48, 48); //little smaller
-var flameBodyOffset = new Point(0, 0);
-var flameExtraOffset = new Point(5, 5); //flame body is not full res
-var flameImmovable = true;
-var flameSprite = 'flame';
+//default flame values
+const flameBodySize = config.flameBodySize; //little smaller
+const flameBodyOffset = config.flameBodyOffset;
+const flameExtraOffset = config.flameExtraOffset; //flame body is not full res
+const flameImmovable = config.flameImmovable;
+const flameSprite = config.keys.flame;
 
+//Flame constructor. Inherits from Physical
+//Bombables detect overlap with these and die
 function Flame (game, position, scale, player) {
 
     this.player = player; //link to reward the kill/points
@@ -303,6 +1070,7 @@ function Flame (game, position, scale, player) {
     Physical.call(this, game, position, flameSprite, scale,
         flameBodySize, flameBodyOffset, flameImmovable);
 
+    //animation
     this.animations.add("flaming", [0, 1, 2, 3, 4], 15, true);
     this.animations.play("flaming");
 }
@@ -312,13 +1080,14 @@ Flame.prototype.constructor = Flame;
 
 module.exports = Flame;
 
-},{"../general/point.js":7,"../objects/physical.js":19}],4:[function(require,module,exports){
+},{"../config.js":6,"../general/point.js":13,"../objects/physical.js":26}],10:[function(require,module,exports){
 'use strict';
 
+//different function used in the gamemodes
 var globalControls = {
 
     //allow to add extra players
-    addPlayerControl: function (gInputs, players, maxPlayers) {
+    addPlayerControl: function (gInputs, players, maxPlayers, playerInfoHUDs) {
         if (gInputs.addPlayer.button.isDown && !gInputs.addPlayer.ff && players.length < maxPlayers) {
             gInputs.addPlayer.ff = true;
 
@@ -332,8 +1101,12 @@ var globalControls = {
             }
 
             var pSample = players[0]; //to use its values
+            var hudSample = playerInfoHUDs[0];
 
-            //even use its constructor to create the new  player
+            //first the hud
+            playerInfoHUDs.push(new hudSample.constructor(pSample.game, pSample.hudVidas, players.length, pSample.level.pvpMode))
+
+            //then the player, both using the contructor from samples
             players.push(new pSample.constructor(pSample.game, pSample.level,
                 players.length, pSample.tileData, pSample.groups, pSample.hudVidas))
 
@@ -345,13 +1118,14 @@ var globalControls = {
             gInputs.addPlayer.ff = false;
     },
 
-    //shows hitboxes and allows movement through the boxes
+    //shows hitboxes and make players invulnerable
     debugModeControl: function (gInputs, game, players) {
         if (gInputs.debug.button.isDown && !gInputs.debug.ff) {
 
             gInputs.debug.state = !gInputs.debug.state; //toggle state
             gInputs.debug.ff = true;
 
+            //activate invencivility
             players.callAll("endlessInvencibility");
 
             if (!gInputs.debug.state) {
@@ -370,7 +1144,7 @@ var globalControls = {
         if (gInputs.resetLevel.button.isDown && !gInputs.resetLevel.ff) {
             gInputs.resetLevel.ff = true;
 
-            level.regenerateMap();
+            level.regenerateMap(); //just a map method
         }
 
         else if (gInputs.resetLevel.button.isUp)
@@ -382,24 +1156,22 @@ var globalControls = {
         if (gInputs.nextLevel.button.isDown && !gInputs.nextLevel.ff) {
             gInputs.nextLevel.ff = true;
 
-            level.generateNextMap();
+            level.generateNextMap(); //same as regenerate
         }
 
         else if (gInputs.nextLevel.button.isUp)
             gInputs.nextLevel.ff = false;
     },
-
 }
 
 module.exports = globalControls;
 
-},{}],5:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 'use strict';
 
 //Creates all the games's group
 function Groups(game) {
 
-    //groups for tiles
     this.background = game.add.group();
     this.wall = game.add.group();
     this.box = game.add.group();
@@ -411,29 +1183,27 @@ function Groups(game) {
     this.powerUp = game.add.group();
     this.player = game.add.group();
     this.enemy = game.add.group();
-
 }
 
-//clears all but players (destroy + creates)
+//clears all but players (destroy + creates) used by the map
 Groups.prototype.clearGroups = function (game) {
 
     var keys = Object.keys(this); //gets all the groups keys
 
         for (let i = 0; i < keys.length; i++) {
-            if (keys[i] !== "player") {
+            if (keys[i] !== "player") { //avoids player
                 this[keys[i]].destroy(true);
                 this[keys[i]] = game.add.group();
-                // console.log(this[keys[i]].children);
             }
         }
 }
 
-//draws all elemnts bodies
+//draws all elements bodies
 Groups.prototype.drawDebug = function (game) {
 
     var keys = Object.keys(this); //gets all the groups keys
 
-    for (let i = 0; i < keys.length; i++) {
+    for (let i = 0; i < keys.length; i++) { //draws them
 
         for (let j = 0; j < this[keys[i]].length; j++)
             game.debug.body(this[keys[i]].children[j]);
@@ -442,61 +1212,61 @@ Groups.prototype.drawDebug = function (game) {
 
 module.exports = Groups;
 
-},{}],6:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 'use strict';
+const config = require('../config.js');
 
-//returns the inputs for player 0-3
+//returns the inputs for player 0-3 and global actions
 //sort of data storage/factory (it needs game's reference)
 
-const debugPosX = 40;
-const debugPosY = 600 - 96;
-const debugPosSeparation = 15;
-const debugColor = "yellow";
+const debugPos = config.debugPos;
+const debugPosSeparation = config.debugPosSeparation;
+const debugColor = config.debugColor;
+
+const stringsControls = config.stringsControls;
 
 var debugCallback;
 
 function Inputs(game, numPlayer) {
 
-    if (numPlayer === -1) this.globalControls(game);
+    if (numPlayer === -1) this.globalControls(game); //-1 coded for global
     else {
-
-        //needed to be created first (atm it creates this.bomb)
+        //needed to be created first
         this.bomb = {ff: false}; //bomb flip flop (not really a control)
 
         this.switchControls(game, numPlayer);
-
     }
 };
 
 //all global inputs
 Inputs.prototype.globalControls = function(game) {
-    this.pMenu = {
+    this.pMenu = { //Pausing control
         button: game.input.keyboard.addKey(Phaser.Keyboard.ESC),
         ff: false
     }
-    this.addPlayer = {
+    this.addPlayer = { //Adding player control
         button: game.input.keyboard.addKey(Phaser.Keyboard.X),
         ff: false
     }
-    this.debug = {
+    this.debug = { //Debug display control
         button: game.input.keyboard.addKey(Phaser.Keyboard.C),
         ff: false,
         state: false
     }
-    this.resetLevel = {
+    this.resetLevel = { //Reset level control
         button: game.input.keyboard.addKey(Phaser.Keyboard.B),
         ff: false,
     },
-    this.nextLevel = {
+    this.nextLevel = { //Next level control
         button: game.input.keyboard.addKey(Phaser.Keyboard.N),
         ff: false,
     }
 }
 
-//selects specific controls
+//selects specific controls for each player
 Inputs.prototype.switchControls = function (game, numPlayer) {
     switch (numPlayer) {
-        case 0:
+        case 0: //Player 0: WASD+E
             this.mov = {
                 up: game.input.keyboard.addKey(Phaser.Keyboard.W),
                 down: game.input.keyboard.addKey(Phaser.Keyboard.S),
@@ -509,7 +1279,7 @@ Inputs.prototype.switchControls = function (game, numPlayer) {
             this.drawDebug(game, numPlayer);
             break;
 
-        case 1:
+        case 1: //Player 1: Arrows+Numpad_1
             this.mov = game.input.keyboard.createCursorKeys();
 
             this.bomb.button = game.input.keyboard.addKey(Phaser.Keyboard.NUMPAD_1)
@@ -517,7 +1287,7 @@ Inputs.prototype.switchControls = function (game, numPlayer) {
             this.drawDebug(game, numPlayer);
             break;
 
-        case 2:
+        case 2: //Player 2: TFGH+Y
             this.mov = {
                 up: game.input.keyboard.addKey(Phaser.Keyboard.T),
                 down: game.input.keyboard.addKey(Phaser.Keyboard.G),
@@ -530,7 +1300,7 @@ Inputs.prototype.switchControls = function (game, numPlayer) {
             this.drawDebug(game, numPlayer);
             break;
 
-        case 3:
+        case 3: //Player 3: IJKL+O
             this.mov = {
                 up: game.input.keyboard.addKey(Phaser.Keyboard.I),
                 down: game.input.keyboard.addKey(Phaser.Keyboard.K),
@@ -545,26 +1315,25 @@ Inputs.prototype.switchControls = function (game, numPlayer) {
     }
 }
 
-//writes the controls for a specific player
-var stringsControls = ["WASD + E","ARROWS + Numpad_1","TFGH + Y","IJKL + O"]
+//writes the controls for a specific player ingame
 Inputs.prototype.drawDebug = function(game, numPlayer) {
 
     if (debugCallback !== undefined) game.time.events.remove(debugCallback);
 
     game.debug.text(" - Controls P" +numPlayer+ ": " +stringsControls[numPlayer],
-        debugPosX, debugPosY + debugPosSeparation * numPlayer, debugColor);
+        debugPos.x, debugPos.y + debugPosSeparation * numPlayer, debugColor);
 
-    // console.log(" - Controls P"+numPlayer+": " +stringsControls[numPlayer]);
+    //resets it afterwards
     debugCallback = game.time.events.add(5000, function reset () {this.debug.reset();}, game);
 }
 
 module.exports = Inputs;
 
-},{}],7:[function(require,module,exports){
+},{"../config.js":6}],13:[function(require,module,exports){
 'use strict';
 
 //Used at aligment calculation, makes the center wide (instead of puntual)
-var centerMarginPercentage = 0.001; //Will be multiplied for the square size
+const centerMarginPercentage = 0.001; //Will be multiplied for the square size
 
 //Extends Phaser.Point
 function Point(x, y) {
@@ -576,11 +1345,12 @@ Point.prototype.constructor = Point;
 
 
 //calculates real position of a map point based on tileData
+//accepts an offset, but can be used with only 1 parameter
 Point.prototype.applyTileData = function (tileData, extraOffset) {
 
-    this.multiply(tileData.Res.x,tileData.Res.y)
-    .multiply(tileData.Scale.x,tileData.Scale.y)
-    .add(tileData.Offset.x, tileData.Offset.y);
+    this.multiply(tileData.Res.x, tileData.Res.y)
+        .multiply(tileData.Scale.x, tileData.Scale.y)
+        .add(tileData.Offset.x, tileData.Offset.y);
 
     if (extraOffset !== undefined)
         return this.add(extraOffset.x, extraOffset.y);
@@ -590,8 +1360,8 @@ Point.prototype.applyTileData = function (tileData, extraOffset) {
 Point.prototype.getAppliedTileData = function (tileData, extraOffset) {
 
     var tmp = new Point(this.x, this.y)
-        .multiply(tileData.Res.x,tileData.Res.y)
-        .multiply(tileData.Scale.x,tileData.Scale.y)
+        .multiply(tileData.Res.x, tileData.Res.y)
+        .multiply(tileData.Scale.x, tileData.Scale.y)
         .add(tileData.Offset.x, tileData.Offset.y);
 
     if (extraOffset !== undefined)
@@ -607,8 +1377,8 @@ Point.prototype.reverseTileData = function (tileData, extraOffset) {
         this.subtract(extraOffset.x, extraOffset.y);
 
     this.subtract(tileData.Offset.x, tileData.Offset.y)
-        .divide(tileData.Scale.x,tileData.Scale.y)
-        .divide(tileData.Res.x,tileData.Res.y);
+        .divide(tileData.Scale.x, tileData.Scale.y)
+        .divide(tileData.Res.x, tileData.Res.y);
 
     return this;
 }
@@ -616,7 +1386,6 @@ Point.prototype.reverseTileData = function (tileData, extraOffset) {
 Point.prototype.getReversedTileData = function (tileData, extraOffset) {
 
     var tmp = new Point(this.x, this.y);
-    //console.log(tmp);
 
     if (extraOffset !== undefined)
         tmp.subtract(extraOffset.x, extraOffset.y);
@@ -633,44 +1402,41 @@ Point.prototype.getReversedTileData = function (tileData, extraOffset) {
 Point.prototype.getMapSquarePos = function (tileData, extraOffset) {
 
     var exactMapValue = this.getReversedTileData(tileData, extraOffset);
-    //console.log(exactMapValue);
 
+    //calculates the module and subtracts them
     var difX = exactMapValue.x % 1;
     exactMapValue.x -= difX;
-    if (difX >= 0.5) exactMapValue.x++;
+    if (difX >= 0.5) exactMapValue.x++; //then adapts to the closest
 
     var difY = exactMapValue.y % 1;
     exactMapValue.y -= difY;
     if (difY >= 0.5) exactMapValue.y++;
 
-    //console.log(exactMapValue);
     return exactMapValue;
 }
 
 //gets the relative normalized dir of the extra square the player is touching
 //compares the real position and the calculated by getMapSquarePos
-//there is some margin to detect being centered
+//there is some margin to detect being centered (centerMarginPercentage)
 Point.prototype.getMapSquareExtraPos = function (tileData, extraOffset) {
 
     var exactMapValue = this.getReversedTileData(tileData, extraOffset);
     var virtualMapValue = this.getMapSquarePos(tileData, extraOffset);
     var extraDir = new Point();
-    // console.log(exactMapValue);
-    // console.log(virtualMapValue);
 
     //margin to consider the center wide (not just a point)
-    var margin = (tileData.Res.x*tileData.Scale.x+tileData.Res.y*tileData.Scale.y)/2;
+    var margin = (tileData.Res.x * tileData.Scale.x + tileData.Res.y * tileData.Scale.y) / 2;
     margin *= centerMarginPercentage;
     //console.log(margin);
 
     var difX = exactMapValue.x - virtualMapValue.x;
+    if (difX < 0 - margin) extraDir.x = -1;
+    else if (difX > 0 + margin) extraDir.x = 1;
     //console.log(difX);
-    if (difX < 0-margin) extraDir.x = -1;
-    else if (difX > 0+margin) extraDir.x = 1;
 
     var difY = exactMapValue.y - virtualMapValue.y;
-    if (difY < 0-margin) extraDir.y = -1;
-    else if (difY > 0+margin) extraDir.y = 1;
+    if (difY < 0 - margin) extraDir.y = -1;
+    else if (difY > 0 + margin) extraDir.y = 1;
 
     //console.log(extraDir);
     return extraDir;
@@ -699,8 +1465,9 @@ Point.prototype.isNull = function () {
 
 module.exports = Point;
 
-},{}],8:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 'use strict';
+var config = require('../config.js');
 
 var modsFunctions = require('./modsFunctions.js'); //all the database
 //*A previous version with types of mods (instead of all functions)
@@ -710,47 +1477,61 @@ var modsFunctions = require('./modsFunctions.js'); //all the database
 var idDataBase = [
 
     [ //tier 0 reserved for the portal to next level
-        //not power up but the id (0,0) is used by the map
+        //not power up but the id (0,0) is reserved for the map generation
         /*{   //0
             sprite: 'portal', pts: 0,
             mods: [modsFunctions.levelUp]
         },*/
     ],
 
-    [ //tier 1 //maybe sprite more generic + add name?
+    [ //tier 1
         {   //0
-            sprite: 'powerUpBombUp', pts: 10,
-            mods: [modsFunctions.bombUp]
+            sprite: config.keys.powerUpBombUp, pts: 200,
+            mods: [modsFunctions.bombUp] //all use functions
         },
         {   //1
-            sprite: 'powerUpFlameUp', pts: 200,
+            sprite: config.keys.powerUpFlameUp, pts: 300,
             mods: [modsFunctions.flameUp]
         },
         {   //2
-            sprite: 'powerUpSpeedUp', pts: 400,
+            sprite: config.keys.powerUpSpeedUp, pts: 100,
             mods: [modsFunctions.speedUp]
         }
+    ],
+
+    [ //tier 2 //only points items
+        {   //0
+            sprite: config.keys.pointsUp, pts: 50,
+            mods: [] //does nothing
+        },
+        {   //1
+            sprite: config.keys.pointsUpPlus, pts: 500,
+            mods: []
+        },
     ]
 ];
 
 module.exports = idDataBase;
 
-},{"./modsFunctions.js":10}],9:[function(require,module,exports){
+},{"../config.js":6,"./modsFunctions.js":16}],15:[function(require,module,exports){
 'use strict';
 
 var Physical = require('../objects/physical.js');
 var Point = require('../general/point.js');
+const config = require('../config.js');
 
 var idDataBase = require('./idDataBase.js'); //all the database
 
 //default identifiable values
-var idBodySize = new Point(32, 32); //little smaller
-var idBodyOffset = new Point(0, 0);
-var idExtraOffset = new Point(14, 10); //id body is not full res
-var idImmovable = true;
+const idBodySize = config.idBodySize; //little smaller
+const idBodyOffset = config.idBodyOffset;
+const idExtraOffset = config.idExtraOffset; //id body is not full res
+const idImmovable = config.idImmovable;
 
 var powerUpSound;
 
+//Identifiable constructor. Inherits from Physical. Dropped by enemies/boxes when destroyer.
+//Players can pick them and gets their effects applied/points added
 function Identifiable(game, position, scale, id) {
 
     var idPosition = new Point (position.x, position.y).add(idExtraOffset.x, idExtraOffset.y);
@@ -758,9 +1539,10 @@ function Identifiable(game, position, scale, id) {
     Physical.call(this, game, idPosition, idDataBase[id.tier][id.num].sprite,
       scale, idBodySize, idBodyOffset, idImmovable);
 
+    //sounds when picked
     powerUpSound = this.game.add.audio('powerup');
 
-    this.id = id;
+    this.id = id; //used for consult
     this.pts = idDataBase[id.tier][id.num].pts;
 }
 
@@ -779,14 +1561,15 @@ Identifiable.pickPowerUp = function(powerUp, player) {
 //generic base id factorie
 Identifiable.Id = function (tier, num) {this.tier = tier; this.num = num;}
 //get tier size (for the map rnd generation)
-Identifiable.tierSize = function (tier) {return idDataBase[tier].length}
+Identifiable.tierSize = function (tier) {return idDataBase[tier].length;}
 
 
+//used to add powerUps (requires the ids)
 Identifiable.addPowerUps = function(powerUpIds, target, reverseMode) {
   //Adds the id of the mods to the player.mods (so we can reverse them, etc)
   for (var i = 0; i < powerUpIds.length; i++) {
       if (!reverseMode)target.mods.push(powerUpIds[i]);
-      //else target.mods.pop(); //ordered. NOT SURE if we should keep them
+    // //   //else target.mods.pop(); //ordered. NOT SURE if we should keep them
       //we do not pop, we keep target.mods as a log of powerUps
 
       var mods = idDataBase[powerUpIds[i].tier][powerUpIds[i].num].mods;
@@ -797,45 +1580,34 @@ Identifiable.addPowerUps = function(powerUpIds, target, reverseMode) {
 //call respectives functions applied to the player
 Identifiable.applyMods = function(mods, target, reverseMode) {
   for (var i = 0; i < mods.length; i++) {
-      //console.log(target[mods[i].key]);
-      //console.log(mods[i].key, mods[i].mod);
       mods[i].call(target, reverseMode);
   }
-  //console.log(target.mods);
 }
 
 module.exports = Identifiable;
 
-},{"../general/point.js":7,"../objects/physical.js":19,"./idDataBase.js":8}],10:[function(require,module,exports){
+},{"../config.js":6,"../general/point.js":13,"../objects/physical.js":26,"./idDataBase.js":14}],16:[function(require,module,exports){
 'use strict';
+const config = require('../config.js');
 
-//they all look the same xd should improve it
-//but allows modifications
+//default values
+var bombsKey = config.bombsKey;
+var bombsAdd = config.bombsAdd;
+var bombsMin = config.bombsMin;
+var bombsMax = config.bombsMax;
 
-//this should all be based on player
-//so maybe add references (min values etc)
+var flameKey = config.flameKey;
+var flameAdd = config.flameAdd;
+var flameMax = config.flameMax; //no flame min needed
 
-var bombsKey = "numBombs";
-var bombsAdd = 1;
-var bombsMin = 1;
-var bombsMax = 10;
-
-var flameKey = "power";
-var flameAdd = 1;
-var flameMax = 10; //no flame min needed
-
-var speedKey = "velocity";
-var speedAdd = 25;
-var speedMin = 200;
-var speedLimit = speedMin + speedAdd*8;
+var speedKey = config.speedKey;
+var speedAdd = config.speedAdd;
+var speedMin = config.speedMin;
+var speedLimit = config.speedLimit;
 
 
 //contains the different powerUp's functions. Unordered.
 var modsFunctions = {
-
-    // levelUp: function () {
-    //     console.log("Next level!");
-    // },
 
     bombUp: function (reverseMode) {
         basicStatChange.call(this,
@@ -878,12 +1650,97 @@ function basicSubtraction (stat, sub, min) {
 
 module.exports = modsFunctions;
 
-},{}],11:[function(require,module,exports){
+},{"../config.js":6}],17:[function(require,module,exports){
 'use strict';
-const DEBUG = true;
 
-const winWith = 800;
-const winHeight = 600;
+const keys = {
+
+
+//STATES
+
+boot:'boot',
+preloader:'preloader',
+mainMenu:'mainMenu',
+pve:'pve',
+pvp:'pvp',
+
+
+//SPRITES
+
+preloader_logo: 'preloader_logo',
+
+player: 'player_',
+
+background: 'background',
+bombable: 'bombable',
+wall:'wall',
+portal:'portal',
+
+powerUpBombUp:'powerUpBombUp',
+powerUpFlameUp:'powerUpFlameUp',
+powerUpSpeedUp:'powerUpSpeedUp',
+pointsUp:'pointsUp',
+pointsUpPlus:'pointsUpPlus',
+
+bomb:'bomb',
+flame:'flame',
+
+enemy: 'enemy',
+enemy_0:'enemy_0',
+enemy_1:'enemy_1',
+enemy_2:'enemy_2',
+
+
+//Main Menu sprites
+
+mMenuBG:'mMenuBG',
+mMenuButton1:'mMenuButton1',
+mMenuButton2:'mMenuButton2',
+mMenuTitle:'mMenuTitle',
+
+pausePanel:'pausePanel',
+quitToMenu:'quitToMenu',
+resume:'resume',
+
+gameOver:'gameOver',
+gameOverPvpBg:'gameOverPvpBg',
+
+numbers: 'numbers',
+done: 'done',
+manyWins: 'wins',
+
+unmuted:'unmuted',
+muted:'muted',
+volArrow:'volArrow',
+
+
+//HUD sprites
+
+HUDPoints:'HUDPoints',
+HUD2:'HUD2',
+HUDPressX:'HUDPressX',
+HUDbomb: 'HUDbomb',
+
+
+//MUSIC AND AUDIO
+
+music:'music',
+xplosion:'xplosion',
+powerup:'powerup',
+portal:'portal',
+
+};
+
+module.exports = keys;
+
+},{}],18:[function(require,module,exports){
+'use strict';
+const config = require('./config.js');
+const keys = config.keys;
+
+const DEBUG = config.DEBUG;
+const winWidth = config.winWidth;
+const winHeight = config.winHeight;
 
 var BootScene = require('./states/boot_scene.js');
 
@@ -894,25 +1751,28 @@ var MainMenu = require('./states/main_menu.js');
 var PVEmode = require('./states/pve_mode.js');
 var PVPmode = require('./states/pvp_mode.js');
 
+//Adding states
 window.onload = function () {
-  var game = new Phaser.Game(winWith, winHeight, Phaser.AUTO, 'game');
+  var game = new Phaser.Game(winWidth, winHeight, Phaser.AUTO, 'game');
 
-  game.state.add('boot', BootScene);
-  game.state.add('preloader', PreloaderScene);
-  game.state.add('mainMenu', MainMenu);
-  game.state.add('pve', PVEmode);
-  game.state.add('pvp', PVPmode);
+  game.state.add(keys.boot, BootScene);
+  game.state.add(keys.preloader, PreloaderScene);
+  game.state.add(keys.mainMenu, MainMenu);
+  game.state.add(keys.pve, PVEmode);
+  game.state.add(keys.pvp, PVPmode);
 
-  game.state.start('boot');
+  //and launching
+  game.state.start(keys.boot);
 };
 
-},{"./states/boot_scene.js":23,"./states/main_menu.js":24,"./states/preloader_scene.js":26,"./states/pve_mode.js":27,"./states/pvp_mode.js":28}],12:[function(require,module,exports){
+},{"./config.js":6,"./states/boot_scene.js":30,"./states/main_menu.js":31,"./states/preloader_scene.js":32,"./states/pve_mode.js":33,"./states/pvp_mode.js":34}],19:[function(require,module,exports){
 'use strict';
 
+//all the stuff required for the base map
 var baseMapData = {
 
     //required as the map is a [[]] and we need to splice each []
-    copyMap: function(map) {
+    copyMap: function (map) {
         var copiedMap = [];
 
         for (var i = 0; i < map.length; i++)
@@ -925,26 +1785,26 @@ var baseMapData = {
 
     playerSpawns:
     [
-        {x: 1, y: 1}, //(squares[1][1])
-        {x: 13, y: 1},
-        {x: 1, y: 11},
-        {x: 13, y: 11},
+        { x: 1, y: 1 }, //(squares[1][1])
+        { x: 13, y: 1 },
+        { x: 1, y: 11 },
+        { x: 13, y: 11 },
     ],
 
     squaresTypes:
     {
-        wall: {value: 1, sprite: "wall"},
-        wallSP: {value: 2, sprite: "wallSP"},
+        wall: { value: 1, sprite: "wall" },
+        wallSP: { value: 2, sprite: "wallSP" },
 
-        free: {value: 0, sprite: "background"},
+        free: { value: 0, sprite: "background" },
 
-        bombable: {value: 3, sprite: "bombable"},
-        bombableDrop: {value: 4, sprite: "bombableDrop"},
+        bombable: { value: 3, sprite: "bombable" },
+        bombableDrop: { value: 4, sprite: "bombableDrop" },
 
-        enemy: {value: 5, sprite: null}, //defined at their factories
-        enemyDrop: {value: 6, sprite: null},
+        enemy: { value: 5, sprite: null }, //defined at their factories
+        enemyDrop: { value: 6, sprite: null },
 
-        bomb: {value: 7, sprite: null},
+        bomb: { value: 7, sprite: null },
     },
 
     squares: //all values at squaresTypes ^
@@ -962,21 +1822,74 @@ var baseMapData = {
         [2, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 2],
         [2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2],
         [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
-    ]
+    ],
+
+    //generates a map randomly (to make pve endless)
+    rndGeneration: function (game, level) {
+
+        const tutorialEnemies = 3;
+        const tutorialDrops = 1;
+        const baseEnemies = 4;
+
+        const portalId = 0;
+        const diffTiers = 3;
+
+        const maxMinEnemies = 8;
+        const minDrops = 2;
+        const maxDrops = 3; //only when maxMinEnemies
+
+        //between and including min and max (Phaser)
+        var extraWalls = game.rnd.integerInRange(6, 8);
+        var bombables = game.rnd.integerInRange(33, 36);
+        var powerUps = [1, 2, 2]; //always the same
+        var theme = "basic"; //not used atm
+
+        var enemies, structedEnemies = [], enemiesDrops = [portalId];
+
+        //level 0 affected for tutorial purposes
+        if (level === 0) {
+            structedEnemies.push(tutorialEnemies);
+            enemiesDrops.push(tutorialDrops);
+        }
+        else {
+            //there is a max so level 9, 10, 11 and so over are generated equally
+            var minEnemies = baseEnemies + level;
+            if (minEnemies > maxMinEnemies) minEnemies = maxMinEnemies;
+
+            enemies = game.rnd.integerInRange(minEnemies, minEnemies + 1); //some rnd
+
+            if (minEnemies === maxMinEnemies)
+                enemiesDrops.push(game.rnd.integerInRange(minDrops, maxDrops));
+            else enemiesDrops.push(minDrops);
+
+            var structedEnemies = [];
+            var max = diffTiers;
+            if (level === 1) max--; //level 1 - 2 have less enemy types
+
+            for (var i = 0; i < max; i++) {
+                if (i === max-1) n = enemies;
+                else var n = game.rnd.integerInRange(0, enemies);
+                structedEnemies.push(n);
+                enemies -= n;
+            }
+        }
+
+        return { //an object just like in mapDataBase
+            extraWalls: extraWalls,
+            bombables: bombables,
+            powerUps: powerUps,
+            enemies: structedEnemies,
+            enemiesDrops: enemiesDrops,
+            theme: theme,
+        }
+    }
+
 };
 
 module.exports = baseMapData;
 
-},{}],13:[function(require,module,exports){
+},{}],20:[function(require,module,exports){
 'use strict';
-
-//right now it's implemented that a power up can affect multiple player keys
-//maybe we need that feature, atm we do not need it (simple power ups)
-function Mod(type, key, mod) {
-    this.type = type; //number, bool, bomb, function
-    this.key = key;
-    this.mod = mod;
-}
 
 //contains the different tiers, and inside the power ups
 var levelDataBase = [
@@ -1020,7 +1933,7 @@ var levelDataBase = [
         {   //1
             extraWalls: 8,
             bombables: 33,      //some bombables drop power ups
-            powerUps: [1, 2],    //first 1 portal, 2 tier 1 power ups...
+            powerUps: [1, 2, 2],    //first 1 portal, 2 tier 1 power ups...
             enemies: [3],       //3 tier 0 enemies
             enemiesDrops: [0, 2],//they could drop portals but nope
             theme: "basic"
@@ -1028,7 +1941,7 @@ var levelDataBase = [
         {   //2
             extraWalls: 6,
             bombables: 35,
-            powerUps: [1, 2],
+            powerUps: [1, 2, 2],
             enemies: [3, 2], //[3,2]
             enemiesDrops: [0, 2],
             theme: "basic"
@@ -1036,51 +1949,67 @@ var levelDataBase = [
         {   //3
             extraWalls: 6,
             bombables: 35,
-            powerUps: [1], //?
+            powerUps: [1, 1, 2], //?
             enemies: [0, 0, 9], //[0,0,9]
             enemiesDrops: [0, 1], //?
             theme: "basic" //"wood"
         },
+        {   //4
+            extraWalls: 6,
+            bombables: 36,
+            powerUps: [1, 2, 2],
+            enemies: [3, 2, 4],
+            enemiesDrops: [0, 2],
+            theme: "basic"
+        },
+        {   //5
+            extraWalls: 6,
+            bombables: 36,
+            powerUps: [1, 2, 2],
+            enemies: [0, 3, 5],
+            enemiesDrops: [0, 1],
+            theme: "basic"
+        },
+        //no more cause we instead use the rnd generation
     ]
 ];
 
 module.exports = levelDataBase;
 
-},{}],14:[function(require,module,exports){
+},{}],21:[function(require,module,exports){
 'use strict';
+const config = require('../config.js');
+const GameObject = require('../objects/gameObject.js');
+const Physical = require('../objects/physical.js');
+const Bombable = require('../objects/bombable.js');
+const Enemy = require('../enemy/enemy.js');
+const Flame = require('../enemy/flame.js');
 
-var GameObject = require('../objects/gameObject.js');
-var Physical = require('../objects/physical.js');
-var Bombable = require('../objects/bombable.js');
-var Enemy = require('../enemy/enemy.js');
-var Flame = require('../enemy/flame.js');
+const Id = require('../id/identifiable.js').Id; //for bombable id
 
-var Id = require('../id/identifiable.js').Id; //for bombable id
+const Portal = require('./portal.js'); //next level portal
+const portalId = new Id(0, 0); //specific id for the portal
 
-var Portal = require('./portal.js'); //next level portal
-var portalId = new Id(0, 0); //specific id for the portal
+const Point = require('../general/point.js');
+const baseMapData = require("./baseMapData.js"); //base map and spawns
+const levelsDataBase = require("./levelsDataBase.js"); //base map and spawns
 
-var Point = require('../general/point.js');
-var baseMapData = require("./baseMapData.js"); //base map and spawns
-var levelsDataBase = require("./levelsDataBase.js"); //base map and spawns
-
-const debugPosX = 40;
-const debugPosY = 600 - 96;
-const debugColor = "yellow";
+const debugPos = config.debugMapPos;
+const debugColor = config.debugColor;
 
 //default map tiles values
-var defaultBodyOffset = new Point();
-var defaultImmovable = true;
-var defaultBombableLives = 1;
-var defaultBombableInvencibleTime = 0;
+const defaultBodyOffset = config.defaultBodyOffset;
+const defaultImmovable = config.defaultImmovable;
+const defaultBombableLives = config.defaultBombableLives;
+const defaultBombableInvencibleTime = config.defaultBombableInvencibleTime;
 
 //too import a big chunk of code
-var mapCooking = require('./mapCooking.js');
-var deathZoneTimeStart = 2*60*1000;
-var deathZoneTimeLoop = 5*1000;
+const mapCooking = require('./mapCooking.js');
+const deathZoneTimeStart = config.deathZoneTimeStart;
+const deathZoneTimeLoop = config.deathZoneTimeLoop;
 
-var portalSound;
-
+//contructor, stores the map and much data. Generates itself, the next level, etc.
+//also used by players and enemies for the sooth movement - checking the virtual map
 function Map(game, worldNum, levelNum, groups, tileData, maxPlayers, pvpMode) {
 
     this.game = game;
@@ -1088,10 +2017,13 @@ function Map(game, worldNum, levelNum, groups, tileData, maxPlayers, pvpMode) {
     this.tileData = tileData;
     this.maxPlayers = maxPlayers;
 
-    this.pvpMode = pvpMode;
-    this.deathZoneExpansion = 0;
-    this.deathZoneCallback = undefined;
-    this.deathZoneStartCallback = undefined;
+    this.pvpMode = pvpMode; //different behavior (next level, battle royale)
+
+    if (pvpMode) { //for the battle royale
+        this.deathZoneTimer = this.game.time.create(false);
+        this.deathZoneTimerEvent = undefined;
+        this.deathZoneCallback = undefined;
+    }
 
     //Always same base map values
     this.cols = baseMapData.cols;
@@ -1099,46 +2031,69 @@ function Map(game, worldNum, levelNum, groups, tileData, maxPlayers, pvpMode) {
     this.types = baseMapData.squaresTypes;
     this.playerSpawns = baseMapData.playerSpawns;
 
+    //in case of endless_rnd_map_gen the generation will be rnd
+    if (config.endless_rnd_map_gen && !this.pvpMode) this.rndGen = 0;
     this.generateMap(worldNum, levelNum);
 
-    if(pvpMode) this.restartDeathZoneCountdowns();
+    if (pvpMode) this.restartDeathZoneCountdowns();
 };
 
-//only used in pvp
+//Generate a ring of flames to make the arena smaller
 Map.prototype.battleRoyale = function () {
 
-    for (var col = this.deathZoneExpansion; col < this.map[0].length-this.deathZoneExpansion; col++) {
+    //the ring's size is based on this.deathZoneExpansion
+    //first upper row, then the last row, then both columns
+    for (var col = this.deathZoneExpansion; col < this.map[0].length - this.deathZoneExpansion; col++) {
         var squareIndexPos = new Point(col, this.deathZoneExpansion).applyTileData(this.tileData);
         this.groups.flame.add(new Flame(this.game, squareIndexPos, this.tileData.Scale));
     }
-    for (var col = this.deathZoneExpansion; col < this.map[0].length-this.deathZoneExpansion; col++) {
-        var squareIndexPos = new Point(col, this.map.length-1-this.deathZoneExpansion).applyTileData(this.tileData);
+    for (var col = this.deathZoneExpansion; col < this.map[0].length - this.deathZoneExpansion; col++) {
+        var squareIndexPos = new Point(col, this.map.length - 1 - this.deathZoneExpansion).applyTileData(this.tileData);
         this.groups.flame.add(new Flame(this.game, squareIndexPos, this.tileData.Scale));
     }
 
-    for (var fil = 1+this.deathZoneExpansion; fil < this.map.length-1-this.deathZoneExpansion; fil++) {
+    for (var fil = 1 + this.deathZoneExpansion; fil < this.map.length - 1 - this.deathZoneExpansion; fil++) {
         var squareIndexPos = new Point(this.deathZoneExpansion, fil).applyTileData(this.tileData);
         this.groups.flame.add(new Flame(this.game, squareIndexPos, this.tileData.Scale));
     }
-
-    for (var fil = 1+this.deathZoneExpansion; fil < this.map.length-1-this.deathZoneExpansion; fil++) {
-        var squareIndexPos = new Point(this.map[0].length-1-this.deathZoneExpansion, fil).applyTileData(this.tileData);
+    for (var fil = 1 + this.deathZoneExpansion; fil < this.map.length - 1 - this.deathZoneExpansion; fil++) {
+        var squareIndexPos = new Point(this.map[0].length - 1 - this.deathZoneExpansion, fil).applyTileData(this.tileData);
         this.groups.flame.add(new Flame(this.game, squareIndexPos, this.tileData.Scale));
     }
 
     this.deathZoneExpansion++;
 }
 
-//Starts the countdown to the battleRoyale mode
+//Re/starts the countdown to the battleRoyale mode
 Map.prototype.restartDeathZoneCountdowns = function () {
     this.deathZoneExpansion = 0;
-    if (this.deathZoneCallback !== undefined) this.game.time.events.remove(this.deathCallback);
-    if (this.deathZoneStartCallback !== undefined) this.game.time.events.remove(this.deathZoneStartCallback);
+    this.deathZoneStarted = false; //used by hud
 
-    console.log(deathZoneTimeStart, this.deathZoneExpansion);
-    this.deathZoneStartCallback = this.game.time.events.add(deathZoneTimeStart, this.deathZoneExpansionFunction, this);
+    //stop and remove events
+    this.deathZoneTimer.stop();
+    if (this.deathZoneCallback !== undefined) this.game.time.events.remove(this.deathCallback);
+    if (this.deathZoneTimerEvent !== undefined) this.deathZoneTimer.remove(this.deathZoneTimerEvent);
+
+    //start event + the timer
+    this.deathZoneTimerEvent = this.deathZoneTimer.add(deathZoneTimeStart, stopAndCall, this);
+    this.deathZoneTimer.start();
+
+    function stopAndCall() { //just intermediate
+        this.deathZoneStarted = true;
+        this.deathZoneTimer.stop();
+        this.deathZoneExpansionFunction();
+    }
 }
 
+//Death zone stopping function, stops timer and events used by hud (+this.deathZoneStarted = true;)
+Map.prototype.deathZoneStop = function () {
+    this.deathZoneStarted = true;
+    this.deathZoneTimer.stop();
+    if (this.deathZoneCallback !== undefined) this.game.time.events.remove(this.deathCallback);
+    if (this.deathZoneTimerEvent !== undefined) this.deathZoneTimer.removeAll();
+}
+
+//Death zone expansion function, calls itself in a loop
 Map.prototype.deathZoneExpansionFunction = function () {
     this.battleRoyale();
     this.deathZoneCallback = this.game.time.events.add(deathZoneTimeLoop, this.deathZoneExpansionFunction, this);
@@ -1150,45 +2105,64 @@ Map.prototype.generateMap = function (worldNum, levelNum) {
     this.map = baseMapData.copyMap(baseMapData.squares); //copy
 
     this.mapNumber = { world: worldNum, level: levelNum };
-    this.levelData = levelsDataBase[worldNum][levelNum];
 
+    //different generation
+    if (config.endless_rnd_map_gen && !this.pvpMode) {
+        this.levelData = baseMapData.rndGeneration(this.game, this.rndGen);
+        this.rndGen++;
+    }
+    else this.levelData = levelsDataBase[worldNum][levelNum];
+
+    //generates the arrays prior map cooking
     this.bombableIdsPowerUps = this.generateIdsPowerUps(this.levelData.powerUps);
     this.enemiesIdsPowerUps = this.generateIdsPowerUps(this.levelData.enemiesDrops);
     this.enemiesTypeNumbers = this.generateEnemiesTypeNumbers(this.levelData.enemies);
 
-    this.cookMap();
-    this.buildMap(this.groups, this.tileData); //shorter with this.
+    this.cookMap(); //takes all the data and inserts it rnd to get a generated array map
+
+    this.buildMap(this.groups, this.tileData); //uses the array and created the objects
 }
 
-//generates a new map (resets groups and players'positions)
+//Generates a new map (resets groups and players'positions)
 Map.prototype.generateNewMap = function (worldNum, levelNum) {
+
     this.game.time.events.removeAll(); //required cause we are going to destry
+    this.game.debug.reset(); //required cause we are going to destry
     this.groups.clearGroups(this.game); //clears all grups but player
     // console.log(this.game.time.events.events);
 
     this.mapNumber = { world: worldNum, level: levelNum };
-    this.levelData = levelsDataBase[worldNum][levelNum];
     this.generateMap(worldNum, levelNum);
 
     this.groups.player.callAll('respawn'); //resets players' pos
-    if(this.pvpMode) this.restartDeathZoneCountdowns();
+    if (this.pvpMode) this.restartDeathZoneCountdowns();
 };
+
+//Regeneration the same map
 Map.prototype.regenerateMap = function () {
-    this.generateNewMap(this.mapNumber.world, this.mapNumber.level)
+    if (config.endless_rnd_map_gen && !this.pvpMode) this.rndGen--;
+    this.generateNewMap(this.mapNumber.world, this.mapNumber.level);
 };
+
+//Generation of the next map
 Map.prototype.generateNextMap = function () { //based on number of levels in the world
 
-    if (levelsDataBase[this.mapNumber.world].length === this.mapNumber.level + 1) {
-        if (levelsDataBase.length === this.mapNumber.world + 1)
-            this.game.debug.text(this.mapNumber.world + " , " + this.mapNumber.level
-                + " is the last map...", debugPosX, debugPosY, debugColor);
+    //if endless, no need to touch the mapNumber
+    if (config.endless_rnd_map_gen) this.generateNewMap(this.mapNumber.world, this.mapNumber.level);
 
-        else this.generateNewMap(this.mapNumber.world + 1, 0);
+    //changles level and if it is the last one changes world
+    else {
+        if (levelsDataBase[this.mapNumber.world].length === this.mapNumber.level + 1) {
+            //little debug in case of last level (avoid crash)
+            if (levelsDataBase.length === this.mapNumber.world + 1)
+                this.game.debug.text(this.mapNumber.world + " , " + this.mapNumber.level
+                    + " is the last map...", debugPos.x, debugPos.y, debugColor);
+
+            else this.generateNewMap(this.mapNumber.world + 1, 0);
+        }
+        else this.generateNewMap(this.mapNumber.world, this.mapNumber.level + 1);
     }
-
-    else this.generateNewMap(this.mapNumber.world, this.mapNumber.level + 1);
 };
-
 
 //Adds all the extra bombables (drop too) and walls into the map
 Map.prototype.cookMap = mapCooking.cookMap;
@@ -1209,7 +2183,6 @@ Map.prototype.buildMap = function (groups, tileData) {
     for (var i = 0; i < this.cols; i++) {
         for (var j = 0; j < this.fils; j++) {
 
-            //new point each time is bad? auto deletes trash?
             var squareIndexPos = new Point(i, j).applyTileData(tileData);
             var bombableIdPowerUp, enemyIdPowerUp;
 
@@ -1257,8 +2230,6 @@ Map.prototype.buildMap = function (groups, tileData) {
                     groups.wall.add(new Physical(this.game, squareIndexPos,
                         this.types.wall.sprite, tileData.Scale, tileData.Res,
                         defaultBodyOffset, defaultImmovable)); //no more needed
-                    // groups.wall.add(new GameObject(this.game, squareIndexPos,
-                    //     this.types.wall.sprite, tileData.Scale));
 
                     break;
             }
@@ -1267,6 +2238,7 @@ Map.prototype.buildMap = function (groups, tileData) {
 
     //checks and creates the portal
     function checkPortal(tileData) {
+        //checks the id to see if it is the portal
         var portal = (bombableIdPowerUp !== undefined
             && bombableIdPowerUp.tier === portalId.tier
             && bombableIdPowerUp.num === portalId.num);
@@ -1286,16 +2258,12 @@ Map.prototype.buildMap = function (groups, tileData) {
 
 //updates the virtual map data of a static object*
 Map.prototype.updateSquare = function (position, squareType, extraOffset) {
-    // console.log(position);
-    // console.log(squareType);
-    // console.log(extraOffset);
 
     //calculate the map position
     var mapPosition = new Point(position.x, position.y);
     mapPosition.reverseTileData(this.tileData, extraOffset);
 
     this.map[mapPosition.y][mapPosition.x] = squareType;
-    // console.log(this.map);
 }
 
 //given a square position returns true if given direction is free
@@ -1318,7 +2286,6 @@ Map.prototype.getSurroundingFreeSquares = function (positionMap) {
         if (this.isNextSquareFree(positionMap, dirs[i]))
             surroundings.push(dirs[i]);
 
-    // console.log(surroundings);
     return surroundings;
 }
 
@@ -1335,28 +2302,29 @@ Map.prototype.isNextSquareNotWall = function (positionMap, direction) {
 
 module.exports = Map;
 
-},{"../enemy/enemy.js":1,"../enemy/flame.js":3,"../general/point.js":7,"../id/identifiable.js":9,"../objects/bombable.js":17,"../objects/gameObject.js":18,"../objects/physical.js":19,"./baseMapData.js":12,"./levelsDataBase.js":13,"./mapCooking.js":15,"./portal.js":16}],15:[function(require,module,exports){
+},{"../config.js":6,"../enemy/enemy.js":7,"../enemy/flame.js":9,"../general/point.js":13,"../id/identifiable.js":15,"../objects/bombable.js":24,"../objects/gameObject.js":25,"../objects/physical.js":26,"./baseMapData.js":19,"./levelsDataBase.js":20,"./mapCooking.js":22,"./portal.js":23}],22:[function(require,module,exports){
 'use strict';
 
-var Point = require('../general/point.js');
+const Point = require('../general/point.js');
 
-var Id = require('../id/identifiable.js').Id; //for bombable id
-var tierSize = require('../id/identifiable.js').tierSize; //for the rnd gen
+const Id = require('../id/identifiable.js').Id; //for bombable id
+const tierSize = require('../id/identifiable.js').tierSize; //for the rnd gen
 
 //will be imported by the map
-var mapCooking = {
+const mapCooking = {
 
 //Adds all the extra bombables (drop too) and walls into the map
 cookMap: function() {
 
-    var self = this; //instead of apply
+    var self = this; //instead of apply this time
     var freeSquares = this.getFreeSquares(this.maxPlayers);
 
-    //first generates the bombables with the drops
+    //first generates the bombables with the drops and without
     var bombableDrops = this.bombableIdsPowerUps.length;
     insertRnd(bombableDrops, this.types.bombableDrop.value);
     insertRnd(this.levelData.bombables-bombableDrops, this.types.bombable.value);
 
+    //the walls
     insertRnd(this.levelData.extraWalls, this.types.wall.value);
 
     //last the enemies, staring with the drops
@@ -1364,6 +2332,7 @@ cookMap: function() {
     insertRnd(enemiesDrops, this.types.enemyDrop.value);
     insertRnd(this.enemiesTypeNumbers.length-enemiesDrops, this.types.enemy.value);
 
+    //inserts a given number of elements (of given type) in the map array free squares (rnd)
     function insertRnd (numElem, type) {
         for (var i = 0; i < numElem; i++) {
             //between and including min and max (Phaser)
@@ -1397,21 +2366,22 @@ getFreeSquares: function(maxPlayers) {
 
     return freeSquares;
 
-    //to compare directly instead of searching after (was my first aproach)
-    //the newer implementation searches and removes, so worse case => as complex as this
-    //the newer is better too because is a shared method (used in map generation)
-    /*function checkPlayerSquare (x,y,maxPlayers) {
-        for (var numPlayer = 0; numPlayer < maxPlayers; numPlayer++)
-            if ((x == map.playerSpawns[numPlayer].x && y == map.playerSpawns[numPlayer].y)
-            || (x == map.playerSpawns[numPlayer].x-1 && y == map.playerSpawns[numPlayer].y)
-            || (x == map.playerSpawns[numPlayer].x+1 && y == map.playerSpawns[numPlayer].y)
-            || (x == map.playerSpawns[numPlayer].x && y == map.playerSpawns[numPlayer].y-1)
-            || (x == map.playerSpawns[numPlayer].x && y == map.playerSpawns[numPlayer].y+1))
-                return true;
-    }*/
+    // // //to compare directly instead of searching after (was my first aproach)
+    // // //the newer implementation searches and removes, so worse case => as complex as this
+    // // //the newer is better too because is a shared method (used in map generation)
+    // // /*function checkPlayerSquare (x,y,maxPlayers) {
+    // //     for (var numPlayer = 0; numPlayer < maxPlayers; numPlayer++)
+    // //         if ((x == map.playerSpawns[numPlayer].x && y == map.playerSpawns[numPlayer].y)
+    // //         || (x == map.playerSpawns[numPlayer].x-1 && y == map.playerSpawns[numPlayer].y)
+    // //         || (x == map.playerSpawns[numPlayer].x+1 && y == map.playerSpawns[numPlayer].y)
+    // //         || (x == map.playerSpawns[numPlayer].x && y == map.playerSpawns[numPlayer].y-1)
+    // //         || (x == map.playerSpawns[numPlayer].x && y == map.playerSpawns[numPlayer].y+1))
+    // //             return true;
+    // // }*/
 },
 
 //generates the array of random powerUps based on levelsDataBase info
+//given a tier and number of powerUps generates the specific Ids from the tiers (rnd)
 generateIdsPowerUps: function (powerUps) {
 
     var Ids = [];
@@ -1423,7 +2393,6 @@ generateIdsPowerUps: function (powerUps) {
             Ids.push(new Id(tier, rnd));
         }
     }
-    //for (var i = 0; i < Ids.length; i++) console.log(Ids[i]);
 
     return Ids;
 },
@@ -1473,8 +2442,6 @@ generateEnemiesTypeNumbers: function (enemies) {
     for (var n = 0; n < enemies[type]; n++)
     typeNumbers.push(type);
 
-    // console.log(enemies);
-    // console.log(typeNumbers);
     return typeNumbers;
 },
 
@@ -1482,32 +2449,36 @@ generateEnemiesTypeNumbers: function (enemies) {
 
 module.exports = mapCooking;
 
-},{"../general/point.js":7,"../id/identifiable.js":9}],16:[function(require,module,exports){
+},{"../general/point.js":13,"../id/identifiable.js":15}],23:[function(require,module,exports){
 'use strict';
+const config = require('../config.js');
 
-var Bombable = require('../objects/bombable.js');
-var Point = require('../general/point.js');
-var Enemy = require('../enemy/enemy.js'); //to spawn them
-var defaultEnemyType = 0;
+const Bombable = require('../objects/bombable.js');
+const Point = require('../general/point.js');
+const Enemy = require('../enemy/enemy.js'); //to spawn them
 
-var portalImmovable = true;
-var portalInvencible = true;
+const defaultEnemyType = config.defaultEnemyType;
 
-var portalSprite = "portal";
-var portalDropId = undefined; //always
-var portalSpinVel = 0.05;
+//Portal objects' data
+const portalImmovable = config.portalImmovable;
+const portalInvencible = config.portalInvencible;
 
-var portalBombTimer = 500; //to sync with flames
-var portalSpawnTimer = 1500; //cooldown to spawn enemies
+const portalSprite = config.keys.portal;
+const portalDropId = config.portalDropId; //always
+const portalSpinVel = config.portalSpinVel;
+
+const portalBombTimer = config.portalBombTimer; //to sync with flames
+const portalSpawnTimer = config.portalSpawnTimer; //cooldown to spawn enemies
+
+const portalAnchor = config.portalAnchor;
 
 var portalSound;
 
+//Portal constructor. Inherits from Bombable
+//Works as a simple bombable, but then transforms into the portal when hitted
+//Used by players to advance to next level + if hitted spawn enemies
 function Portal(game, level, groups, position, sprite, tileData, bodyOffSet, immovable, lives, invencibleTime) {
 
-    //var portalPosition = position.add(portalExtraOffset.x, portalExtraOffset.y);
-
-    //var portalBodySize = new Point(bodySize.x/2, bodySize.y/2); //so you get to the center
-    //var bodyOffSet = portalBodySize; //the half too
     this.tileData = tileData;
     this.level = level;
 
@@ -1527,12 +2498,14 @@ Portal.prototype = Object.create(Bombable.prototype);
 Portal.prototype.constructor = Portal;
 
 
+//checks flames, and if spawned spins + spawns enemies on hit. Also tps the player
 Portal.prototype.update = function () {
     this.checkFlames(); //player and bomb rewrite (extend) update
 
     if (this.spawned) {
         this.rotation += portalSpinVel;
 
+        //only go yo next level if there are no more enemies
         if (this.groups.enemy.children.length === 0) {
             this.game.physics.arcade.overlap(this, this.groups.player, nextLevel);
             if (this.loadNext) this.level.generateNextMap();
@@ -1545,9 +2518,8 @@ Portal.prototype.update = function () {
     }
 }
 
-//player, bomb, enemie, etc will extend this
+//extends bombable die
 Portal.prototype.die = function () {
-    //console.log("checkin die");
 
     if (this.spawned) this.game.time.events.add(portalBombTimer + 5, this.spawnEnemie, this);
 
@@ -1578,19 +2550,17 @@ Portal.prototype.spawnPortal = function () {
         this.body.width * this.tileData.Scale.y,
         this.body.height * this.tileData.Scale.x);
 
-    this.position = new Point( //moves and anchors to rotate
+    this.position = new Point( //moves and anchors to spin nicely
         this.body.position.x + this.body.width,
         this.body.position.y + this.body.height);
-    this.anchor.setTo(0.5, 0.5);
+    this.anchor.setTo(portalAnchor.x, portalAnchor.y);
 
     this.portalSound.loopFull(0.3);
-
     this.loadTexture(portalSprite); //change sprite
 }
 
-//spawns an enemie
+//spawns an enemy when hitted
 Portal.prototype.spawnEnemie = function () {
-    //console.log(this.groups.enemy.children);
 
     var enemyPos = new Point(
         this.position.x - this.body.width, //corrects the anchor
@@ -1603,25 +2573,28 @@ Portal.prototype.spawnEnemie = function () {
 
 module.exports = Portal;
 
-},{"../enemy/enemy.js":1,"../general/point.js":7,"../objects/bombable.js":17}],17:[function(require,module,exports){
+},{"../config.js":6,"../enemy/enemy.js":7,"../general/point.js":13,"../objects/bombable.js":24}],24:[function(require,module,exports){
 'use strict';
+const config = require('../config.js');
 
-var Physical = require('./physical.js'); //father
+const Physical = require('./physical.js'); //father
 //some drop powerUps
-var Identifiable = require('../id/identifiable.js');
+const Identifiable = require('../id/identifiable.js');
 
 //default bombable values
-var bombableTimer = 500; //to sync with flames
+const bombableTimer = config.bombableTimer; //to sync with flames
 
-//var Id = Identifiable.Id; //the mini factory is in Identifiable
-//var bombableDropId = new Id (1,1);
+const alphaWavingSpeed = config.alphaWavingSpeed;
+const playerInitialAlphaAngle = config.playerInitialAlphaAngle; //sin(playerInitialAlphaAnlge) -> alpha
+const step = config.step; //degrees
 
-
+//Inherits from Physical
+//Makes objects vulneable (interacts with flames)
 function Bombable(game, level, groups, position, sprite, scale, bodySize, bodyOffSet, immovable, lives, invencibleTime, dropId) {
 
     Physical.call(this, game, position, sprite, scale, bodySize, bodyOffSet, immovable);
 
-    this.animations.add("darken");
+    this.animations.add("darken"); //simple animation
 
     this.groups = groups;
     this.level = level;
@@ -1640,43 +2613,55 @@ function Bombable(game, level, groups, position, sprite, scale, bodySize, bodyOf
         this.endInvencibilityCallback = this.game.time.events.add(invencibleTime, this.endInvencibility, this);
     }
 
-    this.dropId = dropId;
+    this.dropId = dropId; //drops powerups
+    this.counterAngle = playerInitialAlphaAngle * step; //used for the invencible alpha waving
 }
 
 Bombable.prototype = Object.create(Physical.prototype);
 Bombable.prototype.constructor = Bombable;
 
-
+//children bombables will extend this
 Bombable.prototype.update = function () {
     this.checkFlames(); //player and bomb rewrite (extend) update
 }
 
-//common for all bombables
+//Checls overlap with flames, and if vulneable and not dead then calls die()
 Bombable.prototype.checkFlames = function () {
 
-    //console.log(this.flamesGroup);
     if (!this.dead) //maybe a invencible player puts a bomb on just a bomb
         this.game.physics.arcade.overlap(this, this.groups.flame, onFire, checkVulnerability, this);
 
     function checkVulnerability() {
-        // console.log("checkin vulv");
         return (!this.invencible && !this.tmpInven);
     }
 
     function onFire(bombable, flame) {
-        // console.log("on fire");
         this.tmpInven = true;
 
         //die should be insta and then in die handle sync
         //so the player can die insta etc (block mov)
-        //this.game.time.events.add(bombableTimer, this.die, this);
         this.die(flame);
     }
 }
 
+//changes alpha to simulate being invulnerable
+Bombable.prototype.invencibleAlpha = function () {
+
+    var tStep = Math.sin(this.counterAngle);
+
+    this.counterAngle += step * alphaWavingSpeed;
+
+    //only positive sin (no negative alpha)
+    if (this.counterAngle >= (180 - playerInitialAlphaAngle) * step) {
+        this.counterAngle = playerInitialAlphaAngle * step;
+    }
+
+    this.alpha = tStep;
+}
+
 //player, bomb, enemie, etc will extend this
+//in this case reduces lives and if 0, destroys and drops de powerUps
 Bombable.prototype.die = function () {
-    // console.log("checkin die");
     this.lives--;
 
     if (this.lives <= 0) {
@@ -1701,16 +2686,15 @@ Bombable.prototype.die = function () {
             new Identifiable(this.game, this.position, this.scale, this.dropId));
     }
     function updateAndDestroy() {
-        // console.log("update and destroy");
 
         this.level.updateSquare(this.position, this.level.types.free.value)
-
         this.destroy();
     }
 }
 
 //Usesd as callback to remove te temporal inbvulnerability
 Bombable.prototype.endInvencibility = function () {
+    this.alpha = 1;
     this.invencible = false;
 }
 //To correctly cancel the callback (if exists)
@@ -1725,16 +2709,17 @@ Bombable.prototype.endlessInvencibility = function () {
 
 module.exports = Bombable;
 
-},{"../id/identifiable.js":9,"./physical.js":19}],18:[function(require,module,exports){
+},{"../config.js":6,"../id/identifiable.js":15,"./physical.js":26}],25:[function(require,module,exports){
 'use strict';
 
+//Inherits from Phaser.Sprite
 function GameObject (game, position, sprite, scale) {
 
     Phaser.Sprite.call(this, game, position.x, position.y, sprite);
 
+    //need to add it to the game
     game.add.existing(this);
     this.scale.setTo(scale.x, scale.y);
-
 };
 
 GameObject.prototype = Object.create(Phaser.Sprite.prototype);
@@ -1742,16 +2727,19 @@ GameObject.prototype.constructor = GameObject;
 
 module.exports = GameObject;
 
-},{}],19:[function(require,module,exports){
+},{}],26:[function(require,module,exports){
 'use strict';
 
-var GameObject = require('./gameObject.js');
+const GameObject = require('./gameObject.js');
 
+//Inherits from Phaser's GameObject
 function Physical(game, position, sprite, scale, bodySize, bodyOffSet, immovable) {
 
     GameObject.call(this, game, position, sprite, scale);
 
+    //enables physics
     game.physics.arcade.enable(this);
+
     this.body.setSize(bodySize.x, bodySize.y, bodyOffSet.x, bodyOffSet.y);
     this.body.collideWorldBounds = true;
 
@@ -1763,35 +2751,35 @@ Physical.prototype.constructor = Physical;
 
 module.exports = Physical;
 
-},{"./gameObject.js":18}],20:[function(require,module,exports){
+},{"./gameObject.js":25}],27:[function(require,module,exports){
 'use strict';
+const config = require('../config.js');
 
-var Bombable = require('../objects/bombable.js'); //father
-var Flame = require('../enemy/flame.js');
+const Bombable = require('../objects/bombable.js'); //father
+const Flame = require('../enemy/flame.js');
 
-var Point = require('../general/point.js');
-var Identifiable = require('../id/identifiable.js');
+const Point = require('../general/point.js');
+const Identifiable = require('../id/identifiable.js');
 
 
 //default bomb values
-var bombBodySize = new Point(48, 48); //little smaller
-var bombBodyOffset = new Point(0, 0);
-var bombExtraOffset = new Point(5, 5); //reaquired because bomb body is not full res
+const bombBodySize = config.bombBodySize; //little smaller
+const bombBodyOffset = config.bombBodyOffset;
+const bombExtraOffset = config.bombExtraOffset; //reaquired because bomb body is not full res
 
-var bombImmovable = true;
-var bombInvecibleTime = 0;
+const bombImmovable = config.bombImmovable;
+const bombInvecibleTime = config.bombInvecibleTime;
 
-var bombLives = 1;
-var bombPower = 1;
-var bombTimer = 2000;
-var bombFlameTimer = 500;
+const bombLives = config.bombLives;
+const bombPower = config.bombPower;
+const bombTimer = config.bombTimer;
+const bombFlameTimer = config.bombFlameTimer;
 
-var xplosionSound;
+const bombSpritePath = config.keys.bomb;
 
-var bombSpritePath = 'bomb';
-var flameId = {tier: 0, num: 0};
-
-
+//Bomb constructor. Inherits from Bombable
+//The player creates bombs, with given mods such as +flames (more radius)
+//after some time explodes and creates flames, bombs can explode each other
 function Bomb (game, level, position, tileData, groups, player, bombMods) {
 
     var bombPosition = new Point (position.x, position.y)
@@ -1803,36 +2791,34 @@ function Bomb (game, level, position, tileData, groups, player, bombMods) {
 
     this.timer = bombTimer;
     this.flameTimer = bombFlameTimer;
-    this.power = bombPower;
+    this[config.flameKey] = bombPower;
 
     this.groups = groups;
     this.player = player; //link to restore bomb etc
     this.level = level;
     this.tileData = tileData;
 
-    this.animations.add("red");
+    this.animations.add("red"); //animations
     this.animations.play("red", 3/2);
+    this.xplosionSound = game.add.audio('xplosion'); //sound
 
     this.mods = [];
     Identifiable.applyMods(bombMods, this);
 
     this.xploded = false;
-    //this.flamesEvent = undefined; //need to create it for die()
+    // // //this.flamesEvent = undefined; //need to create it for die()
     this.xplosionEvent =
         game.time.events.add(this.timer, this.xplode, this);
 
-    this.xplosionSound = game.add.audio('xplosion');
-
-    level.updateSquare(position, level.types.bomb.value);
-    //console.log(bombTimer, bombFlameTimer, bombPower, level, groups, player, tileData, bombMods, this.xploded, this.xplosionEvent);
+    level.updateSquare(position, level.types.bomb.value); //need to update mapsquare
 };
 
 Bomb.prototype = Object.create(Bombable.prototype);
 Bomb.prototype.constructor = Bomb;
 
-
+//in case of bombs, die makes them cancel xplosion and xplode sooner
 Bomb.prototype.die = function () {
-    //console.log("checkin bomb die");
+
     this.lives--;
 
     //cancels the standard callbacks
@@ -1852,19 +2838,17 @@ Bomb.prototype.die = function () {
 
 //removes the bomb, spawns the fames and then removes them
 Bomb.prototype.xplode = function() {
-    //console.log("xploded");
+
     this.xploded = true;
     this.groups.bomb.remove(this); //removes and destroys the bomb
     this.player.numBombs++; //adds a bomb back to the player
 
-    this.xplosionSound.play("", 0, 0.1);
+    this.xplosionSound.play("", 0, 0.1); //sound
 
     var flames = this.spawnFlames();
 
     //pushes the flames into map.flames
     for(var i = 0; i < flames.length; i++) this.groups.flame.add(flames[i]);
-
-    //console.log(this.groups.flame.children);
 
     //callback to destroy the flames
     this.game.time.events.add(this.flameTimer, removeFlames, this);
@@ -1875,7 +2859,7 @@ Bomb.prototype.xplode = function() {
 
         //update map
         this.level.updateSquare(this.position, this.level.types.free.value, bombExtraOffset);
-        this.destroy();
+        this.destroy(); //destroy the bomb object
     }
 }
 
@@ -1888,6 +2872,7 @@ Bomb.prototype.spawnFlames = function() {
 
     var flames = [new Flame(this.game, positionMap, this.scale, this.player)];
 
+    //xpand flames (instantly) expands the flames to the max radius
     return this.expandFlames(flames, positionMap);
 }
 
@@ -1900,13 +2885,13 @@ Bomb.prototype.expandFlames = function(flames, positionMap) {
 
         var expansion = 1;
         //these all could be the same, but allow us to know exactly what fails
-        var obstacle = false, bombable = false, bomb = false/*, flame = false*/;
+        var obstacle = false, bombable = false, bomb = false;
 
         //tmp Position for the initial expanded flame
         var tmpPositionMap = new Point (positionMap.x, positionMap.y)
             .reverseTileData(this.tileData, bombExtraOffset);
 
-        while(expansion <= this.power && !obstacle && !bombable && !bomb/* && !flame*/) {
+        while(expansion <= this[config.flameKey] && !obstacle && !bombable && !bomb) {
 
             //checks if the next square is free
             if (this.level.isNextSquareNotWall(tmpPositionMap, directions[i])) {
@@ -1927,85 +2912,81 @@ Bomb.prototype.expandFlames = function(flames, positionMap) {
                 bombable = this.game.physics.arcade.overlap(newFlame, this.groups.box);
                 bomb = this.game.physics.arcade.overlap(newFlame, this.groups.bomb);
 
-                //but it case of the flame over flame, no new one is generated
-                //In the original game yes, aswell as there is no delay
-                /*flame = this.game.physics.arcade.overlap(newFlame, this.groups.flame);
-                if (!flame) flames.push(newFlame);
-                else newFlame.destroy();*/
-
-                //console.log("bombable ", bombable);
-                //console.log("bomb ", bomb);
-                //console.log("flame ", flame);
+                // // //but it case of the flame over flame, no new one is generated
+                // // //In the original game yes, aswell as there is no delay
+                // // /*flame = this.game.physics.arcade.overlap(newFlame, this.groups.flame);
+                // // if (!flame) flames.push(newFlame);
+                // // else newFlame.destroy();*/
             }
             else {
-                obstacle = true;
-                //console.log("obstacle", obstacle);
+                obstacle = true; //if obstacle no more expansion
             }
         }
     }
-    //console.log(flames)
     return flames; //just need to delay this somehow
 }
 
 
 module.exports = Bomb;
 
-},{"../enemy/flame.js":3,"../general/point.js":7,"../id/identifiable.js":9,"../objects/bombable.js":17}],21:[function(require,module,exports){
+},{"../config.js":6,"../enemy/flame.js":9,"../general/point.js":13,"../id/identifiable.js":15,"../objects/bombable.js":24}],28:[function(require,module,exports){
 'use strict';
+const config = require('../config.js');
 
-var Bombable = require('../objects/bombable.js'); //father
-var Point = require('../general/point.js');
+const Bombable = require('../objects/bombable.js'); //father
+const Point = require('../general/point.js');
 
-var Inputs = require('../general/inputs.js');
-var Identifiable = require('../id/identifiable.js');
-var Bomb = require('./bomb.js');
+const Inputs = require('../general/inputs.js');
+const Identifiable = require('../id/identifiable.js');
+const Id = Identifiable.Id; //the mini factory is in Identifiable
+const Bomb = require('./bomb.js');
 
 //default player values
-var playerSpritePath = 'player_'; //partial, to complete with numPlayer
+const playerSpritePath = config.keys.player; //partial, to complete with numPlayer
 
-// var playerBodySize = new Point(48, 48); //little smaller
-// var playerBodyOffset = new Point(0, 40);
-var playerBodySize = new Point(40, 32); //little smaller
-var playerBodyOffset = new Point(6, 48);
-var playerExtraOffset = new Point(6, -20); //reaquired because player body is not full res
+const playerBodySize = config.playerBodySize; //little smaller
+const playerBodyOffset = config.playerBodyOffset;
+const playerExtraOffset = config.playerExtraOffset; //reaquired because player body is not full res
 
-var playerImmovable = false;
+const playerImmovable = config.playerImmovable;
 
-var playerLives = 5;
-var playerExtraLifePoints = 1000;
-var playerNumBombs = 1;
+const playerLives = config.playerLives;
+const playerExtraLifePoints = config.playerExtraLifePoints;
+const playerNumBombs = config.playerNumBombs;
 
-var playerInvencibleTime = 5000;
-var playerRespawnedStoppedTime = 1000;
-var playerDeathTime = 1500;
-var playerLifeTime = 60 * 3 * 1000;
+const playerInvencibleTime = config.playerInvencibleTime;
+const playerRespawnedStoppedTime = config.playerRespawnedStoppedTime;
+const playerDeathTime = config.playerDeathTime;
+const playerLifeTime = config.playerLifeTime;
 
-var Id = Identifiable.Id; //the mini factory is in Identifiable
-var playerInitialModsIds = [/*new Id(1,2), new Id(1, 1), new Id(1,0)*/];
-var playerPVPModsIds = [new Id(1, 2), new Id(1, 1)];
-var playerMovAndInputs = require('./playerMovAndInputs.js'); //big chunk of code
+const playerInitialModsIds = [/*new Id(1, 2), new Id(1, 1), new Id(1, 0)*/];
+const playerPVPModsIds = [/*new Id(1, 2), new Id(1, 1), new Id(1, 0)*/]; //funnier
+const playerOnDeathModsIds = [new Id(1, 2), new Id(1, 1), new Id(1, 0)]; //removed at deat;
 
-var bodyVelocity;
+const playerMovAndInputs = require('./playerMovAndInputs.js'); //big chunk of code
 
-var step = Math.PI * 2 / 360; //degrees
-var playerInitialAlphaAngle = 30; //sin(playerInitialAlphaAnlge) -> alpha
-var alphaWavingSpeed = 1.75;
-var hudAnimSpeed = 1 / 18; //1/18 is the correct
 
-const debugPosX = 40;
-const debugPosY = 600 - 96;
-const debugColor = "yellow";
-
+//Player constructor. Inherits from Bombable
+//Handles controls (bomb + moves), smooths the movements, actually moves
+//handles powerUps, enemies, etc overlapping and how player dies
+//Animations based on moves too
 function Player(game, level, numPlayer, tileData, groups, hudVidas) {
 
     this.numPlayer = numPlayer;
     this.points = 0;
     this.extraLives = 0;
 
+    //each player edits this part of the hud
     this.hudVidas = hudVidas;
     this.hudVidaAnim = hudVidas[numPlayer].animations.add('Clock');
-    this.hudVidaAnim.play(hudAnimSpeed, true);
-    this.hudVidaAnim.onLoop.add(this.die, this, 0, 0);
+    this.hudVidaDead = hudVidas[numPlayer].animations.add('Dead', [11]);
+    this.hudVidaSpawn = hudVidas[numPlayer].animations.add('Spawn', [0]);
+
+    if (!level.pvpMode) { //if pve then starts the animation
+        this.hudVidaAnim.play(config.hudAnimSpeed, true);
+        this.hudVidaAnim.onLoop.add(this.die, this, 0, 0);
+        this.deathCallback = undefined;
+    }
 
     this.wins = 0; //for pvp
     this.selfKills = 0;
@@ -2020,34 +3001,32 @@ function Player(game, level, numPlayer, tileData, groups, hudVidas) {
     Bombable.call(this, game, level, groups, this.respawnPos, playerSpritePath + this.numPlayer,
         tileData.Scale, playerBodySize, playerBodyOffset, playerImmovable, playerLives, playerInvencibleTime);
 
-    // this.anchor.setTo(0.3, 0);
-
+    //Player animations
     this.animations.add("walking_left", [24, 25, 26, 27, 28, 29, 30, 31], 10, true);
     this.animations.add("walking_right", [16, 17, 18, 19, 20, 21, 22, 23], 10, true);
     this.animations.add("walking_up", [0, 1, 2, 3, 4, 5, 6, 7], 10, true);
     this.animations.add("walking_down", [8, 9, 10, 11, 12, 13, 14, 15], 10, true);
 
     this.animations.add("dying", [32, 33, 34, 35, 36], 10);
-    this.animations.add("spawn", [8], 15);
     this.animations.add("respawn", [36, 35, 34, 33, 32], 10);
 
+    this.animations.add("spawn", [8], 15);
     this.animations.play("spawn");
 
-    this.restartMovement();
+    this.restartMovement(); //starts the values
 
     this.tileData = tileData;
     this.level = level;
     this.groups = groups;
     this.groups.player.add(this); //adds itself to the group
 
-    this.numBombs = playerNumBombs;
+    this[config.bombsKey] = playerNumBombs;
     this.mods = [];
     this.bombMods = [];
-    Identifiable.addPowerUps(playerInitialModsIds, this);
 
-    this.deathCallback = undefined;
-
-    this.counterAngle = playerInitialAlphaAngle * step;
+    //applies starting powerUps (if existing)
+    if (level.pvpMode) Identifiable.addPowerUps(playerPVPModsIds, this);
+    else Identifiable.addPowerUps(playerInitialModsIds, this);
 };
 
 Player.prototype = Object.create(Bombable.prototype);
@@ -2056,7 +3035,7 @@ Player.prototype.constructor = Player;
 
 //Restarts all movements variables
 Player.prototype.restartMovement = function () {
-    this.velocity = playerMovAndInputs.getVel();
+    this[config.speedKey] = playerMovAndInputs.getVel();
     this.dirs = { dirX: new Point(), dirY: new Point };
     this.prioritizedDirs = { first: this.dirs.dirX, second: this.dirs.dirY };
     this.blockedBacktrack = { x: false, y: false, turn: false };
@@ -2073,11 +3052,10 @@ Player.prototype.restartCountdown = function (restarting) {
     this.hudVidaAnim.restart();
 
     this.deathCallback = this.game.time.events.add(time, this.die, this);
-    // console.log("countdown", this.deathCallback);
 }
 
 
-//Calls all methods
+//Calls all methods basically
 Player.prototype.update = function () {
 
     this.checkFlames(); //bombable method
@@ -2087,47 +3065,31 @@ Player.prototype.update = function () {
 
     //if dead somehow player does nothing
     if (!this.dead) {
-        this.checkPowerUps();
-        bodyVelocity = this.movementLogic();
-        this.bombLogic();
 
-        if (this.invencible) this.invencibleAlpha();
+        this.checkPowerUps(); //pick up
+        this.movementLogic(); //movement smoothed already
+        this.bombLogic(); //deploy bombs
 
-        if (bodyVelocity.x > 0) {
-            // this.scale.setTo(this.tileData.Scale.x, this.tileData.Scale.y);
+        if (this.invencible) this.invencibleAlpha(); //alpha waving
+
+        //pick animations
+        if (this.body.velocity.x > 0) {
             this.animations.play("walking_right");
         }
-        else if (bodyVelocity.x < 0) {
-            // this.scale.setTo(this.tileData.Scale.x*-1, this.tileData.Scale.y);
+        else if (this.body.velocity.x < 0) {
             this.animations.play("walking_left");
         }
-        else if (bodyVelocity.y > 0)
+        else if (this.body.velocity.y > 0)
             this.animations.play("walking_down");
-        else if (bodyVelocity.y < 0)
+        else if (this.body.velocity.y < 0)
             this.animations.play("walking_up");
         else {
             this.animations.stop();
             this.frame = this.stopped_frames;
         }
-
     }
 }
 
-//changes alpha to simulate being invulnerable
-Player.prototype.invencibleAlpha = function () {
-
-    var tStep = Math.sin(this.counterAngle);
-    // console.log(this.counterAngle/step);
-
-    this.counterAngle += step * alphaWavingSpeed;
-
-    //only positive sin (no negative alpha)
-    if (this.counterAngle >= (180 - playerInitialAlphaAngle) * step) {
-        this.counterAngle = playerInitialAlphaAngle * step;
-    }
-
-    this.alpha = tStep;
-}
 
 //checks for powerUps and takes them
 Player.prototype.checkPowerUps = function () {
@@ -2135,18 +3097,18 @@ Player.prototype.checkPowerUps = function () {
     this.game.physics.arcade.overlap(this, this.groups.powerUp, takePowerUp);
 
     function takePowerUp(player, powerUp) {
-        //console.log("takin powerUp");
-        player.mods.push(powerUp.id);
+
+        player.mods.push(powerUp.id); //add to the list
 
         player.addPoints(powerUp.pts); //add points too
 
-        Identifiable.pickPowerUp(powerUp, player);
+        Identifiable.pickPowerUp(powerUp, player); //apply
 
         powerUp.destroy();
     }
 }
 
-//atm simply checks overlapping
+//atm simply checks overlapping and calls die
 Player.prototype.checkEnemy = function () {
     this.game.physics.arcade.overlap(this, this.groups.enemy, this.die, null, this);
 }
@@ -2154,13 +3116,14 @@ Player.prototype.checkEnemy = function () {
 //adds points and lives if required
 Player.prototype.addPoints = function (pts) {
 
-    // console.log(this.points, " + ", pts);
     this.points += pts;
 
+    //add lives if enough points
     if (this.points >= playerExtraLifePoints) {
-        var n = this.points / (playerExtraLifePoints - this.points % playerExtraLifePoints);
+        var n = (this.points - this.points % playerExtraLifePoints) / playerExtraLifePoints;
 
         if (n > this.extraLives) {
+
             this.extraLives++;
             this.lives++;
         }
@@ -2179,14 +3142,11 @@ Player.prototype.fixedDirMovement = playerMovAndInputs.fixedDirMovement;
 
 //all the bomb deploying logic
 Player.prototype.bombLogic = function () {
-    if (this.inputs.bomb.button.isDown && !this.inputs.bomb.ff && this.numBombs > 0
+    //flip flop to only deply 1 bomb at a time + check if the player is over a bomb
+    if (this.inputs.bomb.button.isDown && !this.inputs.bomb.ff && this[config.bombsKey] > 0
         && !this.game.physics.arcade.overlap(this, this.groups.bomb)) {
-        //checks if the player is over a bomb
 
-        //console.log(this.groups.bomb.children)
-        //console.log(this.groups.flame.children)
-
-        this.numBombs--;
+        this[config.bombsKey]--;
 
         var bombPosition = new Point(this.position.x, this.position.y)
             .getMapSquarePos(this.tileData, playerExtraOffset)
@@ -2195,8 +3155,6 @@ Player.prototype.bombLogic = function () {
         var bombie = new Bomb(this.game, this.level,
             bombPosition, this.tileData, this.groups, this, this.bombMods)
         this.groups.bomb.add(bombie);
-
-        //console.log(bombie)
 
         this.inputs.bomb.ff = true;
     }
@@ -2207,71 +3165,82 @@ Player.prototype.bombLogic = function () {
 
 //player concrete logic for die
 Player.prototype.die = function (flame) {
-    console.log("checkin player die", this.level.pvpMode);
+
+    // console.log("checking player die");
 
     this.dead = true; //to disable movement
 
+    this.restartMovement();
     this.animations.play("dying");
 
+    //add kils or selfkills to the respective players (if killed by flame)
     if (flame !== undefined && flame !== this.hudVidas[this.numPlayer] && flame.player !== undefined) {
         if (flame.player !== this) flame.player.kills++;
         else {
             flame.player.selfKills++; //for the show
-            this.game.debug.text(" LOL", debugPosX, debugPosY, debugColor);
+            this.game.debug.text(" LOL", config.debugPos.x, config.debugPos.y, config.debugColor);
             this.game.time.events.add(playerInvencibleTime, function reset() { this.debug.reset(); }, this.game);
         }
     }
-    // console.log(this.kills, this.selfKills);
 
     if (!this.level.pvpMode) {
         this.lives--;
-        this.restartMovement();
-        this.game.time.events.add(playerDeathTime, this.respawn, this);
-        if (this.lives <= 0) {
+
+        Identifiable.addPowerUps(playerOnDeathModsIds, this, true); //removes power ups
+
+        this.game.time.events.add(playerDeathTime, this.respawn, this); //adds respawn
+
+        if (config.DEBUG && this.lives <= 0) { //debug
             console.log("P" + this.numPlayer + ", you ded (0 lives)");
         }
     }
-    else this.pvpModeDeath();
+    else this.pvpModeDeath(); //different logic
 
     this.game.time.events.add(playerDeathTime, flipInven, this);
     function flipInven() { this.tmpInven = false; }
 }
 
-//different behavior
+//no respawn + handle end of the mode
 Player.prototype.pvpModeDeath = function () {
 
-    this.visible = false;
+    this.game.time.events.add(playerDeathTime, dieAndCheckOver, this); //time for animation
 
-    var alive = 0;
-    for (var i = 0; i < this.groups.player.children.length; i++) {
-        if ((this.groups.player.children[i] !== this) && (!this.groups.player.children[i].dead))
-            alive++;
-    }
+    function dieAndCheckOver() {
+        this.visible = false; //no respawn, just invisible
+        this.hudVidaDead.play(); //changes hud
 
-    if (alive <= 1) {
+        var alive = 0; //controls if there is no one else alive
         for (var i = 0; i < this.groups.player.children.length; i++) {
-            if (!this.groups.player.children[i].dead)
-                this.groups.player.children[i].wins++;
+            if ((this.groups.player.children[i] !== this) && (!this.groups.player.children[i].dead))
+                alive++;
         }
-        this.level.regenerateMap();
-    }
 
+        if (alive <= 1) { //adds the win to the respective player
+            for (var i = 0; i < this.groups.player.children.length; i++) {
+                if (!this.groups.player.children[i].dead)
+                    this.groups.player.children[i].wins++;
+            }
+            this.level.regenerateMap(); //then regenerates the map
+        }
+    }
 }
 
-//Resets the player basically
+//Resets the player and many variables
 Player.prototype.respawn = function () {
 
     this.invencible = true;
+    this.tmpInven = false;
     this.dead = true; //so he cannot move
 
     if (this.lives > 0) {
         this.visible = true;
-    this.animations.play("respawn");
-
-        this.animations.play("spawn");
+        this.animations.play("respawn");
 
         this.restartMovement(); //so it doesnt move inside walls
-        this.restartCountdown(true);
+
+        if (!this.level.pvpMode) this.restartCountdown(true);
+        else this.hudVidaSpawn.play();
+
         this.position = new Point(this.respawnPos.x, this.respawnPos.y);
 
         //callback to make end player's invulnerability
@@ -2280,7 +3249,10 @@ Player.prototype.respawn = function () {
         //callback used to give back the control to the player
         this.game.time.events.add(playerRespawnedStoppedTime, revive, this);
     }
-    else this.visible = false;
+    else {
+        this.hudVidaDead.play(); //dead so invisible
+        this.visible = false;
+    }
 
     function revive() {
         //fix for a bug: sometimes the position recives a tick of the velocity...
@@ -2292,7 +3264,7 @@ Player.prototype.respawn = function () {
 
 //just extended to see the player number
 Player.prototype.endInvencibility = function () {
-    console.log("P" + this.numPlayer + " invencibility ended");
+    if (config.DEBUG) console.log("P" + this.numPlayer + " invencibility ended");
     this.invencible = false;
     this.alpha = 1;
 }
@@ -2300,19 +3272,20 @@ Player.prototype.endInvencibility = function () {
 
 module.exports = Player;
 
-},{"../general/inputs.js":6,"../general/point.js":7,"../id/identifiable.js":9,"../objects/bombable.js":17,"./bomb.js":20,"./playerMovAndInputs.js":22}],22:[function(require,module,exports){
+},{"../config.js":6,"../general/inputs.js":12,"../general/point.js":13,"../id/identifiable.js":15,"../objects/bombable.js":24,"./bomb.js":27,"./playerMovAndInputs.js":29}],29:[function(require,module,exports){
 'use strict';
+const config = require('../config.js');
 
-var Point = require('../general/point.js'); //required
+const Point = require('../general/point.js'); //required
 
 //default movement values
-var playerVelocity = 140; //max=playerVelocity+5*10 (depends on powerUps)
-var playerVelocityTurning = 105; //140 105
+const playerVelocity = config.playerVelocity; //max=playerVelocity+5*10 (depends on powerUps)
+const playerVelocityTurning = config.playerVelocityTurning; //140 105
 //reduced velocity for the turn so the alignment is much smoother
 //does not change with playerVelocity, so what changes is the relative reduction
 //a starting -25% playerVelocity, and a max of ~45% (or less)
 
-var playerExtraOffset = new Point(6, -20); //need to took from config file
+const playerExtraOffset = config.playerExtraOffset;
 
 //big chunk of code imported by the player
 var playerMoveAndInputs = {
@@ -2362,20 +3335,14 @@ movementLogic: function () {
         }
     }
 
-    //console.log(fixedFinalDir.x, fixedFinalDir.y, " - ", fixedExtraDir.x, fixedExtraDir.y);
-    //console.log(this.dirs.dirX.x, this.dirs.dirX.y, " - ", this.dirs.dirY.x, this.dirs.dirY.y);
-    //console.log(this.prioritizedDirs.first.x, this.prioritizedDirs.first.y, " - ", this.prioritizedDirs.second.x, this.prioritizedDirs.second.y);
-
     //moves the player (only if dir is not null)
-    if (fixedFinalDir.x === 1) this.body.velocity.x = this.velocity;
-    else if (fixedFinalDir.x === -1) this.body.velocity.x = -this.velocity;
-    else if (fixedFinalDir.y === 1) this.body.velocity.y = this.velocity;
-    else if (fixedFinalDir.y === -1) this.body.velocity.y = -this.velocity;
+    if (fixedFinalDir.x === 1) this.body.velocity.x = this[config.speedKey];
+    else if (fixedFinalDir.x === -1) this.body.velocity.x = -this[config.speedKey];
+    else if (fixedFinalDir.y === 1) this.body.velocity.y = this[config.speedKey];
+    else if (fixedFinalDir.y === -1) this.body.velocity.y = -this[config.speedKey];
 
     //callback
     function unlockTurning() { this.blockedBacktrack.turn = false }
-
-    return this.body.velocity;
 },
 
 //reads the input, handles multiple keys
@@ -2419,7 +3386,6 @@ readInput: function () {
         nextDirY = new Point(0, inputY.pop());
     }
 
-    // console.log("X ", nextDirX.x, nextDirX.y, " - ", "Y ", nextDirY.x, nextDirY.y);
     this.prioritizeInputs(nextDirX, nextDirY);
 },
 
@@ -2449,16 +3415,13 @@ prioritizeInputs: function (nextDirX, nextDirY) {
         this.dirs.dirX.x = nextDirX.x;
         this.dirs.dirY.y = nextDirY.y;
     }
-
-    // console.log(this.dirs.dirX.x, this.dirs.dirX.y, " - ", this.dirs.dirY.x, this.dirs.dirY.y);
-    // console.log(this.prioritizedDirs.first.x, this.prioritizedDirs.first.y, " - ", this.prioritizedDirs.second.x, this.prioritizedDirs.second.y);
 },
 
 //very important, and documented... makes the player movement fixed
 fixedDirMovement: function (dir) {
 
     var fixedDir;
-    this.velocity = playerVelocity; //mey be slowed down
+    this[config.speedKey] = playerVelocity; //mey be slowed down
 
     //virtual map pos and extra pos
     var positionMap = new Point(this.position.x, this.position.y)
@@ -2471,51 +3434,44 @@ fixedDirMovement: function (dir) {
 
         //if the player is perfectly aligned, moves along
         if (extraPosMap.isNull()) {
-            // console.log("1"); //all cases
             fixedDir = new Point(dir.x, dir.y);
         }
         //if dir and extra pos are parallel, moves along
         else if (extraPosMap.isParallel(dir)) {
-            // console.log("2");
             fixedDir = new Point(dir.x, dir.y);
         }
         else { //next square is free but the player is not aligned
             //needs to be aligned, moves in negative extraPosMap
-            // console.log("3");
-            this.velocity = playerVelocityTurning;
+            this[config.speedKey] = playerVelocityTurning;
             fixedDir = new Point(-extraPosMap.x, -extraPosMap.y);
         }
     }
     else { //the next square is blocked
         //if the player is perfectly aligned, does nothing
         if (extraPosMap.isNull()) {
-            // console.log("4");
             fixedDir = new Point();
         }
         //the player is not aligned, so it means there is room to move
         //it moves along (dir) and gets closer to the blocked square
         else if (extraPosMap.isParallel(dir)) {
-            // console.log("5");
-            this.velocity = playerVelocityTurning;
+            this[config.speedKey] = playerVelocityTurning;
             fixedDir = new Point(dir.x, dir.y);
         }
         else {//if not aligned, moves towards the direction it's leaning to
             //so moves in extraPosMap trying to get around the blocked square
             //**is the only case that needs extra checking the map
-            // console.log("6");
 
             var diagonalDir = new Point(dir.x, dir.y) //calculate diagonal
                 .add(extraPosMap.x, extraPosMap.y);
 
             //check the diagonal square
             if (this.level.isNextSquareFree(positionMap, diagonalDir)) {
-                this.velocity = playerVelocityTurning;
+                this[config.speedKey] = playerVelocityTurning;
                 fixedDir = new Point(extraPosMap.x, extraPosMap.y);
             }
             else fixedDir = new Point(); //if diagonal is blocked too, do nothing
         }
     }
-    //console.log(fixedDir);
     return fixedDir;
 }
 
@@ -2523,9 +3479,14 @@ fixedDirMovement: function (dir) {
 
 module.exports = playerMoveAndInputs;
 
-},{"../general/point.js":7}],23:[function(require,module,exports){
+},{"../config.js":6,"../general/point.js":13}],30:[function(require,module,exports){
 'use strict';
-const DEBUG = true;
+const config = require('../config.js');
+const keys = config.keys;
+
+const DEBUG = config.DEBUG;
+const winWidth = config.winWidth;
+const winHeight = config.winHeight;
 
 var BootScene = {
 
@@ -2533,366 +3494,298 @@ var BootScene = {
         if (DEBUG) this.startTime = Date.now(); //to calculate booting time etc
 
         // load here assets required for the loading screen
-        this.game.load.image('preloader_logo', 'images/phaser.png');
+        //in our case the phaser logo
+        this.game.load.image(keys.preloader_logo, 'images/phaser.png');
       },
 
       create: function () {
 
-        //this.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
-        //this.scale.pageAlignHorizontally = true;
-        //this.scale.setScreenSize();
-
-        this.game.state.start('preloader');
+        this.game.state.start(keys.preloader);
         if (DEBUG) console.log("Booting...", Date.now()-this.startTime, "ms");
       }
     };
 
     module.exports = BootScene;
 
-},{}],24:[function(require,module,exports){
+},{"../config.js":6}],31:[function(require,module,exports){
 'use strict';
+const config = require('../config.js');
 
-const DEBUG = true;
+const audioHUD = require('../HUD/audioHUD.js');
 
-const winWidth = 800;
-const winHeight = 600;
+const DEBUG = config.DEBUG;
+const winWidth = config.winWidth;
+const winHeight = config.winHeight;
+
+//Menu sprites data
+var mMenuTitle; //super bomboooooozle man
+const mMenuTitlePos = config.mMenuTitlePos;
+const mMenuTitleKey = config.keys.mMenuTitle;
 
 var mMenuBG;
-var mMenuPVE;
-var mMenuPVP;
-var buttonCount = 1;
+const mMenuBGPos = config.mMenuBGPos;
+const mMenuBGScale = config.mMenuBGScale;
+const mMenuBGKey = config.keys.mMenuBG;
 
-var mMenuTitle; //super bomboooooozle man
+var mMenuPVE;
+const mMenuPVEPos = config.mMenuPVEPos;
+const mMenuPVEScale = config.mMenuPVEScale;
+const mMenuPVEAnchor = config.mMenuPVPAnchor;
+const mMenuPVEKey = config.keys.mMenuButton1;
+var mMenuPVP;
+const mMenuPVPPos = config.mMenuPVPPos;
+const mMenuPVPScale = config.mMenuPVPScale;
+const mMenuPVPAnchor = config.mMenuPVPAnchor;
+const mMenuPVPKey = config.keys.mMenuButton2;
+const buttonCount = config.buttonCount;
+//
+
+//Wins selector sprites and other data
+var lessWinsButton;
+var moreWinsButton;
+var doneButton;
+var howManyWins;
+var numbers;
+const numberData = config.numbers;
+const doneData = config.doneButton;
+const HMWData = config.howManyWins;
+//
+
+//These are the variables of the selector of PVP needed wins to finish the game
+const minWinsNec = config.minWinsNec;
+const maxWinsNec = config.maxWinsNec;
+
+var winsNecessary = config.initWinsNecessary; //base value from config
 
 var MainMenu = {
+
     preload: function() {
         if (DEBUG) this.startTime = Date.now(); //to calculate booting time etc
-
     },
 
-    nextStatePVE: function() { this.game.state.start('pve');  },
-    nextStatePVP: function() { this.game.state.start('pvp');  },
-
-    // over: function() { buttonCount++; },
-
-    // out: function() { buttonCount--; },
-
     create: function() {
-        console.log(this);
 
-        mMenuBG = this.game.add.sprite(0, 0, 'mMenuBG');
-        mMenuBG.scale.y = 1.05; //just a little bigger
-        mMenuPVE = this.game.add.button(winWidth/2, winHeight/2 + 70, 'mMenuButton1', this.nextStatePVE, this);
-        mMenuPVP = this.game.add.button(winWidth/2, winHeight/2 + 140, 'mMenuButton2', this.nextStatePVP, this);
-
+        //background
+        mMenuBG = this.game.add.sprite(mMenuBGPos.x, mMenuBGPos.y, mMenuBGKey);
+        mMenuBG.scale.y = mMenuBGScale.y; //just a little bigger
         mMenuBG.width = winWidth;
         mMenuBG.heigth = winHeight;
 
-        mMenuPVE.scale.setTo(0.7, 0.7);
-        mMenuPVE.anchor.setTo(0.5, 0.5);
+        //two buttons
+        mMenuPVE = this.game.add.button(winWidth/2 + mMenuPVEPos.x, winHeight/2 + mMenuPVEPos.y, mMenuPVEKey, this.nextStatePVE, this);
+        mMenuPVE.scale.setTo(mMenuPVEScale.x, mMenuPVEScale.y);
+        mMenuPVE.anchor.setTo(mMenuPVEAnchor.x, mMenuPVEAnchor.y);
 
-        mMenuPVP.scale.setTo(0.7, 0.7);
-        mMenuPVP.anchor.setTo(0.5, 0.5);
+        mMenuPVP = this.game.add.button(winWidth/2 + mMenuPVPPos.x, winHeight/2 + mMenuPVPPos.y, mMenuPVPKey, this.createWinsChoice, this);
+        mMenuPVP.scale.setTo(mMenuPVPScale.x, mMenuPVPScale.y);
+        mMenuPVP.anchor.setTo(mMenuPVPAnchor.x, mMenuPVPAnchor.y);
 
-        // mMenuButton.onInputOver.add(this.over, this);
+        //audio buttons
+        audioHUD.init(this.game);
+        audioHUD.creation(this.game);
 
-        mMenuTitle = this.game.add.sprite(50,100, 'mMenuTitle');
+        //title
+        mMenuTitle = this.game.add.sprite(mMenuTitlePos.x, winHeight/2 + mMenuTitlePos.y, mMenuTitleKey);
     },
 
-    update: function() {
+    //Both of them change states
+    nextStatePVE: function() { this.game.state.start('pve');  },
+    nextStatePVP: function() { this.game.state.start('pvp', true, false, winsNecessary);  },
 
-        // if(this.game.input.mousePointer.leftButton.isDown && this.game.input.mousePointer.position.x == this.mMenuButton.x
-        //     && this.game.input.mousePointer.position.y == this.mMenuButton.y)
-        //     this.game.state.start('pve');
+    //Changes the number of the selector
+    changeNumber: function(frame) { numbers.loadTexture(config.keys.numbers, frame); },
+
+    //Logic of the buttons of the selector
+    lessWins: function() { if(winsNecessary > minWinsNec) winsNecessary--; this.changeNumber(winsNecessary); },
+    moreWins: function() { if(winsNecessary < maxWinsNec) winsNecessary++; this.changeNumber(winsNecessary); },
+
+    //only used in the menu
+    createWinsChoice: function() {
+        mMenuPVP.inputEnabled = false;
+
+        //numbers
+        numbers = this.game.add.sprite(mMenuPVP.position.x + numberData.pos.x, mMenuPVP.y + numberData.pos.y, config.keys.numbers, winsNecessary);
+        numbers.scale.setTo(numberData.scale.x, numberData.scale.y);
+        numbers.anchor.setTo(numberData.anchor.x, numberData.anchor.y);
+
+        //selector buttons
+        lessWinsButton = this.game.add.button(mMenuPVP.position.x + 230, mMenuPVP.position.y, config.keys.volArrow, this.lessWins, this);
+        lessWinsButton.scale.setTo(config.lessVolButtonScale.x, config.lessVolButtonScale.y);
+
+        moreWinsButton = this.game.add.button(mMenuPVP.position.x + 290, mMenuPVP.position.y, config.keys.volArrow, this.moreWins, this);
+        moreWinsButton.anchor.setTo(config.moreVolButtonAnchor.x, config.moreVolButtonAnchor.y);
+        moreWinsButton.scale.setTo(config.moreVolButtonScale.x, config.moreVolButtonScale.y);
+        moreWinsButton.angle = config.moreVolButtonAngle;
+
+        //accept button (and launch pvp)
+        doneButton = this.game.add.button(numbers.position.x + doneData.pos.x, numbers.position.y + doneData.pos.y, config.keys.done, this.nextStatePVP, this);
+        doneButton.scale.setTo(doneData.scale.x, doneData.scale.y);
+        doneButton.anchor.setTo(doneData.anchor.x, doneData.anchor.y);
+
+        //sprite
+        howManyWins = this.game.add.sprite(numbers.position.x + HMWData.pos.x, numbers.position.y + HMWData.pos.y, config.keys.manyWins);
+        howManyWins.scale.setTo(HMWData.scale.x, HMWData.scale.y);
+        howManyWins.anchor.setTo(HMWData.anchor.x, HMWData.anchor.y);
+    },
+
+    //Updates the audio sprite manager
+    update: function() {
+        audioHUD.checkVisible();
     }
 
 };
 
 module.exports = MainMenu;
 
-},{}],25:[function(require,module,exports){
+},{"../HUD/audioHUD.js":1,"../config.js":6}],32:[function(require,module,exports){
 'use strict';
+const config = require('../config.js');
+const keys = config.keys;
 
-var pausePanel;
-var unpauseButton;
-var gotoMenuButton;
+const DEBUG = config.DEBUG;
+const winWidth = config.winWidth;
+const winHeight = config.winHeight;
 
-var width = 800;
-var height = 600;
-
-var pauseMenu = {
-    pausedCreate: function (music, game) {
-        music.pause();
-        game.stage.disableVisibilityChange = true;
-        game.input.onDown.add(unPause, this);
-    
-        
-        pausePanel = game.add.sprite(width / 2, height / 2, 'pausePanel');
-        pausePanel.anchor.setTo(0.5, 0.5);
-        pausePanel.alpha = 0.5;
-        
-        unpauseButton = game.add.sprite(width / 2, height / 2 - 50, 'resume');
-        unpauseButton.anchor.setTo(0.5, 0.5);
-        unpauseButton.scale.setTo(0.75, 0.75);
-    
-        gotoMenuButton = game.add.sprite(width / 2, height / 2 + 50, 'quitToMenu');
-        gotoMenuButton.anchor.setTo(0.5, 0.5);
-        gotoMenuButton.scale.setTo(0.75, 0.75);    
-    
-        function unPause() {
-          if (game.paused) {
-            if (game.input.mousePointer.position.x > unpauseButton.position.x - unpauseButton.texture.width / 2
-              && game.input.mousePointer.position.x < unpauseButton.position.x + unpauseButton.texture.width / 2
-              && game.input.mousePointer.position.y > unpauseButton.position.y - unpauseButton.texture.height / 2
-              && game.input.mousePointer.position.y < unpauseButton.position.y + unpauseButton.texture.height / 2)
-              game.paused = false;
-    
-            //We need to fix the remake of maps before this fully works. But it does what it has to.
-            else if (game.input.mousePointer.position.x > gotoMenuButton.position.x - gotoMenuButton.texture.width / 2
-              && game.input.mousePointer.position.x < gotoMenuButton.position.x + gotoMenuButton.texture.width / 2
-              && game.input.mousePointer.position.y > gotoMenuButton.position.y - gotoMenuButton.texture.height / 2
-              && game.input.mousePointer.position.y < gotoMenuButton.position.y + gotoMenuButton.texture.height / 2)
-              { game.state.start('mainMenu'); game.paused = false; }
-              
-          }
-        };
-    },
-
-    resumedMenu: function (music, gInputs, game) {
-        music.resume();
-        game.stage.disableVisibilityChange = false;
-        gInputs.pMenu.ff = false;
-    
-        pausePanel.destroy();
-        unpauseButton.destroy();
-        gotoMenuButton.destroy();
-    },
-
-    offPauseMenuControl: function (game, gInputs) {
-        if (gInputs.pMenu.button.isDown && !gInputs.pMenu.ff) {
-          gInputs.pMenu.ff = true;
-          game.paused = true;
-        }
-        //MIRAR DOCUMENTACION DE PHASER.SIGNAL
-        else if (gInputs.pMenu.isUp)
-          gInputs.pMenu.ff = false;
-        //console.log(gInputs.pMenu.ff)
-    }
-}
-
-module.exports = pauseMenu;
-},{}],26:[function(require,module,exports){
-'use strict';
-var DEBUG = true;
-
-const winWith = 800;
-const winHeight = 600;
-
+//loads all the assets (sounds, sprites, spritesheets...)
 var PreloaderScene = {
+
     preload: function () {
         if (DEBUG) this.startTime = Date.now();
 
-        //this.game.stage.backgroundColor = '#E80C94';
-        this.loadingBar = this.game.add.sprite(winWith/2, winHeight/2, 'preloader_logo');
+        //Loading Bar
+        this.loadingBar = this.game.add.sprite(winWidth/2, winHeight/2, 'preloader_logo');
         this.loadingBar.anchor.setTo(0.5, 0.5);
         this.load.setPreloadSprite(this.loadingBar);
 
-        // TODO: load here the assets for the game
-        //this.game.load.image('logo', 'images/readme/arena.png');
-
+        //Players and HUD Players
         for (var numPlayers = 0; numPlayers < 4; numPlayers++){
-            this.game.load.spritesheet('player_'+numPlayers, 'images/Sprites/Bomberman/Bomb0'+numPlayers+'+Exploding.png', 64, 86);
-            this.game.load.spritesheet('player_'+numPlayers+'Clock', 'images/Sprites/Bomberman/Bman_'+numPlayers+'Clock.png', 47, 88)            
+            this.game.load.spritesheet(keys.player+numPlayers, 'images/Sprites/Bomberman/Bomb0'+numPlayers+'+Exploding.png', 64, 86);
+            this.game.load.spritesheet(keys.player+numPlayers+'Clock', 'images/Sprites/Bomberman/Bman_'+numPlayers+'Clock.png', 47, 88)
         }
-        this.game.load.image('background', 'images/Sprites/Blocks/BackgroundTile.png');
-        this.game.load.spritesheet('bombable', 'images/Sprites/Blocks/ExplodableBlockAnim.png', 64, 64);
-        this.game.load.image('wall', 'images/Sprites/Blocks/SolidBlock.png');
-        this.game.load.image('portal', 'images/Sprites/Blocks/Portal.png');
 
-        this.game.load.image('powerUpBombUp', 'images/Sprites/Powerups/BombPowerup.png');
-        this.game.load.image('powerUpFlameUp', 'images/Sprites/Powerups/FlamePowerup.png');
-        this.game.load.image('powerUpSpeedUp', 'images/Sprites/Powerups/SpeedPowerup.png');
+        //Map
+        this.game.load.image(keys.background, 'images/Sprites/Blocks/BackgroundTile.png');
+        this.game.load.spritesheet(keys.bombable, 'images/Sprites/Blocks/ExplodableBlockAnim.png', 64, 64);
+        this.game.load.image(keys.wall, 'images/Sprites/Blocks/SolidBlock.png');
+        this.game.load.image(keys.portal, 'images/Sprites/Blocks/Portal.png');
 
-        this.game.load.spritesheet('bomb', 'images/Sprites/Bomb/Bomb_f1.png', 48, 48);
-        this.game.load.spritesheet('flame', 'images/Sprites/Flame/flames.png', 48, 48);
+        //PowerUps
+        this.game.load.image(keys.powerUpBombUp, 'images/Sprites/Powerups/BombPowerup.png');
+        this.game.load.image(keys.powerUpFlameUp, 'images/Sprites/Powerups/FlamePowerup.png');
+        this.game.load.image(keys.powerUpSpeedUp, 'images/Sprites/Powerups/SpeedPowerup.png');
+        this.game.load.image(keys.pointsUp, 'images/Sprites/Powerups/PointPowerup.png');
+        this.game.load.image(keys.pointsUpPlus, 'images/Sprites/Powerups/PointPowerupPlus.png');
 
-        this.game.load.spritesheet('enemy_0', 'images/Sprites/Creep/creep0.png', 64, 64);
-        this.game.load.spritesheet('enemy_1', 'images/Sprites/Creep/creep1.png', 64, 64);
-        this.game.load.spritesheet('enemy_2', 'images/Sprites/Creep/creep2.png', 64, 64);
+        //Bombs
+        this.game.load.spritesheet(keys.bomb, 'images/Sprites/Bomb/Bomb_f1.png', 48, 48);
+        this.game.load.spritesheet(keys.flame, 'images/Sprites/Flame/flames.png', 48, 48);
+
+        //Enemies
+        this.game.load.spritesheet(keys.enemy_0, 'images/Sprites/Creep/creep0.png', 64, 64);
+        this.game.load.spritesheet(keys.enemy_1, 'images/Sprites/Creep/creep1.png', 64, 64);
+        this.game.load.spritesheet(keys.enemy_2, 'images/Sprites/Creep/creep2.png', 64, 64);
 
         //Main Menu sprites
-        this.game.load.image('mMenuBG', 'images/Sprites/Menu/title_background.jpg');
-        this.game.load.image('mMenuButton1', 'images/Sprites/Menu/PVE_mode.png');
-        this.game.load.image('mMenuButton2', 'images/Sprites/Menu/PVP_mode.png');
-        this.game.load.image('mMenuTitle', 'images/Sprites/Menu/title.png');
+        this.game.load.image(keys.mMenuBG, 'images/Sprites/Menu/title_background.jpg');
+        this.game.load.image(keys.mMenuButton1, 'images/Sprites/Menu/PVE_mode.png');
+        this.game.load.image(keys.mMenuButton2, 'images/Sprites/Menu/PVP_mode.png');
+        this.game.load.image(keys.mMenuTitle, 'images/Sprites/Menu/title.png');
+        //PVP options
+        this.game.load.spritesheet(keys.numbers, 'images/Sprites/Menu/Numbers.png', 64, 137);
+        this.game.load.image(keys.done, 'images/Sprites/Menu/Done.png');
+        this.game.load.image(keys.manyWins, 'images/Sprites/Menu/HowManyWins.png');
 
-        this.game.load.image('pausePanel', 'images/Sprites/Menu/White_Panel.png');
-        this.game.load.image('quitToMenu', 'images/Sprites/Menu/QuitToMenu.png');
-        this.game.load.image('resume', 'images/Sprites/Menu/Resume.png');
+        //Music buttons
+        this.game.load.image(keys.unmuted, 'images/Sprites/Menu/unMuted.png');
+        this.game.load.image(keys.muted, 'images/Sprites/Menu/Muted.png');
+        this.game.load.image(keys.volArrow, 'images/Sprites/Menu/VolumeArrow.png');
 
-        this.game.load.image('gameOver', 'images/Sprites/HUD/GameOver.png')
-
-        this.game.load.image('unmuted', 'images/Sprites/Menu/unMuted.png');
-        this.game.load.image('muted', 'images/Sprites/Menu/Muted.png');
-        this.game.load.image('volArrow', 'images/Sprites/Menu/VolumeArrow.png');     
+        //Pause menu
+        this.game.load.image(keys.pausePanel, 'images/Sprites/Menu/White_Panel.png');
+        this.game.load.image(keys.quitToMenu, 'images/Sprites/Menu/QuitToMenu.png');
+        this.game.load.image(keys.resume, 'images/Sprites/Menu/Resume.png');
 
         //HUD sprites
-        this.game.load.image('HUDBg', 'images/Sprites/HUD/HUDBg.png');
-        this.game.load.image('HUDPoints', 'images/Sprites/HUD/HUDPoints.png');
-        this.game.load.image('HUD2', 'images/Sprites/HUD/HUD2.png');
-        this.game.load.image('HUDPressX', 'images/Sprites/HUD/PressX.png');        
-        
-        //Music and audio
-        this.game.load.audio('music', 'audio/music.ogg');
-        this.game.load.audio('xplosion', 'audio/explosion.ogg');
-        this.game.load.audio('powerup', 'audio/powerup.ogg');
-        this.game.load.audio('portal', 'audio/portal.ogg');
+        this.game.load.image(keys.HUDPoints, 'images/Sprites/HUD/HUDPoints.png');
+        this.game.load.image(keys.HUD2, 'images/Sprites/HUD/HUD2.png');
+        this.game.load.image(keys.HUDPressX, 'images/Sprites/HUD/PressX.png');
 
+        this.game.load.image(keys.gameOver, 'images/Sprites/HUD/GameOver.png')
+        this.game.load.image(keys.gameOverPvpBg, 'images/Sprites/Menu/overPvp.png')
+        this.game.load.image(keys.HUDbomb, 'images/Sprites/HUD/HudBomb.png');
+
+        //Music and audio
+        this.game.load.audio(keys.music, 'audio/music.ogg');
+        this.game.load.audio(keys.xplosion, 'audio/explosion.ogg');
+        this.game.load.audio(keys.powerup, 'audio/powerup.ogg');
+        this.game.load.audio(keys.portal, 'audio/portal.ogg');
     },
 
     create: function () {
-        this.game.state.start('mainMenu');
+        this.game.state.start(keys.mainMenu);
         if (DEBUG) console.log("Preloading...", Date.now()-this.startTime, "ms");
     }
   };
   module.exports = PreloaderScene;
 
-},{}],27:[function(require,module,exports){
+},{"../config.js":6}],33:[function(require,module,exports){
 'use strict';
-const DEBUG = true;
-var pvpMode = false;
+const pvpMode = false;
+const config = require('../config.js');
+const keys = config.keys;
 
-var Point = require('../general/point.js');
-var globalControls = require('../general/globalControls.js');
+const DEBUG = config.DEBUG;
+const winWidth = config.winWidth;
+const winHeight = config.winHeight;
 
-var Groups = require('../general/groups.js');
+const debugPos = config.debugPos;
+const debugColor = config.debugColor;
+
+const Point = require('../general/point.js');
+
+const globalControls = require('../general/globalControls.js');
+const pauseMenu = require('../HUD/pauseMenu.js');
+const gameOver = require('../HUD/gameOver.js');
+const audioHUD = require('../HUD/audioHUD.js');
+
+const playerInfoHUD = require('../HUD/playerInfoHUD.js');
+var playerInfoHUDs;
+var HUDBombHead = [];
+const BombHUD = require('../HUD/bombHUD.js');
+var bombHUD;
+
+const Groups = require('../general/groups.js');
 var groups;
-var Map = require('../maps/map.js');
-var level;
-var initialMap = { world: 0, level: 0 };
 
-var Inputs = require('../general/inputs.js');
+const Map = require('../maps/map.js');
+var level;
+
+var initialMap;
+if (DEBUG) initialMap = config.initialMapPveDEBUG;
+else initialMap = config.initialMapPve;
+
+const Inputs = require('../general/inputs.js');
 var gInputs; //global inputs
 
-var Player = require('../player/player.js');
-var players = []; //2 max for this mode but meh
-var initialPlayers = 1;
-var maxPlayers = 2; //needed for the map generation
+const Player = require('../player/player.js');
+const initialPlayers = config.pve_initialPlayers;
+const maxPlayers = config.pve_maxPlayers; //needed for the map generation
+var players;
 
-var pauseMenu = require('./pauseMenu.js');
+const tileData = config.tileData;
 
-var music;
-
-const width = 800;
-const height = 600;
-const debugPos = new Point(32, height - 96);
-const debugColor = "yellow";
-
-const tileData = {
-  Res: new Point(64, 64),
-  Scale: new Point(0.75, 0.625), //64x64 to 48x40
-  Offset: new Point(40, 80), //space for hud
-};
-
-var mMenuTitle;
-var livesHUD;
-var livesHUD1;
-var pointsHUD;
-var pointsHUD1;
-var HUDBg;
-var HUDPoints;
-var HUDPoints1;
-var HUDBombHead = [];
-var HUD2_0;
-var HUD2_1;
-var HUDBomb;
-var HUDPressX;
-
-var ffAnim = false;
-
-var muteMusicButton;
-var mutedMusicButton;
-var lessVolButton;
-var moreVolButton;
-
-var TwoPlayers = false;
-var deathCount = 0;
-
-
+//pve mode, up to 2 players, endless (if selected)
 var PlayScene = {
 
   preload: function () {
-    //this.game.stage.backgroundColor = '#E80C94';
+    this.game.stage.backgroundColor = 'black';
     if (DEBUG) this.startTime = Date.now(); //to calculate booting time
   },
 
-  toggleMute: function () { this.game.sound.mute = !this.game.sound.mute; },
-
-  moreVol: function () { if(this.game.sound.volume < 1) this.game.sound.volume += 0.1; },
-
-  lessVol: function () { if(this.game.sound.volume > 0.2) this.game.sound.volume -= 0.1; },
-
   create: function () {
-    //music
-    music = this.game.add.audio('music');
-    music.loopFull(0.4); //la pauso que me morido quedo loco
-    this.game.sound.mute = true;
 
-
-    //menu stuff
-    HUDBg = this.game.add.sprite(0, 0, 'HUDBg');
-
-    HUDBombHead[0] = this.game.add.sprite(60, 10, 'player_0Clock');
-    HUDBombHead[0].scale.setTo(0.75, 0.75);
-    HUD2_0 = this.game.add.sprite(35+HUDBombHead[0].position.x, -5, 'HUD2');
-    HUD2_0.scale.setTo(0.75, 0.75);
-    HUDPoints = this.game.add.sprite(170, -5, 'HUDPoints');
-    HUDPoints.scale.setTo(0.45, 0.7);
-
-    HUDBomb = this.game.add.sprite(width/2, 10, 'bomb');
-    HUDBomb.anchor.setTo(0.5, 0);
-    HUDBomb.scale.setTo(1.2, 1.2);
-
-    HUDBombHead[1] = this.game.add.sprite(HUDBomb.position.x + 60, 10, 'player_1Clock');
-    HUDBombHead[1].scale.setTo(0.75, 0.75);
-    HUD2_1 = this.game.add.sprite(35+HUDBombHead[1].position.x, -5, 'HUD2');
-    HUD2_1.scale.setTo(0.75, 0.75);
-    HUDPoints1 = this.game.add.sprite(575, -5, 'HUDPoints');
-    HUDPoints1.scale.setTo(0.45, 0.7);
-    HUDPoints1.visible = false;
-
-    livesHUD = this.game.add.text(HUD2_0.position.x + 42, 15, "",
-    { font: "45px Comic Sans MS", fill: "#f9e000", align: "center"});
-    livesHUD.anchor.setTo(0.2, 0);
-    pointsHUD = this.game.add.text(HUDPoints.position.x + 133, 22, "",
-    { font: "35px Comic Sans MS", fill: "#f9e000", align: "center" });
-    pointsHUD.anchor.setTo(0.2, 0);
-
-    livesHUD1 = this.game.add.text(HUD2_1.position.x + 42, 15, "",
-    { font: "45px Comic Sans MS", fill: "#f9e000", align: "center"});
-    livesHUD1.anchor.setTo(0.2, 0);
-    livesHUD1.visible = false;
-    pointsHUD1 = this.game.add.text(HUDPoints1.position.x + 133, 22, "",
-    { font: "35px Comic Sans MS", fill: "#f9e000", align: "center"});
-    pointsHUD1.anchor.setTo(0.2, 0);
-    pointsHUD1.visible = false;
-
-    HUDPressX = this.game.add.sprite(HUD2_1.position.x, -10, 'HUDPressX');
-    HUDPressX.scale.setTo(0.75, 0.75);
-    // HUDPressX.visible = false;
-
-    muteMusicButton = this.game.add.button(10, 40, 'unmuted', this.toggleMute, this);
-    muteMusicButton.scale.setTo(0.1, 0.1);
-    mutedMusicButton = this.game.add.button(10, 40, 'muted', this.toggleMute, this);
-    mutedMusicButton.scale.setTo(0.1, 0.1);
-
-    lessVolButton = this.game.add.button(10, 10, 'volArrow', this.lessVol, this);
-    lessVolButton.scale.setTo(0.04, 0.04);
-
-    moreVolButton = this.game.add.button(30, 10, 'volArrow', this.moreVol, this);
-    moreVolButton.anchor.setTo(1, 1);
-    moreVolButton.scale.setTo(0.04, 0.04);
-    moreVolButton.angle = 180;
+    //audio
+    audioHUD.creation(this.game);
 
     //map
     groups = new Groups(this.game); //first need the groups
@@ -2901,6 +3794,14 @@ var PlayScene = {
     //global controls
     gInputs = new Inputs(this.game, -1);
 
+    //playerInfoHuds
+    playerInfoHUDs = [];
+    for (var numPlayer = 0; numPlayer < initialPlayers; numPlayer++) {
+      playerInfoHUDs.push(new playerInfoHUD(this.game, HUDBombHead, numPlayer, pvpMode));
+    }
+    if (initialPlayers === 1) playerInfoHUD.drawPressX(this.game);
+
+    bombHUD = new BombHUD(this.game, pvpMode); //little bomb
 
     //player/s (initialPlayers)
     players = [];
@@ -2909,7 +3810,6 @@ var PlayScene = {
       players[numPlayer].restartCountdown(false);
     }
 
-
     if (DEBUG) {
       console.log("Loaded...", Date.now() - this.startTime, "ms");
       console.log("\n PLAYER: ", players[0]);
@@ -2918,229 +3818,128 @@ var PlayScene = {
 
   },
 
-  goToMainMenu: function (){ this.game.state.start('mainMenu'); },
-
-  gmOver: function (){
-     // var gmOverBg = this.game.add.sprite(0, 0, 'mMenuBG');
-      var gmOverSign = this.game.add.sprite(width/2, height/2, 'gameOver');
-      gmOverSign.anchor.setTo(0.5, 0.5);
-      var goToMenu = this.game.add.button(width, height,
-        'quitToMenu', this.goToMainMenu, this);
-      goToMenu.anchor.setTo(1, 1);
-  },
-
-
   update: function () {
-    console.log(deathCount);
-    for(var i = 0; i < players.length; i++){
-      if(players[i].lives <= 0 && deathCount<players.length)
-        deathCount++;
-    }
-    
-    if(deathCount === players.length){
-        this.gmOver();
-    }
 
-    //No longer needed
+    //Body colliders
     this.game.physics.arcade.collide(groups.player, groups.wall);
     this.game.physics.arcade.collide(groups.player, groups.box);
     this.game.physics.arcade.collide(groups.player, groups.bomb);
 
-
-    if (players.length >= 2)
-      TwoPlayers = true;
-    else
-      TwoPlayers = false;
-
-
-    livesHUD.text = players[0].lives;
-    pointsHUD.text = players[0].points;
-
-    if(TwoPlayers === true){
-      if(HUDPressX.visible){
-        HUDPressX.visible = false;
-        livesHUD1.visible = true;
-        pointsHUD1.visible = true;
-        HUDPoints1.visible = true;
-      }
-      livesHUD1.text = players[1].lives;
-      pointsHUD1.text = players[1].points;
-    }
-
-    if(music.mute) muteMusicButton.visible = false;
-    else   muteMusicButton.visible = true;
-    if(!music.mute) mutedMusicButton.visible = false;
-    else mutedMusicButton.visible = true;
-
+    //Bring textures to the top of the layer
     this.game.world.bringToTop(groups.flame);
     this.game.world.bringToTop(groups.player); //array doesnt work
 
-    globalControls.addPlayerControl(gInputs, players, maxPlayers);
-    globalControls.debugModeControl(gInputs, this.game, groups.player);
-    globalControls.resetLevelControl(gInputs, level);
-    globalControls.nextLevelControl(gInputs, level);
+    //Update all HUD
+    for (var numPlayer = 0; numPlayer < playerInfoHUDs.length; numPlayer++)
+      playerInfoHUDs[numPlayer].updatePlayerInfoHud(players[numPlayer], pvpMode);
+
+    bombHUD.updateBombHud(level, pvpMode);
+    gameOver.checkPve(this.game, players);
+    audioHUD.checkVisible();
+
+    //Add player control
+    globalControls.addPlayerControl(gInputs, players, maxPlayers, playerInfoHUDs);
+
+    //Debug hacks controls
+    if (config.HACKS) {
+      globalControls.debugModeControl(gInputs, this.game, groups.player);
+      globalControls.resetLevelControl(gInputs, level);
+      globalControls.nextLevelControl(gInputs, level);
+    }
+
+    //Pause menu control
     pauseMenu.offPauseMenuControl(this.game, gInputs);
-
   },
 
-  paused: function() {
-    pauseMenu.pausedCreate(music, this.game);
+  //Paused = pausedCreate on pauseMenu.js
+  paused: function () {
+    pauseMenu.pausedCreate(audioHUD.music, this.game);
   },
 
+  //Resumed = resumedMenu on pauseMenu.js
   resumed: function () {
-    pauseMenu.resumedMenu(music, gInputs, this.game);
+    pauseMenu.resumedMenu(audioHUD.music, gInputs, this.game);
   },
 
+  //Renders debug info
   render: function () {
     if (gInputs.debug.state) {
       groups.drawDebug(this.game);
       this.game.debug.bodyInfo(players[0], debugPos.x, debugPos.y, debugColor);
     }
   },
+
+  //Calls audioHUD destruction in order to destroy all sounds when coming back to the main menu state
+  shutdown: function () {
+    audioHUD.destruction(this.game);
+  },
 };
 
 module.exports = PlayScene;
 
-},{"../general/globalControls.js":4,"../general/groups.js":5,"../general/inputs.js":6,"../general/point.js":7,"../maps/map.js":14,"../player/player.js":21,"./pauseMenu.js":25}],28:[function(require,module,exports){
+},{"../HUD/audioHUD.js":1,"../HUD/bombHUD.js":2,"../HUD/gameOver.js":3,"../HUD/pauseMenu.js":4,"../HUD/playerInfoHUD.js":5,"../config.js":6,"../general/globalControls.js":10,"../general/groups.js":11,"../general/inputs.js":12,"../general/point.js":13,"../maps/map.js":21,"../player/player.js":28}],34:[function(require,module,exports){
 'use strict';
-const DEBUG = true;
-var pvpMode = true;
+const pvpMode = true;
+const config = require('../config.js');
+const keys = config.keys;
 
-var Point = require('../general/point.js');
-var globalControls = require('../general/globalControls.js');
+const DEBUG = config.DEBUG;
+const winWidth = config.winWidth;
+const winHeight = config.winHeight;
 
-var Groups = require('../general/groups.js');
+const debugPos = config.debugPos;
+const debugColor = config.debugColor;
+
+const Point = require('../general/point.js');
+
+const globalControls = require('../general/globalControls.js');
+const pauseMenu = require('../HUD/pauseMenu.js');
+const gameOver = require('../HUD/gameOver.js');
+const audioHUD = require('../HUD/audioHUD.js');
+
+const playerInfoHUD = require('../HUD/playerInfoHUD.js');
+var playerInfoHUDs;
+var HUDBombHead = [];
+const BombHUD = require('../HUD/bombHUD.js');
+var bombHUD;
+
+const Groups = require('../general/groups.js');
 var groups;
-var Map = require('../maps/map.js');
-var level;
-var initialMap = { world: 1, level: 0 };
 
-var Inputs = require('../general/inputs.js');
+const Map = require('../maps/map.js');
+var level;
+
+var initialMap = config.initialMapPvP;
+
+const Inputs = require('../general/inputs.js');
 var gInputs; //global inputs
 
-var Player = require('../player/player.js');
-var players = [];
-var initialPlayers = 4;
-var maxPlayers = 4; //needed for the map generation
+const Player = require('../player/player.js');
+const initialPlayers = config.pvp_initialPlayers;
+const maxPlayers = config.pvp_maxPlayers; //needed for the map generation
+var players;
 
-var music;
+const tileData = config.tileData;
 
-var pauseMenu = require('./pauseMenu.js');
-
-var livesHUD;
-var livesHUD1;
-var livesHUD2;
-var livesHUD3;
-var HUDBg;
-var HUDBombHead;
-var HUDBombHead1;
-var HUDBombHead2;
-var HUDBombHead3;
-var HUDBombHeadArray = [];
-var HUD2_0;
-var HUD2_1;
-var HUD2_2;
-var HUD2_3;
-var HUDBomb;
-var HUDPressX;
-
-var muteMusicButton;
-var mutedMusicButton;
-var lessVolButton;
-var moreVolButton;
-
-const width = 800;
-const height = 600;
-const debugPos = new Point(32, height - 96);
-const debugColor = "yellow";
-
-const tileData = {
-  Res: new Point(64, 64),
-  Scale: new Point(0.75, 0.625), //64x64 to 48x40
-  Offset: new Point(40, 80), //space for hud
-};
-
-
-var mMenuTitle; //still not definitive
+var winsNec; //not const, selected by player
 
 var PlayScene = {
 
+  //parameter sent from the menu
+  init: function (winsNecessary) {
+    winsNec = winsNecessary;
+  },
+
   preload: function () {
-    //this.game.stage.backgroundColor = '#E80C94';
+    this.game.stage.backgroundColor = 'black';
     if (DEBUG) this.startTime = Date.now(); //to calculate booting time
   },
 
-  toggleMute: function () { this.game.sound.mute = !this.game.sound.mute; },
-
-  moreVol: function () { if(music.volume < 1) music.volume += 0.1; },
-
-  lessVol: function () { if(music.volume > 0.2) music.volume -= 0.1; },
 
   create: function () {
-    //music
-    music = this.game.add.audio('music');
-    music.loopFull(0.4); //la pauso que me morido quedo loco
-    this.game.sound.mute = true;
 
-    //menu stuff
-    HUDBg = this.game.add.sprite(0, 0, 'HUDBg');
-    HUDBomb = this.game.add.sprite(width/2, 10, 'bomb');
-    HUDBomb.anchor.setTo(0.5, 0);
-    HUDBomb.scale.setTo(1.2, 1.2);
-
-    HUDBombHead = this.game.add.sprite(60, 10, 'player_0Clock', 8);
-    HUDBombHead.scale.setTo(0.75, 0.75);
-    HUD2_0 = this.game.add.sprite(35+HUDBombHead.position.x, -5, 'HUD2');
-    HUD2_0.scale.setTo(0.75, 0.75);
-
-    HUDBombHead1 = this.game.add.sprite(HUDBomb.position.x - 150, 10, 'player_1Clock', 8);
-    HUDBombHead1.scale.setTo(0.75, 0.75);
-    HUD2_1 = this.game.add.sprite(35+HUDBombHead1.position.x, -5, 'HUD2');
-    HUD2_1.scale.setTo(0.75, 0.75);
-
-    HUDBombHead2 = this.game.add.sprite(HUDBomb.position.x + 60, 10, 'player_2Clock', 8);
-    HUDBombHead2.scale.setTo(0.75, 0.75);
-    HUD2_2 = this.game.add.sprite(35+HUDBombHead2.position.x, -5, 'HUD2');
-    HUD2_2.scale.setTo(0.75, 0.75);
-
-    HUDBombHead3 = this.game.add.sprite(HUDBomb.position.x + 240, 10, 'player_3Clock', 8);
-    HUDBombHead3.scale.setTo(0.75, 0.75);
-    HUD2_3 = this.game.add.sprite(35+HUDBombHead3.position.x, -5, 'HUD2');
-    HUD2_3.scale.setTo(0.75, 0.75);
-
-    livesHUD = this.game.add.text(HUD2_0.position.x + 42, 15, "",
-    { font: "45px Comic Sans MS", fill: "#f9e000", align: "center"});
-    livesHUD.anchor.setTo(0.2, 0);
-
-    livesHUD1 = this.game.add.text(HUD2_1.position.x + 42, 15, "",
-    { font: "45px Comic Sans MS", fill: "#f9e000", align: "center"});
-    livesHUD1.anchor.setTo(0.2, 0);
-    // livesHUD1.visible = false;
-
-    livesHUD2 = this.game.add.text(HUD2_2.position.x + 42, 15, "",
-    { font: "45px Comic Sans MS", fill: "#f9e000", align: "center"});
-    livesHUD2.anchor.setTo(0.2, 0);
-
-    livesHUD3 = this.game.add.text(HUD2_3.position.x + 42, 15, "",
-    { font: "45px Comic Sans MS", fill: "#f9e000", align: "center"});
-    livesHUD3.anchor.setTo(0.2, 0);
-
-    muteMusicButton = this.game.add.button(10, 40, 'unmuted', this.toggleMute, this);
-    muteMusicButton.scale.setTo(0.1, 0.1);
-    mutedMusicButton = this.game.add.button(10, 40, 'muted', this.toggleMute, this);
-    mutedMusicButton.scale.setTo(0.1, 0.1);
-
-    lessVolButton = this.game.add.button(10, 10, 'volArrow', this.lessVol, this);
-    lessVolButton.scale.setTo(0.04, 0.04);
-
-    moreVolButton = this.game.add.button(30, 10, 'volArrow', this.moreVol, this);
-    moreVolButton.anchor.setTo(1, 1);
-    moreVolButton.scale.setTo(0.04, 0.04);
-    moreVolButton.angle = 180;
-
-    // mMenuTitle = this.game.add.sprite(50, 0, 'mMenuTitle'); //vital for life on earth
-    // mMenuTitle.scale = new Point(0.9, 0.75);                //nah just for presentation
-
+    //audio
+    audioHUD.creation(this.game);
 
     //map
     groups = new Groups(this.game); //first need the groups
@@ -3149,65 +3948,84 @@ var PlayScene = {
     //global controls
     gInputs = new Inputs(this.game, -1);
 
+    //playerInfoHuds
+    playerInfoHUDs = [];
+    for (var numPlayer = 0; numPlayer < initialPlayers; numPlayer++) {
+      playerInfoHUDs.push(new playerInfoHUD(this.game, HUDBombHead, numPlayer, pvpMode));
+    }
+    if (initialPlayers <= 2) playerInfoHUD.drawPressX(this.game, true);
+
+    bombHUD = new BombHUD(this.game, pvpMode); //little bomb
+
     //player/s (initialPlayers)
-    HUDBombHeadArray = [HUDBombHead, HUDBombHead1, HUDBombHead2, HUDBombHead3];
+    players = [];
     for (var numPlayer = 0; numPlayer < initialPlayers; numPlayer++)
-      players.push(new Player(this.game, level, numPlayer, tileData, groups, HUDBombHeadArray));
+      players.push(new Player(this.game, level, numPlayer, tileData, groups, HUDBombHead));
 
     if (DEBUG) {
       console.log("Loaded...", Date.now() - this.startTime, "ms");
       console.log("\n PLAYER: ", players[0]);
       console.log("\n MAP: ", level.map);
     }
-
   },
+
 
   update: function () {
 
-    //level.battleRoyale();
+    //Body colliders
+    this.game.physics.arcade.collide(groups.player, groups.wall);
+    this.game.physics.arcade.collide(groups.player, groups.box);
+    this.game.physics.arcade.collide(groups.player, groups.bomb);
 
-    livesHUD.text = players[0].wins;
-    livesHUD1.text = players[1].wins;
-    livesHUD2.text = players[2].wins;
-    livesHUD3.text = players[3].wins;
-
-    if(music.mute) muteMusicButton.visible = false;
-    else   muteMusicButton.visible = true;
-    if(!music.mute) mutedMusicButton.visible = false;
-    else mutedMusicButton.visible = true;
-
-    // for(var i = 0; i<players.length; i++){
-    //   if(players.[i].wins > 1){
-
-    //   }
-    // }
-
+    //Bring textures to the top of the layer
     this.game.world.bringToTop(groups.flame);
-    this.game.world.bringToTop(groups.player); //array doesnt work
+    this.game.world.bringToTop(groups.player); //array doesnt work so group
 
-    globalControls.debugModeControl(gInputs, this.game, groups.player);
-    globalControls.resetLevelControl(gInputs, level);
+    //update HUD so no iterate players twice
+    for (var numPlayer = 0; numPlayer < playerInfoHUDs.length; numPlayer++)
+      playerInfoHUDs[numPlayer].updatePlayerInfoHud(players[numPlayer], pvpMode);
+
+    bombHUD.updateBombHud(level, pvpMode);
+    gameOver.checkPvp(this.game, players, winsNec);
+    audioHUD.checkVisible();
+
+    //Add player control
+    globalControls.addPlayerControl(gInputs, players, maxPlayers, playerInfoHUDs);
+
+    //Debug hacks
+    if (config.HACKS) {
+      globalControls.debugModeControl(gInputs, this.game, groups.player);
+      globalControls.resetLevelControl(gInputs, level);
+    }
+
+    //Pause menu control
     pauseMenu.offPauseMenuControl(this.game, gInputs);
   },
 
+  //Paused = pausedCreate on pauseMenu.js
   paused: function () {
-    pauseMenu.pausedCreate(music, this.game);
+    pauseMenu.pausedCreate(audioHUD.music, this.game);
   },
 
+  //Resumed = resumedMenu on pauseMenu.js
   resumed: function () {
-    pauseMenu.resumedMenu(music, gInputs, this.game);
+    pauseMenu.resumedMenu(audioHUD.music, gInputs, this.game);
   },
 
+  //Renders debug info
   render: function () {
-
     if (gInputs.debug.state) {
       groups.drawDebug(this.game);
       this.game.debug.bodyInfo(players[0], debugPos.x, debugPos.y, debugColor);
     }
+  },
 
+  //Calls audioHUD destruction in order to destroy all sounds when coming back to the main menu state
+  shutdown: function () {
+    audioHUD.destruction(this.game);
   },
 };
 
 module.exports = PlayScene;
 
-},{"../general/globalControls.js":4,"../general/groups.js":5,"../general/inputs.js":6,"../general/point.js":7,"../maps/map.js":14,"../player/player.js":21,"./pauseMenu.js":25}]},{},[11]);
+},{"../HUD/audioHUD.js":1,"../HUD/bombHUD.js":2,"../HUD/gameOver.js":3,"../HUD/pauseMenu.js":4,"../HUD/playerInfoHUD.js":5,"../config.js":6,"../general/globalControls.js":10,"../general/groups.js":11,"../general/inputs.js":12,"../general/point.js":13,"../maps/map.js":21,"../player/player.js":28}]},{},[18]);

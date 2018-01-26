@@ -8,9 +8,9 @@ body {
   margin: 0;
   font-family: Courier, 'Courier New', monospace;
   font-size: 1.6rem;
-  background: rgb(78, 129, 93);
+  background: rgb(0, 0, 0);
   color: white;
-  background-image: url(aaa.gif);
+  background-image: url(images/index/background.gif);
   background-size: cover;
   /* background-image: url(arcade-machine.png); */
   background-repeat : no-repeat;
