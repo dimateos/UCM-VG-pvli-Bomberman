@@ -25,5 +25,6 @@ window.onload = function () {
   game.state.add(keys.pve, PVEmode);
   game.state.add(keys.pvp, PVPmode);
 
+  //and launching
   game.state.start(keys.boot);
 };

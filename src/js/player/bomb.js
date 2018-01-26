@@ -1,29 +1,31 @@
 'use strict';
 const config = require('../config.js');
 
-var Bombable = require('../objects/bombable.js'); //father
-var Flame = require('../enemy/flame.js');
+const Bombable = require('../objects/bombable.js'); //father
+const Flame = require('../enemy/flame.js');
 
-var Point = require('../general/point.js');
-var Identifiable = require('../id/identifiable.js');
+const Point = require('../general/point.js');
+const Identifiable = require('../id/identifiable.js');
 
 
 //default bomb values
-var bombBodySize = config.bombBodySize; //little smaller
-var bombBodyOffset = config.bombBodyOffset;
-var bombExtraOffset = config.bombExtraOffset; //reaquired because bomb body is not full res
+const bombBodySize = config.bombBodySize; //little smaller
+const bombBodyOffset = config.bombBodyOffset;
+const bombExtraOffset = config.bombExtraOffset; //reaquired because bomb body is not full res
 
-var bombImmovable = config.bombImmovable;
-var bombInvecibleTime = config.bombInvecibleTime;
+const bombImmovable = config.bombImmovable;
+const bombInvecibleTime = config.bombInvecibleTime;
 
-var bombLives = config.bombLives;
-var bombPower = config.bombPower;
-var bombTimer = config.bombTimer;
-var bombFlameTimer = config.bombFlameTimer;
+const bombLives = config.bombLives;
+const bombPower = config.bombPower;
+const bombTimer = config.bombTimer;
+const bombFlameTimer = config.bombFlameTimer;
 
-var bombSpritePath = config.keys.bomb;
+const bombSpritePath = config.keys.bomb;
 
-
+//Bomb constructor. Inherits from Bombable
+//The player creates bombs, with given mods such as +flames (more radius)
+//after some time explodes and creates flames, bombs can explode each other
 function Bomb (game, level, position, tileData, groups, player, bombMods) {
 
     var bombPosition = new Point (position.x, position.y)
@@ -42,8 +44,9 @@ function Bomb (game, level, position, tileData, groups, player, bombMods) {
     this.level = level;
     this.tileData = tileData;
 
-    this.animations.add("red");
+    this.animations.add("red"); //animations
     this.animations.play("red", 3/2);
+    this.xplosionSound = game.add.audio('xplosion'); //sound
 
     this.mods = [];
     Identifiable.applyMods(bombMods, this);
@@ -53,17 +56,15 @@ function Bomb (game, level, position, tileData, groups, player, bombMods) {
     this.xplosionEvent =
         game.time.events.add(this.timer, this.xplode, this);
 
-    this.xplosionSound = game.add.audio('xplosion');
-
-    level.updateSquare(position, level.types.bomb.value);
+    level.updateSquare(position, level.types.bomb.value); //need to update mapsquare
 };
 
 Bomb.prototype = Object.create(Bombable.prototype);
 Bomb.prototype.constructor = Bomb;
 
-
+//in case of bombs, die makes them cancel xplosion and xplode sooner
 Bomb.prototype.die = function () {
- 
+
     this.lives--;
 
     //cancels the standard callbacks
@@ -83,18 +84,17 @@ Bomb.prototype.die = function () {
 
 //removes the bomb, spawns the fames and then removes them
 Bomb.prototype.xplode = function() {
-    
+
     this.xploded = true;
     this.groups.bomb.remove(this); //removes and destroys the bomb
     this.player.numBombs++; //adds a bomb back to the player
 
-    this.xplosionSound.play("", 0, 0.1);
+    this.xplosionSound.play("", 0, 0.1); //sound
 
     var flames = this.spawnFlames();
 
     //pushes the flames into map.flames
     for(var i = 0; i < flames.length; i++) this.groups.flame.add(flames[i]);
-
 
     //callback to destroy the flames
     this.game.time.events.add(this.flameTimer, removeFlames, this);
@@ -105,7 +105,7 @@ Bomb.prototype.xplode = function() {
 
         //update map
         this.level.updateSquare(this.position, this.level.types.free.value, bombExtraOffset);
-        this.destroy();
+        this.destroy(); //destroy the bomb object
     }
 }
 
@@ -118,6 +118,7 @@ Bomb.prototype.spawnFlames = function() {
 
     var flames = [new Flame(this.game, positionMap, this.scale, this.player)];
 
+    //xpand flames (instantly) expands the flames to the max radius
     return this.expandFlames(flames, positionMap);
 }
 
@@ -162,11 +163,9 @@ Bomb.prototype.expandFlames = function(flames, positionMap) {
                 // // /*flame = this.game.physics.arcade.overlap(newFlame, this.groups.flame);
                 // // if (!flame) flames.push(newFlame);
                 // // else newFlame.destroy();*/
-
-
             }
             else {
-                obstacle = true;
+                obstacle = true; //if obstacle no more expansion
             }
         }
     }

@@ -37,8 +37,8 @@ const config = {
     pve_initialPlayers: 1,
     pve_maxPlayers: 2, //needed for the map generation
 
-    playerLifeTime: 0.5 * 60 * 1000,
-    hudAnimSpeed: 10 / (0.5 * 60), //animation lasts 3 min
+    playerLifeTime: 2.5 * 60 * 1000,
+    hudAnimSpeed: 10 / (2.5 * 60), //animation lasts 3 min
 
     //PvP
     initialMapPvP: { world: 1, level: 0 },
@@ -60,6 +60,9 @@ const config = {
 
     //PLAYER
 
+    //doesnt affect to the controls, it's used for the debug ingame
+    stringsControls: ["WASD + E","ARROWS + Numpad_1","TFGH + Y","IJKL + O"],
+
     playerBodySize: new Point(40, 32), //little smaller
     playerBodyOffset: new Point(6, 48),
     playerExtraOffset: new Point(6, -20), //reaquired because player body is not full res
@@ -76,10 +79,10 @@ const config = {
 
     playerVelocity: 140, //max=playerVelocity+5*10 (depends on powerUps)
     playerVelocityTurning: 105, //140 105
-    
+
 
     //BOMBABLE
-    
+
     bombableTimer: 500,
     step: Math.PI * 2 / 360, //degrees
     playerInitialAlphaAngle: 30, //sin(playerInitialAlphaAnlge) -> alpha
@@ -136,6 +139,7 @@ const config = {
 
     //ENEMY
 
+    enemyBasicVelocity: 90,
     enemyExtraOffset: new Point(0, 0),
     enemyImmovable: false,
     enemyInvecibleTime: 2500, //maybe reduce

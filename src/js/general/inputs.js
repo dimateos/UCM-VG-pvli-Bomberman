@@ -1,5 +1,4 @@
 'use strict';
-
 const config = require('../config.js');
 
 //returns the inputs for player 0-3 and global actions
@@ -9,18 +8,18 @@ const debugPos = config.debugPos;
 const debugPosSeparation = config.debugPosSeparation;
 const debugColor = config.debugColor;
 
+const stringsControls = config.stringsControls;
+
 var debugCallback;
 
 function Inputs(game, numPlayer) {
 
-    if (numPlayer === -1) this.globalControls(game);
+    if (numPlayer === -1) this.globalControls(game); //-1 coded for global
     else {
-
-        //needed to be created first (atm it creates this.bomb)
+        //needed to be created first
         this.bomb = {ff: false}; //bomb flip flop (not really a control)
 
         this.switchControls(game, numPlayer);
-
     }
 };
 
@@ -101,8 +100,7 @@ Inputs.prototype.switchControls = function (game, numPlayer) {
     }
 }
 
-//writes the controls for a specific player
-var stringsControls = ["WASD + E","ARROWS + Numpad_1","TFGH + Y","IJKL + O"]
+//writes the controls for a specific player ingame
 Inputs.prototype.drawDebug = function(game, numPlayer) {
 
     if (debugCallback !== undefined) game.time.events.remove(debugCallback);
@@ -110,6 +108,7 @@ Inputs.prototype.drawDebug = function(game, numPlayer) {
     game.debug.text(" - Controls P" +numPlayer+ ": " +stringsControls[numPlayer],
         debugPos.x, debugPos.y + debugPosSeparation * numPlayer, debugColor);
 
+    //resets it afterwards
     debugCallback = game.time.events.add(5000, function reset () {this.debug.reset();}, game);
 }
 

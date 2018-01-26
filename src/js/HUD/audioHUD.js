@@ -17,33 +17,33 @@ const moreVolButtonScale = config.moreVolButtonScale;
 const moreVolButtonAnchor = config.moreVolButtonAnchor;
 const moreVolButtonAngle = config.moreVolButtonAngle;
 
-//Audio control buttons
-var muteMusicButton;
-var mutedMusicButton;
-var lessVolButton;
-var moreVolButton;
-
 //Audio variables
 const defaultVolume = config.default_volume;
 const volume_increment = config.volume_increment;
 const volume_Max = config.volume_Max;
 const volume_Min = config.volume_Min;
 
+//Audio control buttons (this is not constructed object)
+var muteMusicButton;
+var mutedMusicButton;
+var lessVolButton;
+var moreVolButton;
+
 //Initial audio setup
 var muted = config.default_muted;
 
+//contains all the functions to draw/control audio
 var audioHUD = {
 
-    music: {},
+    music: {}, //container
 
     //Adds the music and sets it up to loop forever
     init: function (game) {
 
-        //music
         this.music = game.add.audio('music');
         this.music.loopFull(0.4);
         game.sound.volume = defaultVolume;
-        game.sound.mute = muted; 
+        game.sound.mute = muted; //muted default or not
     },
 
     //Creation of the buttons
@@ -60,7 +60,7 @@ var audioHUD = {
         moreVolButton = game.add.button(moreVolButtonPos.x, moreVolButtonPos.y, 'volArrow', this.moreVol, game);
         moreVolButton.anchor.setTo(moreVolButtonAnchor.x, moreVolButtonAnchor.y);
         moreVolButton.scale.setTo(moreVolButtonScale.x, moreVolButtonScale.y);
-        moreVolButton.angle = moreVolButtonAngle;
+        moreVolButton.angle = moreVolButtonAngle; //inversed
 
     },
 
@@ -79,8 +79,8 @@ var audioHUD = {
         else mutedMusicButton.visible = true;
     },
 
+    //Game is the context in all this functions
     //Toggles mute
-    //Game is the context
     toggleMute: function () { this.sound.mute = !this.sound.mute; },
 
     //Increases volume
@@ -94,7 +94,6 @@ var audioHUD = {
         if (!this.sound.mute && this.sound.volume > volume_Min)
             this.sound.volume -= volume_increment;
     },
-
 }
 
 module.exports = audioHUD;

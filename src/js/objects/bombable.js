@@ -1,9 +1,9 @@
 'use strict';
 const config = require('../config.js');
 
-var Physical = require('./physical.js'); //father
+const Physical = require('./physical.js'); //father
 //some drop powerUps
-var Identifiable = require('../id/identifiable.js');
+const Identifiable = require('../id/identifiable.js');
 
 //default bombable values
 const bombableTimer = config.bombableTimer; //to sync with flames
@@ -13,11 +13,12 @@ const playerInitialAlphaAngle = config.playerInitialAlphaAngle; //sin(playerInit
 const step = config.step; //degrees
 
 //Inherits from Physical
+//Makes objects vulneable (interacts with flames)
 function Bombable(game, level, groups, position, sprite, scale, bodySize, bodyOffSet, immovable, lives, invencibleTime, dropId) {
 
     Physical.call(this, game, position, sprite, scale, bodySize, bodyOffSet, immovable);
 
-    this.animations.add("darken");
+    this.animations.add("darken"); //simple animation
 
     this.groups = groups;
     this.level = level;
@@ -36,19 +37,19 @@ function Bombable(game, level, groups, position, sprite, scale, bodySize, bodyOf
         this.endInvencibilityCallback = this.game.time.events.add(invencibleTime, this.endInvencibility, this);
     }
 
-    this.dropId = dropId;
-    this.counterAngle = playerInitialAlphaAngle * step;
+    this.dropId = dropId; //drops powerups
+    this.counterAngle = playerInitialAlphaAngle * step; //used for the invencible alpha waving
 }
 
 Bombable.prototype = Object.create(Physical.prototype);
 Bombable.prototype.constructor = Bombable;
 
-
+//children bombables will extend this
 Bombable.prototype.update = function () {
     this.checkFlames(); //player and bomb rewrite (extend) update
 }
 
-//common for all bombables
+//Checls overlap with flames, and if vulneable and not dead then calls die()
 Bombable.prototype.checkFlames = function () {
 
     if (!this.dead) //maybe a invencible player puts a bomb on just a bomb
@@ -83,6 +84,7 @@ Bombable.prototype.invencibleAlpha = function () {
 }
 
 //player, bomb, enemie, etc will extend this
+//in this case reduces lives and if 0, destroys and drops de powerUps
 Bombable.prototype.die = function () {
     this.lives--;
 
@@ -110,7 +112,6 @@ Bombable.prototype.die = function () {
     function updateAndDestroy() {
 
         this.level.updateSquare(this.position, this.level.types.free.value)
-
         this.destroy();
     }
 }

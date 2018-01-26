@@ -1,17 +1,18 @@
 'use strict';
 const config = require('../config.js');
 
-var Physical = require('../objects/physical.js');
-var Point = require('../general/point.js');
+const Physical = require('../objects/physical.js');
+const Point = require('../general/point.js');
 
-//default flameentifiable values
-var flameBodySize = config.flameBodySize; //little smaller
-var flameBodyOffset = config.flameBodyOffset;
-var flameExtraOffset = config.flameExtraOffset; //flame body is not full res
-var flameImmovable = config.flameImmovable;
-var flameSprite = config.keys.flame;
+//default flame values
+const flameBodySize = config.flameBodySize; //little smaller
+const flameBodyOffset = config.flameBodyOffset;
+const flameExtraOffset = config.flameExtraOffset; //flame body is not full res
+const flameImmovable = config.flameImmovable;
+const flameSprite = config.keys.flame;
 
 //Flame constructor. Inherits from Physical
+//Bombables detect overlap with these and die
 function Flame (game, position, scale, player) {
 
     this.player = player; //link to reward the kill/points
@@ -21,6 +22,7 @@ function Flame (game, position, scale, player) {
     Physical.call(this, game, position, flameSprite, scale,
         flameBodySize, flameBodyOffset, flameImmovable);
 
+    //animation
     this.animations.add("flaming", [0, 1, 2, 3, 4], 15, true);
     this.animations.play("flaming");
 }

@@ -1,13 +1,15 @@
 'use strict';
 
-var GameObject = require('./gameObject.js');
+const GameObject = require('./gameObject.js');
 
-//Inherits from GameObject
+//Inherits from Phaser's GameObject
 function Physical(game, position, sprite, scale, bodySize, bodyOffSet, immovable) {
 
     GameObject.call(this, game, position, sprite, scale);
 
+    //enables physics
     game.physics.arcade.enable(this);
+
     this.body.setSize(bodySize.x, bodySize.y, bodyOffSet.x, bodyOffSet.y);
     this.body.collideWorldBounds = true;
 

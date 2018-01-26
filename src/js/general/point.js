@@ -1,7 +1,7 @@
 'use strict';
 
 //Used at aligment calculation, makes the center wide (instead of puntual)
-var centerMarginPercentage = 0.001; //Will be multiplied for the square size
+const centerMarginPercentage = 0.001; //Will be multiplied for the square size
 
 //Extends Phaser.Point
 function Point(x, y) {
@@ -13,11 +13,12 @@ Point.prototype.constructor = Point;
 
 
 //calculates real position of a map point based on tileData
+//accepts an offset, but can be used with only 1 parameter
 Point.prototype.applyTileData = function (tileData, extraOffset) {
 
-    this.multiply(tileData.Res.x,tileData.Res.y)
-    .multiply(tileData.Scale.x,tileData.Scale.y)
-    .add(tileData.Offset.x, tileData.Offset.y);
+    this.multiply(tileData.Res.x, tileData.Res.y)
+        .multiply(tileData.Scale.x, tileData.Scale.y)
+        .add(tileData.Offset.x, tileData.Offset.y);
 
     if (extraOffset !== undefined)
         return this.add(extraOffset.x, extraOffset.y);
@@ -27,8 +28,8 @@ Point.prototype.applyTileData = function (tileData, extraOffset) {
 Point.prototype.getAppliedTileData = function (tileData, extraOffset) {
 
     var tmp = new Point(this.x, this.y)
-        .multiply(tileData.Res.x,tileData.Res.y)
-        .multiply(tileData.Scale.x,tileData.Scale.y)
+        .multiply(tileData.Res.x, tileData.Res.y)
+        .multiply(tileData.Scale.x, tileData.Scale.y)
         .add(tileData.Offset.x, tileData.Offset.y);
 
     if (extraOffset !== undefined)
@@ -44,8 +45,8 @@ Point.prototype.reverseTileData = function (tileData, extraOffset) {
         this.subtract(extraOffset.x, extraOffset.y);
 
     this.subtract(tileData.Offset.x, tileData.Offset.y)
-        .divide(tileData.Scale.x,tileData.Scale.y)
-        .divide(tileData.Res.x,tileData.Res.y);
+        .divide(tileData.Scale.x, tileData.Scale.y)
+        .divide(tileData.Res.x, tileData.Res.y);
 
     return this;
 }
@@ -53,7 +54,6 @@ Point.prototype.reverseTileData = function (tileData, extraOffset) {
 Point.prototype.getReversedTileData = function (tileData, extraOffset) {
 
     var tmp = new Point(this.x, this.y);
-    //console.log(tmp);
 
     if (extraOffset !== undefined)
         tmp.subtract(extraOffset.x, extraOffset.y);
@@ -71,9 +71,10 @@ Point.prototype.getMapSquarePos = function (tileData, extraOffset) {
 
     var exactMapValue = this.getReversedTileData(tileData, extraOffset);
 
+    //calculates the module and subtracts them
     var difX = exactMapValue.x % 1;
     exactMapValue.x -= difX;
-    if (difX >= 0.5) exactMapValue.x++;
+    if (difX >= 0.5) exactMapValue.x++; //then adapts to the closest
 
     var difY = exactMapValue.y % 1;
     exactMapValue.y -= difY;
@@ -84,7 +85,7 @@ Point.prototype.getMapSquarePos = function (tileData, extraOffset) {
 
 //gets the relative normalized dir of the extra square the player is touching
 //compares the real position and the calculated by getMapSquarePos
-//there is some margin to detect being centered
+//there is some margin to detect being centered (centerMarginPercentage)
 Point.prototype.getMapSquareExtraPos = function (tileData, extraOffset) {
 
     var exactMapValue = this.getReversedTileData(tileData, extraOffset);
@@ -92,18 +93,18 @@ Point.prototype.getMapSquareExtraPos = function (tileData, extraOffset) {
     var extraDir = new Point();
 
     //margin to consider the center wide (not just a point)
-    var margin = (tileData.Res.x*tileData.Scale.x+tileData.Res.y*tileData.Scale.y)/2;
+    var margin = (tileData.Res.x * tileData.Scale.x + tileData.Res.y * tileData.Scale.y) / 2;
     margin *= centerMarginPercentage;
     //console.log(margin);
 
     var difX = exactMapValue.x - virtualMapValue.x;
+    if (difX < 0 - margin) extraDir.x = -1;
+    else if (difX > 0 + margin) extraDir.x = 1;
     //console.log(difX);
-    if (difX < 0-margin) extraDir.x = -1;
-    else if (difX > 0+margin) extraDir.x = 1;
 
     var difY = exactMapValue.y - virtualMapValue.y;
-    if (difY < 0-margin) extraDir.y = -1;
-    else if (difY > 0+margin) extraDir.y = 1;
+    if (difY < 0 - margin) extraDir.y = -1;
+    else if (difY > 0 + margin) extraDir.y = 1;
 
     //console.log(extraDir);
     return extraDir;

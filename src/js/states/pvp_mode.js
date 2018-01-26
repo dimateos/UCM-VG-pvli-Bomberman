@@ -41,7 +41,7 @@ var players;
 
 const tileData = config.tileData;
 
-var winsNec;
+var winsNec; //not const, selected by player
 
 var PlayScene = {
 
@@ -111,14 +111,14 @@ var PlayScene = {
 
     //Add player control
     globalControls.addPlayerControl(gInputs, players, maxPlayers, playerInfoHUDs);
-    
+
     //Debug hacks
     if (config.HACKS) {
       globalControls.debugModeControl(gInputs, this.game, groups.player);
       globalControls.resetLevelControl(gInputs, level);
     }
 
-    //Pause menu control    
+    //Pause menu control
     pauseMenu.offPauseMenuControl(this.game, gInputs);
   },
 
@@ -134,12 +134,10 @@ var PlayScene = {
 
   //Renders debug info
   render: function () {
-
     if (gInputs.debug.state) {
       groups.drawDebug(this.game);
       this.game.debug.bodyInfo(players[0], debugPos.x, debugPos.y, debugColor);
     }
-
   },
 
   //Calls audioHUD destruction in order to destroy all sounds when coming back to the main menu state

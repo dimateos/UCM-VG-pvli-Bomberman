@@ -1,5 +1,6 @@
 'use strict';
 
+//all the stuff required for the base map
 var baseMapData = {
 
     //required as the map is a [[]] and we need to splice each []
@@ -12,7 +13,7 @@ var baseMapData = {
         return copiedMap;
     },
 
-    cols: 15, fils: 13,// // //not really necessary
+    cols: 15, fils: 13, //not really necessary
 
     playerSpawns:
     [
@@ -55,6 +56,7 @@ var baseMapData = {
         [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
     ],
 
+    //generates a map randomly (to make pve endless)
     rndGeneration: function (game, level) {
 
         const tutorialEnemies = 3;
@@ -71,20 +73,22 @@ var baseMapData = {
         //between and including min and max (Phaser)
         var extraWalls = game.rnd.integerInRange(6, 8);
         var bombables = game.rnd.integerInRange(33, 36);
-        var powerUps = [1, 2, 2];
-        var theme = "basic";
+        var powerUps = [1, 2, 2]; //always the same
+        var theme = "basic"; //not used atm
 
         var enemies, structedEnemies = [], enemiesDrops = [portalId];
 
+        //level 0 affected for tutorial purposes
         if (level === 0) {
             structedEnemies.push(tutorialEnemies);
             enemiesDrops.push(tutorialDrops);
         }
         else {
+            //there is a max so level 9, 10, 11 and so over are generated equally
             var minEnemies = baseEnemies + level;
             if (minEnemies > maxMinEnemies) minEnemies = maxMinEnemies;
 
-            enemies = game.rnd.integerInRange(minEnemies, minEnemies + 1);
+            enemies = game.rnd.integerInRange(minEnemies, minEnemies + 1); //some rnd
 
             if (minEnemies === maxMinEnemies)
                 enemiesDrops.push(game.rnd.integerInRange(minDrops, maxDrops));
@@ -92,7 +96,8 @@ var baseMapData = {
 
             var structedEnemies = [];
             var max = diffTiers;
-            if (level === 1) max--;
+            if (level === 1) max--; //level 1 - 2 have less enemy types
+
             for (var i = 0; i < max; i++) {
                 if (i === max-1) n = enemies;
                 else var n = game.rnd.integerInRange(0, enemies);
@@ -101,8 +106,7 @@ var baseMapData = {
             }
         }
 
-
-        return {
+        return { //an object just like in mapDataBase
             extraWalls: extraWalls,
             bombables: bombables,
             powerUps: powerUps,

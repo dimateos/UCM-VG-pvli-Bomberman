@@ -1,9 +1,9 @@
 'use strict';
-var config = require('../config.js');
+const config = require('../config.js');
 
-var Bombable = require('../objects/bombable.js');
-var Point = require('../general/point.js');
-var Enemy = require('../enemy/enemy.js'); //to spawn them
+const Bombable = require('../objects/bombable.js');
+const Point = require('../general/point.js');
+const Enemy = require('../enemy/enemy.js'); //to spawn them
 
 const defaultEnemyType = config.defaultEnemyType;
 
@@ -23,6 +23,8 @@ const portalAnchor = config.portalAnchor;
 var portalSound;
 
 //Portal constructor. Inherits from Bombable
+//Works as a simple bombable, but then transforms into the portal when hitted
+//Used by players to advance to next level + if hitted spawn enemies
 function Portal(game, level, groups, position, sprite, tileData, bodyOffSet, immovable, lives, invencibleTime) {
 
     this.tileData = tileData;
@@ -44,12 +46,14 @@ Portal.prototype = Object.create(Bombable.prototype);
 Portal.prototype.constructor = Portal;
 
 
+//checks flames, and if spawned spins + spawns enemies on hit. Also tps the player
 Portal.prototype.update = function () {
     this.checkFlames(); //player and bomb rewrite (extend) update
 
     if (this.spawned) {
         this.rotation += portalSpinVel;
 
+        //only go yo next level if there are no more enemies
         if (this.groups.enemy.children.length === 0) {
             this.game.physics.arcade.overlap(this, this.groups.player, nextLevel);
             if (this.loadNext) this.level.generateNextMap();
@@ -62,7 +66,7 @@ Portal.prototype.update = function () {
     }
 }
 
-//player, bomb, enemie, etc will extend this
+//extends bombable die
 Portal.prototype.die = function () {
 
     if (this.spawned) this.game.time.events.add(portalBombTimer + 5, this.spawnEnemie, this);
@@ -94,17 +98,16 @@ Portal.prototype.spawnPortal = function () {
         this.body.width * this.tileData.Scale.y,
         this.body.height * this.tileData.Scale.x);
 
-    this.position = new Point( //moves and anchors to rotate
+    this.position = new Point( //moves and anchors to spin nicely
         this.body.position.x + this.body.width,
         this.body.position.y + this.body.height);
     this.anchor.setTo(portalAnchor.x, portalAnchor.y);
 
     this.portalSound.loopFull(0.3);
-
     this.loadTexture(portalSprite); //change sprite
 }
 
-//spawns an enemie
+//spawns an enemy when hitted
 Portal.prototype.spawnEnemie = function () {
 
     var enemyPos = new Point(

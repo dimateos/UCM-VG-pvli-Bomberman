@@ -14,7 +14,8 @@ const idImmovable = config.idImmovable;
 
 var powerUpSound;
 
-//Identifiable constructor. Inherits from Physical.
+//Identifiable constructor. Inherits from Physical. Dropped by enemies/boxes when destroyer.
+//Players can pick them and gets their effects applied/points added
 function Identifiable(game, position, scale, id) {
 
     var idPosition = new Point (position.x, position.y).add(idExtraOffset.x, idExtraOffset.y);
@@ -22,9 +23,10 @@ function Identifiable(game, position, scale, id) {
     Physical.call(this, game, idPosition, idDataBase[id.tier][id.num].sprite,
       scale, idBodySize, idBodyOffset, idImmovable);
 
+    //sounds when picked
     powerUpSound = this.game.add.audio('powerup');
 
-    this.id = id;
+    this.id = id; //used for consult
     this.pts = idDataBase[id.tier][id.num].pts;
 }
 
@@ -46,6 +48,7 @@ Identifiable.Id = function (tier, num) {this.tier = tier; this.num = num;}
 Identifiable.tierSize = function (tier) {return idDataBase[tier].length;}
 
 
+//used to add powerUps (requires the ids)
 Identifiable.addPowerUps = function(powerUpIds, target, reverseMode) {
   //Adds the id of the mods to the player.mods (so we can reverse them, etc)
   for (var i = 0; i < powerUpIds.length; i++) {

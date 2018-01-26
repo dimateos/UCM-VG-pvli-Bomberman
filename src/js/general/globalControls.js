@@ -1,5 +1,6 @@
 'use strict';
 
+//different function used in the gamemodes
 var globalControls = {
 
     //allow to add extra players
@@ -19,9 +20,10 @@ var globalControls = {
             var pSample = players[0]; //to use its values
             var hudSample = playerInfoHUDs[0];
 
+            //first the hud
             playerInfoHUDs.push(new hudSample.constructor(pSample.game, pSample.hudVidas, players.length, pSample.level.pvpMode))
 
-            //even use its constructor to create the new  player
+            //then the player, both using the contructor from samples
             players.push(new pSample.constructor(pSample.game, pSample.level,
                 players.length, pSample.tileData, pSample.groups, pSample.hudVidas))
 
@@ -33,13 +35,14 @@ var globalControls = {
             gInputs.addPlayer.ff = false;
     },
 
-    //shows hitboxes and allows movement through the boxes
+    //shows hitboxes and make players invulnerable
     debugModeControl: function (gInputs, game, players) {
         if (gInputs.debug.button.isDown && !gInputs.debug.ff) {
 
             gInputs.debug.state = !gInputs.debug.state; //toggle state
             gInputs.debug.ff = true;
 
+            //activate invencivility
             players.callAll("endlessInvencibility");
 
             if (!gInputs.debug.state) {
@@ -58,7 +61,7 @@ var globalControls = {
         if (gInputs.resetLevel.button.isDown && !gInputs.resetLevel.ff) {
             gInputs.resetLevel.ff = true;
 
-            level.regenerateMap();
+            level.regenerateMap(); //just a map method
         }
 
         else if (gInputs.resetLevel.button.isUp)
@@ -70,7 +73,7 @@ var globalControls = {
         if (gInputs.nextLevel.button.isDown && !gInputs.nextLevel.ff) {
             gInputs.nextLevel.ff = true;
 
-            level.generateNextMap();
+            level.generateNextMap(); //same as regenerate
         }
 
         else if (gInputs.nextLevel.button.isUp)

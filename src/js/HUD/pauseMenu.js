@@ -25,9 +25,11 @@ var pausePanel;
 var unpauseButton;
 var gotoMenuButton;
 
+//not a contructor, contains functions to create the pauseMenu and it objects
 var pauseMenu = {
 
-  //Works as a Pause method (a one tick method). Creates the needed objects for the pause menu and pauses music.
+  //Works as a Pause method (a one tick method). Works when clicking out the window too
+  //Creates the needed objects for the pause menu and pauses music.
   pausedCreate: function (music, game) {
 
     music.pause();

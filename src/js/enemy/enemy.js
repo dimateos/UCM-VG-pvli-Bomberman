@@ -1,11 +1,9 @@
 'use strict';
-
-var Bombable = require('../objects/bombable.js'); //father
-var Point = require('../general/point.js');
 const config = require('../config.js'); //configuration data
 
-var Identifiable = require('../id/identifiable.js'); //deploy power ups
-
+const Bombable = require('../objects/bombable.js'); //father
+const Point = require('../general/point.js');
+const Identifiable = require('../id/identifiable.js'); //deploy power ups
 
 //default enemy values
 const enemySpritePath = config.keys.enemy;
@@ -16,16 +14,18 @@ const enemyInvecibleTime = config.enemyInvecibleTime; //maybe reduce
 const bombFlameTimer = config.bombFlameTimer; //to sync with flames
 const tmpInvenTime = config.tmpInvenTime; //to sync with flames
 
+//all the data (points, speed, sprite, bodysize)
 var enemyDataBase = require('./enemyDataBase.js');
 
 //Enemy constructor. Inherits from Bombable.
+//The players detects overlap with these, and dies.
 function Enemy(game, position, level, enemyType, tileData, groups, dropId) {
 
-    this.groups = groups;
     this.tileData = tileData;
+    this.groups = groups;
     this.level = level;
 
-    this.enemyType = enemyType;
+    this.enemyType = enemyType; //not really used atm
     this.pts = enemyDataBase[enemyType].pts;
 
     var enemyBodySize = enemyDataBase[enemyType].bodySize;
@@ -51,8 +51,6 @@ function Enemy(game, position, level, enemyType, tileData, groups, dropId) {
     this.velocity = enemyDataBase[enemyType].velocity;
     this.pickDirection();
     this.setSpeed(this.dir);
-
-    this.salty = false;
 };
 
 Enemy.prototype = Object.create(Bombable.prototype);
@@ -62,15 +60,18 @@ Enemy.prototype.update = function () {
 
     this.checkFlames(); //bombable method
 
-    if (this.dead) {
+    if (this.dead) { //not moving
         this.body.immovable = true;
         this.body.velocity.x = 0;
         this.body.velocity.y = 0;
     }
     else {
+        //if hitted (and not dead) its alpha waves
         if (this.tmpInven) this.invencibleAlpha();
-        this.logicMovement();
 
+        this.logicMovement(); //basic IA
+
+        //animation
         if (this.body.velocity.x > 0) {
             // this.scale.setTo(this.tileData.Scale.x, this.tileData.Scale.y);
             this.animations.play("walking_right");
@@ -84,6 +85,7 @@ Enemy.prototype.update = function () {
         else if (this.body.velocity.y < 0)
             this.animations.play("walking_up");
         else {
+            //pick direction if trapped to be able to scape afterwards
             this.pickDirection();
             if (this.dir.x !== 0 || this.dir.y !== 0) this.setSpeed(this.dir);
             this.animations.stop();
@@ -92,29 +94,30 @@ Enemy.prototype.update = function () {
 }
 
 
-//player, bomb, enemie, etc will extend this
+//player, bomb, enemie, etc extend this (from bombable)
 Enemy.prototype.die = function (flame) {
     // console.log("checkin enemie die");
     this.lives--;
 
     if (this.lives <= 0) {
         this.dead = true;
-        this.alpha /= 2; //half alpha
+        this.alpha /= 2; //half alpha when killed
 
         //if it has a power up, drops it
         if (this.dropId !== undefined)
             this.game.time.events.add(bombFlameTimer - 5, drop, this);
 
+        //gives points to the player
         if (flame.player !== undefined) flame.player.addPoints(this.pts);
 
-        //then destroy itself
+        //then destroys itself
         this.game.time.events.add(bombFlameTimer + 5, this.destroy, this);
     }
+    //if not killed then becomes vencible again
     else this.game.time.events.add(enemyInvecibleTime, flipInven, this);
 
     function flipInven() { this.tmpInven = false; this.alpha = 1; }
     function drop() {
-
         this.groups.powerUp.add(
             new Identifiable(this.game, this.position, this.scale, this.dropId));
     }
@@ -136,7 +139,7 @@ Enemy.prototype.logicMovement = function () {
         this.body.velocity.x = 0; //stops the enemy
         this.body.velocity.y = 0;
 
-        this.pickDirection(); //simple AI to change direction
+        this.pickDirection(); //change direction
 
         //moves the enemy (if it is not totally blocked) **may change this
         if (this.dir.x !== 0 || this.dir.y !== 0)
@@ -156,12 +159,14 @@ Enemy.prototype.pickDirection = function () {
     var positionMap = new Point(this.position.x, this.position.y)
         .getMapSquarePos(this.tileData, enemyExtraOffset);
 
+    //array with all free dirs
     var freeSurroungings = this.level.getSurroundingFreeSquares(positionMap);
 
     var rnd = this.game.rnd.integerInRange(0, freeSurroungings.length - 1);
 
     // console.log(positionMap, freeSurroungings, rnd);
 
+    //picks a dir using rnd
     if (freeSurroungings.length === 0) this.dir = new Point();
     else this.dir = freeSurroungings[rnd];
 }
@@ -174,7 +179,7 @@ Enemy.prototype.setSpeed = function (dir) {
     else if (this.dir.y === -1) this.body.velocity.y = -this.velocity;
 }
 
-//checks if the enmy is getting closer to a block
+//checks if the enemy is getting closer to a block
 Enemy.prototype.checkCollision = function (positionMap, extraPosMap) {
     var blocked = false;
 
@@ -194,10 +199,10 @@ Enemy.prototype.checkEnemyOverlap = function (positionMap) {
     var enemyBlocking = false;
     this.game.physics.arcade.overlap(this, this.groups.enemy, checkPositions);
 
-    return enemyBlocking;
+    return enemyBlocking; //the callback affects the bool...
 
     //only matters if the other enemy is blocking the path
-    //(we do nothing if thisEnemy is the onw blocking otherEnemy)
+    //(we do nothing if thisEnemy is the one blocking otherEnemy)
     function checkPositions(thisEnemy, otherEnemy) {
 
         if (thisEnemy !== otherEnemy) { //not overlap with itself
@@ -210,9 +215,11 @@ Enemy.prototype.checkEnemyOverlap = function (positionMap) {
             var nextPos = new Point(positionMap.x, positionMap.y)
                 .add(thisEnemy.dir.x, thisEnemy.dir.y)
 
+            //gets the array to check
             var positionsToCheck = getPositionsToCheck(nextPos, thisEnemy);
             // console.log(positionsToCheck);
 
+            //if any of the pos are occupied then thepath is blocked
             for (var i = 0; i < positionsToCheck.length; i++) {
 
                 if (positionsToCheck[i].isEqual(otherEnemyPos))

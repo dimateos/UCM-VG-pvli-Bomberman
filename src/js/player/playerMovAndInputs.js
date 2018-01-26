@@ -68,8 +68,6 @@ movementLogic: function () {
 
     //callback
     function unlockTurning() { this.blockedBacktrack.turn = false }
-
-    return this.body.velocity;
 },
 
 //reads the input, handles multiple keys

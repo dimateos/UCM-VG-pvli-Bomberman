@@ -1,24 +1,25 @@
 'use strict';
 
-var Point = require('../general/point.js');
+const Point = require('../general/point.js');
 
-var Id = require('../id/identifiable.js').Id; //for bombable id
-var tierSize = require('../id/identifiable.js').tierSize; //for the rnd gen
+const Id = require('../id/identifiable.js').Id; //for bombable id
+const tierSize = require('../id/identifiable.js').tierSize; //for the rnd gen
 
 //will be imported by the map
-var mapCooking = {
+const mapCooking = {
 
 //Adds all the extra bombables (drop too) and walls into the map
 cookMap: function() {
 
-    var self = this; //instead of apply
+    var self = this; //instead of apply this time
     var freeSquares = this.getFreeSquares(this.maxPlayers);
 
-    //first generates the bombables with the drops
+    //first generates the bombables with the drops and without
     var bombableDrops = this.bombableIdsPowerUps.length;
     insertRnd(bombableDrops, this.types.bombableDrop.value);
     insertRnd(this.levelData.bombables-bombableDrops, this.types.bombable.value);
 
+    //the walls
     insertRnd(this.levelData.extraWalls, this.types.wall.value);
 
     //last the enemies, staring with the drops
@@ -26,6 +27,7 @@ cookMap: function() {
     insertRnd(enemiesDrops, this.types.enemyDrop.value);
     insertRnd(this.enemiesTypeNumbers.length-enemiesDrops, this.types.enemy.value);
 
+    //inserts a given number of elements (of given type) in the map array free squares (rnd)
     function insertRnd (numElem, type) {
         for (var i = 0; i < numElem; i++) {
             //between and including min and max (Phaser)
@@ -74,6 +76,7 @@ getFreeSquares: function(maxPlayers) {
 },
 
 //generates the array of random powerUps based on levelsDataBase info
+//given a tier and number of powerUps generates the specific Ids from the tiers (rnd)
 generateIdsPowerUps: function (powerUps) {
 
     var Ids = [];

@@ -27,26 +27,30 @@ const playerRespawnedStoppedTime = config.playerRespawnedStoppedTime;
 const playerDeathTime = config.playerDeathTime;
 const playerLifeTime = config.playerLifeTime;
 
-const playerInitialModsIds = [new Id(1, 2), new Id(1, 1), new Id(1, 0)];
-const playerPVPModsIds = []; //funnier
+const playerInitialModsIds = [/*new Id(1, 2), new Id(1, 1), new Id(1, 0)*/];
+const playerPVPModsIds = [/*new Id(1, 2), new Id(1, 1), new Id(1, 0)*/]; //funnier
 const playerOnDeathModsIds = [new Id(1, 2), new Id(1, 1), new Id(1, 0)]; //removed at deat;
 
 const playerMovAndInputs = require('./playerMovAndInputs.js'); //big chunk of code
-var bodyVelocity;
+
 
 //Player constructor. Inherits from Bombable
+//Handles controls (bomb + moves), smooths the movements, actually moves
+//handles powerUps, enemies, etc overlapping and how player dies
+//Animations based on moves too
 function Player(game, level, numPlayer, tileData, groups, hudVidas) {
 
     this.numPlayer = numPlayer;
     this.points = 0;
     this.extraLives = 0;
 
+    //each player edits this part of the hud
     this.hudVidas = hudVidas;
     this.hudVidaAnim = hudVidas[numPlayer].animations.add('Clock');
     this.hudVidaDead = hudVidas[numPlayer].animations.add('Dead', [11]);
     this.hudVidaSpawn = hudVidas[numPlayer].animations.add('Spawn', [0]);
 
-    if (!level.pvpMode) {
+    if (!level.pvpMode) { //if pve then starts the animation
         this.hudVidaAnim.play(config.hudAnimSpeed, true);
         this.hudVidaAnim.onLoop.add(this.die, this, 0, 0);
         this.deathCallback = undefined;
@@ -77,7 +81,7 @@ function Player(game, level, numPlayer, tileData, groups, hudVidas) {
     this.animations.add("spawn", [8], 15);
     this.animations.play("spawn");
 
-    this.restartMovement();
+    this.restartMovement(); //starts the values
 
     this.tileData = tileData;
     this.level = level;
@@ -88,9 +92,9 @@ function Player(game, level, numPlayer, tileData, groups, hudVidas) {
     this.mods = [];
     this.bombMods = [];
 
+    //applies starting powerUps (if existing)
     if (level.pvpMode) Identifiable.addPowerUps(playerPVPModsIds, this);
     else Identifiable.addPowerUps(playerInitialModsIds, this);
-
 };
 
 Player.prototype = Object.create(Bombable.prototype);
@@ -119,7 +123,7 @@ Player.prototype.restartCountdown = function (restarting) {
 }
 
 
-//Calls all methods
+//Calls all methods basically
 Player.prototype.update = function () {
 
     this.checkFlames(); //bombable method
@@ -129,27 +133,28 @@ Player.prototype.update = function () {
 
     //if dead somehow player does nothing
     if (!this.dead) {
-        this.checkPowerUps();
-        bodyVelocity = this.movementLogic();
-        this.bombLogic();
 
-        if (this.invencible) this.invencibleAlpha();
+        this.checkPowerUps(); //pick up
+        this.movementLogic(); //movement smoothed already
+        this.bombLogic(); //deploy bombs
 
-        if (bodyVelocity.x > 0) {
+        if (this.invencible) this.invencibleAlpha(); //alpha waving
+
+        //pick animations
+        if (this.body.velocity.x > 0) {
             this.animations.play("walking_right");
         }
-        else if (bodyVelocity.x < 0) {
+        else if (this.body.velocity.x < 0) {
             this.animations.play("walking_left");
         }
-        else if (bodyVelocity.y > 0)
+        else if (this.body.velocity.y > 0)
             this.animations.play("walking_down");
-        else if (bodyVelocity.y < 0)
+        else if (this.body.velocity.y < 0)
             this.animations.play("walking_up");
         else {
             this.animations.stop();
             this.frame = this.stopped_frames;
         }
-
     }
 }
 
@@ -161,17 +166,17 @@ Player.prototype.checkPowerUps = function () {
 
     function takePowerUp(player, powerUp) {
 
-        player.mods.push(powerUp.id);
+        player.mods.push(powerUp.id); //add to the list
 
         player.addPoints(powerUp.pts); //add points too
 
-        Identifiable.pickPowerUp(powerUp, player);
+        Identifiable.pickPowerUp(powerUp, player); //apply
 
         powerUp.destroy();
     }
 }
 
-//atm simply checks overlapping
+//atm simply checks overlapping and calls die
 Player.prototype.checkEnemy = function () {
     this.game.physics.arcade.overlap(this, this.groups.enemy, this.die, null, this);
 }
@@ -181,6 +186,7 @@ Player.prototype.addPoints = function (pts) {
 
     this.points += pts;
 
+    //add lives if enough points
     if (this.points >= playerExtraLifePoints) {
         var n = (this.points - this.points % playerExtraLifePoints) / playerExtraLifePoints;
 
@@ -204,9 +210,9 @@ Player.prototype.fixedDirMovement = playerMovAndInputs.fixedDirMovement;
 
 //all the bomb deploying logic
 Player.prototype.bombLogic = function () {
+    //flip flop to only deply 1 bomb at a time + check if the player is over a bomb
     if (this.inputs.bomb.button.isDown && !this.inputs.bomb.ff && this[config.bombsKey] > 0
         && !this.game.physics.arcade.overlap(this, this.groups.bomb)) {
-        //checks if the player is over a bomb
 
         this[config.bombsKey]--;
 
@@ -228,11 +234,14 @@ Player.prototype.bombLogic = function () {
 //player concrete logic for die
 Player.prototype.die = function (flame) {
 
+    // console.log("checking player die");
+
     this.dead = true; //to disable movement
 
     this.restartMovement();
     this.animations.play("dying");
 
+    //add kils or selfkills to the respective players (if killed by flame)
     if (flame !== undefined && flame !== this.hudVidas[this.numPlayer] && flame.player !== undefined) {
         if (flame.player !== this) flame.player.kills++;
         else {
@@ -245,47 +254,46 @@ Player.prototype.die = function (flame) {
     if (!this.level.pvpMode) {
         this.lives--;
 
+        Identifiable.addPowerUps(playerOnDeathModsIds, this, true); //removes power ups
 
-        Identifiable.addPowerUps(playerOnDeathModsIds, this, true);
+        this.game.time.events.add(playerDeathTime, this.respawn, this); //adds respawn
 
-        this.game.time.events.add(playerDeathTime, this.respawn, this);
-
-        if (config.DEBUG && this.lives <= 0) {
+        if (config.DEBUG && this.lives <= 0) { //debug
             console.log("P" + this.numPlayer + ", you ded (0 lives)");
         }
     }
-    else this.pvpModeDeath();
+    else this.pvpModeDeath(); //different logic
 
     this.game.time.events.add(playerDeathTime, flipInven, this);
     function flipInven() { this.tmpInven = false; }
 }
 
-//different behavior
+//no respawn + handle end of the mode
 Player.prototype.pvpModeDeath = function () {
 
-    this.game.time.events.add(playerDeathTime, dieAndCheckOver, this);
+    this.game.time.events.add(playerDeathTime, dieAndCheckOver, this); //time for animation
 
     function dieAndCheckOver() {
-        this.visible = false;
-        this.hudVidaDead.play();
+        this.visible = false; //no respawn, just invisible
+        this.hudVidaDead.play(); //changes hud
 
-        var alive = 0;
+        var alive = 0; //controls if there is no one else alive
         for (var i = 0; i < this.groups.player.children.length; i++) {
             if ((this.groups.player.children[i] !== this) && (!this.groups.player.children[i].dead))
                 alive++;
         }
 
-        if (alive <= 1) {
+        if (alive <= 1) { //adds the win to the respective player
             for (var i = 0; i < this.groups.player.children.length; i++) {
                 if (!this.groups.player.children[i].dead)
                     this.groups.player.children[i].wins++;
             }
-            this.level.regenerateMap();
+            this.level.regenerateMap(); //then regenerates the map
         }
     }
 }
 
-//Resets the player basically
+//Resets the player and many variables
 Player.prototype.respawn = function () {
 
     this.invencible = true;
@@ -310,7 +318,7 @@ Player.prototype.respawn = function () {
         this.game.time.events.add(playerRespawnedStoppedTime, revive, this);
     }
     else {
-        this.hudVidaDead.play();
+        this.hudVidaDead.play(); //dead so invisible
         this.visible = false;
     }
 

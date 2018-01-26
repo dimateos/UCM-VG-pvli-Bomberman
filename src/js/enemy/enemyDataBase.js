@@ -1,8 +1,9 @@
 'use strict';
+const config = require('../config.js'); //configuration data
 
-var Point = require('../general/point.js');
+const Point = require('../general/point.js');
 
-const basicVelocity = 90;
+const basicVelocity = config.enemyBasicVelocity;
 
 var enemyDataBase = [
 
@@ -27,7 +28,6 @@ var enemyDataBase = [
         bodySize: new Point(42, 42),
         bodyOffset: new Point(10, 10),
     },
-
-]
+];
 
 module.exports = enemyDataBase;

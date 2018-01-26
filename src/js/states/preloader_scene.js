@@ -6,7 +6,9 @@ const DEBUG = config.DEBUG;
 const winWidth = config.winWidth;
 const winHeight = config.winHeight;
 
+//loads all the assets (sounds, sprites, spritesheets...)
 var PreloaderScene = {
+
     preload: function () {
         if (DEBUG) this.startTime = Date.now();
 
@@ -48,7 +50,7 @@ var PreloaderScene = {
         this.game.load.image(keys.mMenuButton1, 'images/Sprites/Menu/PVE_mode.png');
         this.game.load.image(keys.mMenuButton2, 'images/Sprites/Menu/PVP_mode.png');
         this.game.load.image(keys.mMenuTitle, 'images/Sprites/Menu/title.png');
-            //PVP options
+        //PVP options
         this.game.load.spritesheet(keys.numbers, 'images/Sprites/Menu/Numbers.png', 64, 137);
         this.game.load.image(keys.done, 'images/Sprites/Menu/Done.png');
         this.game.load.image(keys.manyWins, 'images/Sprites/Menu/HowManyWins.png');
@@ -62,12 +64,12 @@ var PreloaderScene = {
         this.game.load.image(keys.pausePanel, 'images/Sprites/Menu/White_Panel.png');
         this.game.load.image(keys.quitToMenu, 'images/Sprites/Menu/QuitToMenu.png');
         this.game.load.image(keys.resume, 'images/Sprites/Menu/Resume.png');
-        
+
         //HUD sprites
         this.game.load.image(keys.HUDPoints, 'images/Sprites/HUD/HUDPoints.png');
         this.game.load.image(keys.HUD2, 'images/Sprites/HUD/HUD2.png');
         this.game.load.image(keys.HUDPressX, 'images/Sprites/HUD/PressX.png');
-        
+
         this.game.load.image(keys.gameOver, 'images/Sprites/HUD/GameOver.png')
         this.game.load.image(keys.gameOverPvpBg, 'images/Sprites/Menu/overPvp.png')
         this.game.load.image(keys.HUDbomb, 'images/Sprites/HUD/HudBomb.png');

@@ -43,7 +43,7 @@ var players;
 
 const tileData = config.tileData;
 
-
+//pve mode, up to 2 players, endless (if selected)
 var PlayScene = {
 
   preload: function () {
@@ -109,7 +109,7 @@ var PlayScene = {
     //Add player control
     globalControls.addPlayerControl(gInputs, players, maxPlayers, playerInfoHUDs);
 
-    //Debug hacks
+    //Debug hacks controls
     if (config.HACKS) {
       globalControls.debugModeControl(gInputs, this.game, groups.player);
       globalControls.resetLevelControl(gInputs, level);
@@ -118,7 +118,6 @@ var PlayScene = {
 
     //Pause menu control
     pauseMenu.offPauseMenuControl(this.game, gInputs);
-
   },
 
   //Paused = pausedCreate on pauseMenu.js

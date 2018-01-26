@@ -12,6 +12,7 @@ var BootScene = {
         if (DEBUG) this.startTime = Date.now(); //to calculate booting time etc
 
         // load here assets required for the loading screen
+        //in our case the phaser logo
         this.game.load.image(keys.preloader_logo, 'images/phaser.png');
       },
 
@@ -19,7 +20,6 @@ var BootScene = {
 
         this.game.state.start(keys.preloader);
         if (DEBUG) console.log("Booting...", Date.now()-this.startTime, "ms");
-        
       }
     };
 

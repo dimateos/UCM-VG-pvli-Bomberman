@@ -18,28 +18,33 @@ const HUDFlameScale = config.HUDFlameScale;
 const HUDBombPosText = config.HUDBombPosText;
 const HUDBombPosOffset = config.HUDBombPosOffset;
 
-//Bomb HUD constructor
+
+//Bomb HUD constructor (countdown in pvp or lvl count in pve)
 var bombHUD = function (game, pvpMode) {
 
-    var posX;
+    var posX; //different for the modes
     if (pvpMode) posX = winWidth - winWidth / 10;
     else posX = winWidth / 2;
 
+    //animated flame
     this.HUDFlame = game.add.sprite(posX + HUDBombPos.x, HUDBombPos.y + HUDFlameOffset.y, config.keys.flame);
     this.HUDFlame.anchor.setTo(HUDBombAnchor.x, HUDBombAnchor.y);
     this.HUDFlame.scale.setTo(HUDFlameScale.x, HUDFlameScale.y);
     this.HUDFlame.animations.add("flaming", [0, 1, 2, 3, 4], 9, true);
     this.HUDFlame.animations.play("flaming");
 
+    //bomb over it
     this.HUDBomb = game.add.sprite(posX + HUDBombPos.x, HUDBombPos.y, config.keys.bomb);
     this.HUDBomb.anchor.setTo(HUDBombAnchor.x, HUDBombAnchor.y);
     this.HUDBomb.scale.setTo(HUDBombScale.x, HUDBombScale.y);
     this.HUDBomb.animations.add("red");
     this.HUDBomb.animations.add("static", [0]);
 
+    //flip flops (so no callbacks)
     this.HUDBombTextFF = false;
     this.HUDBombFF = false;
 
+    //add the text
     if (config.endless_rnd_map_gen || pvpMode) {
         if (pvpMode) posX += HUDBombPosOffset.x;
         this.HUDBombText = game.add.text(posX + HUDBombPosText.x, HUDBombPos.y + HUDBombPosText.y, "",
@@ -60,6 +65,7 @@ bombHUD.prototype.updateBombHudPve = function (map) {
     if (config.endless_rnd_map_gen) {
         this.HUDBombText.text = map.rndGen;
 
+        //if 2 digits recenters the numbers
         if (map.rndGen > 9 && !this.HUDBombTextFF) {
             this.HUDBombTextFF = true;
             this.HUDBombText.position.x += HUDBombPosOffset.x;
@@ -67,7 +73,7 @@ bombHUD.prototype.updateBombHudPve = function (map) {
     }
 }
 
-//Updares HUD on PVP mode
+//Updates HUD for PVP mode
 bombHUD.prototype.updateBombHudPvp = function (map) {
 
     if (map.deathZoneStarted) { //If death zone has already started displays red bomb animation
@@ -83,6 +89,7 @@ bombHUD.prototype.updateBombHudPvp = function (map) {
         this.HUDBomb.animations.play("static");
     }
 
+    //gets the delay from the timer
     var time = (map.deathZoneTimerEvent.delay - map.deathZoneTimer.ms) / 1000;
     this.HUDBombText.text = Math.round(time);
 }

@@ -42,36 +42,39 @@ const HMWData = config.howManyWins;
 //
 
 //These are the variables of the selector of PVP needed wins to finish the game
-const winsNecessary = config.initWinsNecessary;
 const minWinsNec = config.minWinsNec;
 const maxWinsNec = config.maxWinsNec;
-//
+
+var winsNecessary = config.initWinsNecessary; //base value from config
 
 var MainMenu = {
 
     preload: function() {
         if (DEBUG) this.startTime = Date.now(); //to calculate booting time etc
-
     },
 
     create: function() {
 
+        //background
         mMenuBG = this.game.add.sprite(mMenuBGPos.x, mMenuBGPos.y, mMenuBGKey);
         mMenuBG.scale.y = mMenuBGScale.y; //just a little bigger
         mMenuBG.width = winWidth;
         mMenuBG.heigth = winHeight;
 
+        //two buttons
         mMenuPVE = this.game.add.button(winWidth/2 + mMenuPVEPos.x, winHeight/2 + mMenuPVEPos.y, mMenuPVEKey, this.nextStatePVE, this);
         mMenuPVE.scale.setTo(mMenuPVEScale.x, mMenuPVEScale.y);
         mMenuPVE.anchor.setTo(mMenuPVEAnchor.x, mMenuPVEAnchor.y);
-        
+
         mMenuPVP = this.game.add.button(winWidth/2 + mMenuPVPPos.x, winHeight/2 + mMenuPVPPos.y, mMenuPVPKey, this.createWinsChoice, this);
         mMenuPVP.scale.setTo(mMenuPVPScale.x, mMenuPVPScale.y);
         mMenuPVP.anchor.setTo(mMenuPVPAnchor.x, mMenuPVPAnchor.y);
 
+        //audio buttons
         audioHUD.init(this.game);
         audioHUD.creation(this.game);
 
+        //title
         mMenuTitle = this.game.add.sprite(mMenuTitlePos.x, winHeight/2 + mMenuTitlePos.y, mMenuTitleKey);
     },
 
@@ -90,10 +93,12 @@ var MainMenu = {
     createWinsChoice: function() {
         mMenuPVP.inputEnabled = false;
 
+        //numbers
         numbers = this.game.add.sprite(mMenuPVP.position.x + numberData.pos.x, mMenuPVP.y + numberData.pos.y, config.keys.numbers, winsNecessary);
         numbers.scale.setTo(numberData.scale.x, numberData.scale.y);
         numbers.anchor.setTo(numberData.anchor.x, numberData.anchor.y);
 
+        //selector buttons
         lessWinsButton = this.game.add.button(mMenuPVP.position.x + 230, mMenuPVP.position.y, config.keys.volArrow, this.lessWins, this);
         lessWinsButton.scale.setTo(config.lessVolButtonScale.x, config.lessVolButtonScale.y);
 
@@ -102,10 +107,12 @@ var MainMenu = {
         moreWinsButton.scale.setTo(config.moreVolButtonScale.x, config.moreVolButtonScale.y);
         moreWinsButton.angle = config.moreVolButtonAngle;
 
+        //accept button (and launch pvp)
         doneButton = this.game.add.button(numbers.position.x + doneData.pos.x, numbers.position.y + doneData.pos.y, config.keys.done, this.nextStatePVP, this);
         doneButton.scale.setTo(doneData.scale.x, doneData.scale.y);
         doneButton.anchor.setTo(doneData.anchor.x, doneData.anchor.y);
 
+        //sprite
         howManyWins = this.game.add.sprite(numbers.position.x + HMWData.pos.x, numbers.position.y + HMWData.pos.y, config.keys.manyWins);
         howManyWins.scale.setTo(HMWData.scale.x, HMWData.scale.y);
         howManyWins.anchor.setTo(HMWData.anchor.x, HMWData.anchor.y);

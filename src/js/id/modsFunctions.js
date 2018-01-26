@@ -1,6 +1,7 @@
 'use strict';
 const config = require('../config.js');
 
+//default values
 var bombsKey = config.bombsKey;
 var bombsAdd = config.bombsAdd;
 var bombsMin = config.bombsMin;
@@ -18,7 +19,7 @@ var speedLimit = config.speedLimit;
 
 //contains the different powerUp's functions. Unordered.
 var modsFunctions = {
-    
+
     bombUp: function (reverseMode) {
         basicStatChange.call(this,
             reverseMode, bombsKey, bombsAdd, bombsMin, bombsMax);

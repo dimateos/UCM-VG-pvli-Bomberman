@@ -1,13 +1,5 @@
 'use strict';
 
-//right now it's implemented that a power up can affect multiple player keys
-//maybe we need that feature, atm we do not need it (simple power ups)
-function Mod(type, key, mod) {
-    this.type = type; //number, bool, bomb, function
-    this.key = key;
-    this.mod = mod;
-}
-
 //contains the different tiers, and inside the power ups
 var levelDataBase = [
 
