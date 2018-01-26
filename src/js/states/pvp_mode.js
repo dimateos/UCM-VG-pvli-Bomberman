@@ -92,10 +92,12 @@ var PlayScene = {
 
   update: function () {
 
+    //Body colliders
     this.game.physics.arcade.collide(groups.player, groups.wall);
     this.game.physics.arcade.collide(groups.player, groups.box);
     this.game.physics.arcade.collide(groups.player, groups.bomb);
 
+    //Bring textures to the top of the layer
     this.game.world.bringToTop(groups.flame);
     this.game.world.bringToTop(groups.player); //array doesnt work so group
 
@@ -107,26 +109,30 @@ var PlayScene = {
     gameOver.checkPvp(this.game, players, winsNec);
     audioHUD.checkVisible();
 
+    //Add player control
     globalControls.addPlayerControl(gInputs, players, maxPlayers, playerInfoHUDs);
+    
+    //Debug hacks
     if (config.HACKS) {
       globalControls.debugModeControl(gInputs, this.game, groups.player);
       globalControls.resetLevelControl(gInputs, level);
     }
 
+    //Pause menu control    
     pauseMenu.offPauseMenuControl(this.game, gInputs);
   },
 
-
+  //Paused = pausedCreate on pauseMenu.js
   paused: function () {
     pauseMenu.pausedCreate(audioHUD.music, this.game);
   },
 
-
+  //Resumed = resumedMenu on pauseMenu.js
   resumed: function () {
     pauseMenu.resumedMenu(audioHUD.music, gInputs, this.game);
   },
 
-
+  //Renders debug info
   render: function () {
 
     if (gInputs.debug.state) {
@@ -136,6 +142,7 @@ var PlayScene = {
 
   },
 
+  //Calls audioHUD destruction in order to destroy all sounds when coming back to the main menu state
   shutdown: function () {
     audioHUD.destruction(this.game);
   },

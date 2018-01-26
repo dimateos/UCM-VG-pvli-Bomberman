@@ -5,6 +5,7 @@ const keys = config.keys;
 const winWidth = config.winWidth;
 const winHeight = config.winHeight;
 
+//Game Over sprites data
 const gmOverSignAnchor = config.gmOverSignAnchor;
 const goToMenuAnchor = config.goToMenuAnchor;
 
@@ -14,6 +15,7 @@ const pvpOverScale = config.pvpOverScale;
 const pvpOverPlayerOffset = config.pvpOverPlayerOffset;
 const pvpOverPlayerScale = config.pvpOverPlayerScale;
 
+//Game Over PVP texts Offset
 const pvpOverText0Offset = config.pvpOverText0Offset;
 const pvpOverText1Offset = config.pvpOverText1Offset;
 const pvpOverText2Offset = config.pvpOverText2Offset;
@@ -21,6 +23,7 @@ const pvpOverText3Offset = config.pvpOverText3Offset;
 
 var gameOver = {
 
+    //Checks how many deaths happen in PVE
     checkPve: function (game, players) {
 
         var deathCount = 0;
@@ -34,6 +37,7 @@ var gameOver = {
         }
     },
 
+    //Checks how many deaths happen in PVP    
     checkPvp: function (game, players, winsNec) {
 
         for (var i = 0; i < players.length; i++) {
@@ -42,8 +46,8 @@ var gameOver = {
         }
     },
 
+    //Go to menu and Game Over sign creation (PVE)
     menuPve: function (game) {
-        // var gmOverBg = this.game.add.sprite(0, 0, 'mMenuBG');
 
         var gmOverSign = game.add.sprite(winWidth / 2, winHeight / 2, keys.gameOver);
         gmOverSign.anchor.setTo(gmOverSignAnchor.x, gmOverSignAnchor.y);
@@ -53,14 +57,15 @@ var gameOver = {
         goToMenu.anchor.setTo(goToMenuAnchor.x, goToMenuAnchor.y);
     },
 
+    //Go to menu, Game Over sign and ending stats texts creation (PVP)    
     menuPvp: function (game, players, numPlayer) {
-
+        
+        //Stops death zone
         players[0].level.deathZoneStop();
 
         for (var i = 0; i < players.length; i++)
             players[i].dead = true; //no one moves
 
-        //cambiar por winner
         var pvpOver = game.add.sprite(pvpOverPos.x, pvpOverPos.y, keys.gameOverPvpBg);
         pvpOver.anchor.setTo(pvpOverAnchor.x, pvpOverAnchor.y);
         pvpOver.scale.setTo(pvpOverScale.x, pvpOverScale.y);

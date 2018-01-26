@@ -52,7 +52,6 @@ const config = {
     //MAP
 
     debugMapPos: new Point(40, 504),
-    debugColor: "yellow",
     defaultBodyOffset: new Point(),
     defaultImmovable: true,
     defaultBombableLives: 1,
@@ -61,8 +60,6 @@ const config = {
 
     //PLAYER
 
-    //  playerBodySize: new Point(48, 48), //little smaller
-    //  playerBodyOffset: new Point(0, 40),
     playerBodySize: new Point(40, 32), //little smaller
     playerBodyOffset: new Point(6, 48),
     playerExtraOffset: new Point(6, -20), //reaquired because player body is not full res
@@ -175,8 +172,6 @@ const config = {
     HUDBombAnchor: new Point(0.5, 0),
     HUDBombScale: new Point(1.2, 1.2),
 
-    // HUDBombPos: new Point(0, 0),
-    // HUDBombAnchor: new Point(0.5, 0),
     HUDFlameOffset: new Point(0, -16),
     HUDFlameScale: new Point(1.5, 1.5),
 
@@ -222,7 +217,7 @@ const config = {
     pausePanelPos: new Point(width/2, height/2+40),
     pausePanelAnchor: new Point(0.5, 0.5),
     pausePanelAlpha: 0.5,
-    unpauseButtonPos: new Point(0, 50),
+    unpauseButtonPos: new Point(0, -50),
     unpauseButtonAnchor: new Point(0.5, 0.5),
     unpauseButtonScale: new Point(0.75, 0.75),
     gotoMenuButtonPos: new Point(0, 50),
@@ -248,6 +243,12 @@ const config = {
     numbers: { pos: new Point(260, 0), scale: new Point(0.5, 0.5), anchor: new Point(0.4, 0.4) },
     doneButton: { pos: new Point(0, 50), scale: new Point(0.5, 0.5), anchor: new Point(0.5, 0.5) },
     howManyWins: { pos: new Point(0, -50), scale: new Point(0.3, 0.3), anchor: new Point(0.5, 0.5) },
+
+
+    //INPUTS
+
+    debugPos: new Point(40, 504),
+    debugPosSeparation: 15,
 };
 
 module.exports = config;

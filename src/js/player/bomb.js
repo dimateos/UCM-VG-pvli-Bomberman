@@ -49,14 +49,13 @@ function Bomb (game, level, position, tileData, groups, player, bombMods) {
     Identifiable.applyMods(bombMods, this);
 
     this.xploded = false;
-    //this.flamesEvent = undefined; //need to create it for die()
+    // // //this.flamesEvent = undefined; //need to create it for die()
     this.xplosionEvent =
         game.time.events.add(this.timer, this.xplode, this);
 
     this.xplosionSound = game.add.audio('xplosion');
 
     level.updateSquare(position, level.types.bomb.value);
-    //console.log(bombTimer, bombFlameTimer, bombPower, level, groups, player, tileData, bombMods, this.xploded, this.xplosionEvent);
 };
 
 Bomb.prototype = Object.create(Bombable.prototype);
@@ -64,7 +63,7 @@ Bomb.prototype.constructor = Bomb;
 
 
 Bomb.prototype.die = function () {
-    //console.log("checkin bomb die");
+ 
     this.lives--;
 
     //cancels the standard callbacks
@@ -84,7 +83,7 @@ Bomb.prototype.die = function () {
 
 //removes the bomb, spawns the fames and then removes them
 Bomb.prototype.xplode = function() {
-    //console.log("xploded");
+    
     this.xploded = true;
     this.groups.bomb.remove(this); //removes and destroys the bomb
     this.player.numBombs++; //adds a bomb back to the player
@@ -96,7 +95,6 @@ Bomb.prototype.xplode = function() {
     //pushes the flames into map.flames
     for(var i = 0; i < flames.length; i++) this.groups.flame.add(flames[i]);
 
-    //console.log(this.groups.flame.children);
 
     //callback to destroy the flames
     this.game.time.events.add(this.flameTimer, removeFlames, this);
@@ -132,13 +130,13 @@ Bomb.prototype.expandFlames = function(flames, positionMap) {
 
         var expansion = 1;
         //these all could be the same, but allow us to know exactly what fails
-        var obstacle = false, bombable = false, bomb = false/*, flame = false*/;
+        var obstacle = false, bombable = false, bomb = false;
 
         //tmp Position for the initial expanded flame
         var tmpPositionMap = new Point (positionMap.x, positionMap.y)
             .reverseTileData(this.tileData, bombExtraOffset);
 
-        while(expansion <= this[config.flameKey] && !obstacle && !bombable && !bomb/* && !flame*/) {
+        while(expansion <= this[config.flameKey] && !obstacle && !bombable && !bomb) {
 
             //checks if the next square is free
             if (this.level.isNextSquareNotWall(tmpPositionMap, directions[i])) {
@@ -159,23 +157,19 @@ Bomb.prototype.expandFlames = function(flames, positionMap) {
                 bombable = this.game.physics.arcade.overlap(newFlame, this.groups.box);
                 bomb = this.game.physics.arcade.overlap(newFlame, this.groups.bomb);
 
-                //but it case of the flame over flame, no new one is generated
-                //In the original game yes, aswell as there is no delay
-                /*flame = this.game.physics.arcade.overlap(newFlame, this.groups.flame);
-                if (!flame) flames.push(newFlame);
-                else newFlame.destroy();*/
+                // // //but it case of the flame over flame, no new one is generated
+                // // //In the original game yes, aswell as there is no delay
+                // // /*flame = this.game.physics.arcade.overlap(newFlame, this.groups.flame);
+                // // if (!flame) flames.push(newFlame);
+                // // else newFlame.destroy();*/
 
-                //console.log("bombable ", bombable);
-                //console.log("bomb ", bomb);
-                //console.log("flame ", flame);
+
             }
             else {
                 obstacle = true;
-                //console.log("obstacle", obstacle);
             }
         }
     }
-    //console.log(flames)
     return flames; //just need to delay this somehow
 }
 

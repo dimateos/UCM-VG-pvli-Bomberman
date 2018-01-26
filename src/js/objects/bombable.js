@@ -8,13 +8,11 @@ var Identifiable = require('../id/identifiable.js');
 //default bombable values
 const bombableTimer = config.bombableTimer; //to sync with flames
 
-//var Id = Identifiable.Id; //the mini factory is in Identifiable
-//var bombableDropId = new Id (1,1);
-
 const alphaWavingSpeed = config.alphaWavingSpeed;
 const playerInitialAlphaAngle = config.playerInitialAlphaAngle; //sin(playerInitialAlphaAnlge) -> alpha
 const step = config.step; //degrees
 
+//Inherits from Physical
 function Bombable(game, level, groups, position, sprite, scale, bodySize, bodyOffSet, immovable, lives, invencibleTime, dropId) {
 
     Physical.call(this, game, position, sprite, scale, bodySize, bodyOffSet, immovable);
@@ -53,22 +51,18 @@ Bombable.prototype.update = function () {
 //common for all bombables
 Bombable.prototype.checkFlames = function () {
 
-    //console.log(this.flamesGroup);
     if (!this.dead) //maybe a invencible player puts a bomb on just a bomb
         this.game.physics.arcade.overlap(this, this.groups.flame, onFire, checkVulnerability, this);
 
     function checkVulnerability() {
-        // console.log("checkin vulv");
         return (!this.invencible && !this.tmpInven);
     }
 
     function onFire(bombable, flame) {
-        // console.log("on fire");
         this.tmpInven = true;
 
         //die should be insta and then in die handle sync
         //so the player can die insta etc (block mov)
-        //this.game.time.events.add(bombableTimer, this.die, this);
         this.die(flame);
     }
 }
@@ -77,7 +71,6 @@ Bombable.prototype.checkFlames = function () {
 Bombable.prototype.invencibleAlpha = function () {
 
     var tStep = Math.sin(this.counterAngle);
-    // console.log(this.counterAngle/step);
 
     this.counterAngle += step * alphaWavingSpeed;
 
@@ -91,7 +84,6 @@ Bombable.prototype.invencibleAlpha = function () {
 
 //player, bomb, enemie, etc will extend this
 Bombable.prototype.die = function () {
-    // console.log("checkin die");
     this.lives--;
 
     if (this.lives <= 0) {
@@ -116,7 +108,6 @@ Bombable.prototype.die = function () {
             new Identifiable(this.game, this.position, this.scale, this.dropId));
     }
     function updateAndDestroy() {
-        // console.log("update and destroy");
 
         this.level.updateSquare(this.position, this.level.types.free.value)
 

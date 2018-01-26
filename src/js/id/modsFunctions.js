@@ -18,11 +18,7 @@ var speedLimit = config.speedLimit;
 
 //contains the different powerUp's functions. Unordered.
 var modsFunctions = {
-
-    // levelUp: function () {
-    //     console.log("Next level!");
-    // },
-
+    
     bombUp: function (reverseMode) {
         basicStatChange.call(this,
             reverseMode, bombsKey, bombsAdd, bombsMin, bombsMax);

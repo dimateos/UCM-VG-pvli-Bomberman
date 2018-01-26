@@ -6,21 +6,21 @@ const basicVelocity = 90;
 
 var enemyDataBase = [
 
-    {
+    {   //Enemy 1 data
         lives: 1,
         velocity: basicVelocity,
         pts: 100,
         bodySize: new Point(48, 48),
         bodyOffset: new Point(8, 8),
     },
-    {
+    {   //Enemy 2 data
         lives: 2,
         velocity: basicVelocity,
         pts: 250,
         bodySize: new Point(50, 50),
         bodyOffset: new Point(6, 6),
     },
-    {
+    {   //Enemy 3 data
         lives: 1,
         velocity: basicVelocity*1.1,
         pts: 150,

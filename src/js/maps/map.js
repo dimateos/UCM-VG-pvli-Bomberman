@@ -102,6 +102,7 @@ Map.prototype.restartDeathZoneCountdowns = function () {
     }
 }
 
+//Death zone stopping function
 Map.prototype.deathZoneStop = function () {
     this.deathZoneStarted = true;
     this.deathZoneTimer.stop();
@@ -109,6 +110,7 @@ Map.prototype.deathZoneStop = function () {
     if (this.deathZoneTimerEvent !== undefined) this.deathZoneTimer.removeAll();
 }
 
+//Death zone expansion function
 Map.prototype.deathZoneExpansionFunction = function () {
     this.battleRoyale();
     this.deathZoneCallback = this.game.time.events.add(deathZoneTimeLoop, this.deathZoneExpansionFunction, this);
@@ -148,10 +150,14 @@ Map.prototype.generateNewMap = function (worldNum, levelNum) {
     this.groups.player.callAll('respawn'); //resets players' pos
     if (this.pvpMode) this.restartDeathZoneCountdowns();
 };
+
+//Regeneration map function
 Map.prototype.regenerateMap = function () {
     if (config.endless_rnd_map_gen && !this.pvpMode) this.rndGen--;
     this.generateNewMap(this.mapNumber.world, this.mapNumber.level);
 };
+
+//Generation of the next map
 Map.prototype.generateNextMap = function () { //based on number of levels in the world
 
     if (config.endless_rnd_map_gen) this.generateNewMap(this.mapNumber.world, this.mapNumber.level);
@@ -236,8 +242,6 @@ Map.prototype.buildMap = function (groups, tileData) {
                     groups.wall.add(new Physical(this.game, squareIndexPos,
                         this.types.wall.sprite, tileData.Scale, tileData.Res,
                         defaultBodyOffset, defaultImmovable)); //no more needed
-                    // groups.wall.add(new GameObject(this.game, squareIndexPos,
-                    //     this.types.wall.sprite, tileData.Scale));
 
                     break;
             }
@@ -265,16 +269,12 @@ Map.prototype.buildMap = function (groups, tileData) {
 
 //updates the virtual map data of a static object*
 Map.prototype.updateSquare = function (position, squareType, extraOffset) {
-    // console.log(position);
-    // console.log(squareType);
-    // console.log(extraOffset);
 
     //calculate the map position
     var mapPosition = new Point(position.x, position.y);
     mapPosition.reverseTileData(this.tileData, extraOffset);
 
     this.map[mapPosition.y][mapPosition.x] = squareType;
-    // console.log(this.map);
 }
 
 //given a square position returns true if given direction is free
@@ -297,7 +297,6 @@ Map.prototype.getSurroundingFreeSquares = function (positionMap) {
         if (this.isNextSquareFree(positionMap, dirs[i]))
             surroundings.push(dirs[i]);
 
-    // console.log(surroundings);
     return surroundings;
 }
 

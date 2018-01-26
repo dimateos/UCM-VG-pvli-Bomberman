@@ -59,18 +59,18 @@ getFreeSquares: function(maxPlayers) {
 
     return freeSquares;
 
-    //to compare directly instead of searching after (was my first aproach)
-    //the newer implementation searches and removes, so worse case => as complex as this
-    //the newer is better too because is a shared method (used in map generation)
-    /*function checkPlayerSquare (x,y,maxPlayers) {
-        for (var numPlayer = 0; numPlayer < maxPlayers; numPlayer++)
-            if ((x == map.playerSpawns[numPlayer].x && y == map.playerSpawns[numPlayer].y)
-            || (x == map.playerSpawns[numPlayer].x-1 && y == map.playerSpawns[numPlayer].y)
-            || (x == map.playerSpawns[numPlayer].x+1 && y == map.playerSpawns[numPlayer].y)
-            || (x == map.playerSpawns[numPlayer].x && y == map.playerSpawns[numPlayer].y-1)
-            || (x == map.playerSpawns[numPlayer].x && y == map.playerSpawns[numPlayer].y+1))
-                return true;
-    }*/
+    // // //to compare directly instead of searching after (was my first aproach)
+    // // //the newer implementation searches and removes, so worse case => as complex as this
+    // // //the newer is better too because is a shared method (used in map generation)
+    // // /*function checkPlayerSquare (x,y,maxPlayers) {
+    // //     for (var numPlayer = 0; numPlayer < maxPlayers; numPlayer++)
+    // //         if ((x == map.playerSpawns[numPlayer].x && y == map.playerSpawns[numPlayer].y)
+    // //         || (x == map.playerSpawns[numPlayer].x-1 && y == map.playerSpawns[numPlayer].y)
+    // //         || (x == map.playerSpawns[numPlayer].x+1 && y == map.playerSpawns[numPlayer].y)
+    // //         || (x == map.playerSpawns[numPlayer].x && y == map.playerSpawns[numPlayer].y-1)
+    // //         || (x == map.playerSpawns[numPlayer].x && y == map.playerSpawns[numPlayer].y+1))
+    // //             return true;
+    // // }*/
 },
 
 //generates the array of random powerUps based on levelsDataBase info
@@ -85,7 +85,6 @@ generateIdsPowerUps: function (powerUps) {
             Ids.push(new Id(tier, rnd));
         }
     }
-    //for (var i = 0; i < Ids.length; i++) console.log(Ids[i]);
 
     return Ids;
 },
@@ -135,8 +134,6 @@ generateEnemiesTypeNumbers: function (enemies) {
     for (var n = 0; n < enemies[type]; n++)
     typeNumbers.push(type);
 
-    // console.log(enemies);
-    // console.log(typeNumbers);
     return typeNumbers;
 },
 

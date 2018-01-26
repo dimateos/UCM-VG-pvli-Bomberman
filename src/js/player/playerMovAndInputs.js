@@ -60,10 +60,6 @@ movementLogic: function () {
         }
     }
 
-    //console.log(fixedFinalDir.x, fixedFinalDir.y, " - ", fixedExtraDir.x, fixedExtraDir.y);
-    //console.log(this.dirs.dirX.x, this.dirs.dirX.y, " - ", this.dirs.dirY.x, this.dirs.dirY.y);
-    //console.log(this.prioritizedDirs.first.x, this.prioritizedDirs.first.y, " - ", this.prioritizedDirs.second.x, this.prioritizedDirs.second.y);
-
     //moves the player (only if dir is not null)
     if (fixedFinalDir.x === 1) this.body.velocity.x = this[config.speedKey];
     else if (fixedFinalDir.x === -1) this.body.velocity.x = -this[config.speedKey];
@@ -117,7 +113,6 @@ readInput: function () {
         nextDirY = new Point(0, inputY.pop());
     }
 
-    // console.log("X ", nextDirX.x, nextDirX.y, " - ", "Y ", nextDirY.x, nextDirY.y);
     this.prioritizeInputs(nextDirX, nextDirY);
 },
 
@@ -147,9 +142,6 @@ prioritizeInputs: function (nextDirX, nextDirY) {
         this.dirs.dirX.x = nextDirX.x;
         this.dirs.dirY.y = nextDirY.y;
     }
-
-    // console.log(this.dirs.dirX.x, this.dirs.dirX.y, " - ", this.dirs.dirY.x, this.dirs.dirY.y);
-    // console.log(this.prioritizedDirs.first.x, this.prioritizedDirs.first.y, " - ", this.prioritizedDirs.second.x, this.prioritizedDirs.second.y);
 },
 
 //very important, and documented... makes the player movement fixed
@@ -169,17 +161,14 @@ fixedDirMovement: function (dir) {
 
         //if the player is perfectly aligned, moves along
         if (extraPosMap.isNull()) {
-            // console.log("1"); //all cases
             fixedDir = new Point(dir.x, dir.y);
         }
         //if dir and extra pos are parallel, moves along
         else if (extraPosMap.isParallel(dir)) {
-            // console.log("2");
             fixedDir = new Point(dir.x, dir.y);
         }
         else { //next square is free but the player is not aligned
             //needs to be aligned, moves in negative extraPosMap
-            // console.log("3");
             this[config.speedKey] = playerVelocityTurning;
             fixedDir = new Point(-extraPosMap.x, -extraPosMap.y);
         }
@@ -187,20 +176,17 @@ fixedDirMovement: function (dir) {
     else { //the next square is blocked
         //if the player is perfectly aligned, does nothing
         if (extraPosMap.isNull()) {
-            // console.log("4");
             fixedDir = new Point();
         }
         //the player is not aligned, so it means there is room to move
         //it moves along (dir) and gets closer to the blocked square
         else if (extraPosMap.isParallel(dir)) {
-            // console.log("5");
             this[config.speedKey] = playerVelocityTurning;
             fixedDir = new Point(dir.x, dir.y);
         }
         else {//if not aligned, moves towards the direction it's leaning to
             //so moves in extraPosMap trying to get around the blocked square
             //**is the only case that needs extra checking the map
-            // console.log("6");
 
             var diagonalDir = new Point(dir.x, dir.y) //calculate diagonal
                 .add(extraPosMap.x, extraPosMap.y);
@@ -213,7 +199,6 @@ fixedDirMovement: function (dir) {
             else fixedDir = new Point(); //if diagonal is blocked too, do nothing
         }
     }
-    //console.log(fixedDir);
     return fixedDir;
 }
 

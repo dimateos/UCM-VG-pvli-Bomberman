@@ -12,8 +12,6 @@ const Bomb = require('./bomb.js');
 //default player values
 const playerSpritePath = config.keys.player; //partial, to complete with numPlayer
 
-// const playerBodySize = config.playerBodySize; //little smaller
-// const playerBodyOffset = config.playerBodyOffset;
 const playerBodySize = config.playerBodySize; //little smaller
 const playerBodyOffset = config.playerBodyOffset;
 const playerExtraOffset = config.playerExtraOffset; //reaquired because player body is not full res
@@ -30,13 +28,13 @@ const playerDeathTime = config.playerDeathTime;
 const playerLifeTime = config.playerLifeTime;
 
 const playerInitialModsIds = [new Id(1, 2), new Id(1, 1), new Id(1, 0)];
-const playerPVPModsIds = [/*new Id(1, 2), new Id(1, 1)*/]; //funnier
+const playerPVPModsIds = []; //funnier
 const playerOnDeathModsIds = [new Id(1, 2), new Id(1, 1), new Id(1, 0)]; //removed at deat;
 
 const playerMovAndInputs = require('./playerMovAndInputs.js'); //big chunk of code
 var bodyVelocity;
 
-
+//Player constructor. Inherits from Bombable
 function Player(game, level, numPlayer, tileData, groups, hudVidas) {
 
     this.numPlayer = numPlayer;
@@ -67,8 +65,7 @@ function Player(game, level, numPlayer, tileData, groups, hudVidas) {
     Bombable.call(this, game, level, groups, this.respawnPos, playerSpritePath + this.numPlayer,
         tileData.Scale, playerBodySize, playerBodyOffset, playerImmovable, playerLives, playerInvencibleTime);
 
-    // this.anchor.setTo(0.3, 0);
-
+    //Player animations
     this.animations.add("walking_left", [24, 25, 26, 27, 28, 29, 30, 31], 10, true);
     this.animations.add("walking_right", [16, 17, 18, 19, 20, 21, 22, 23], 10, true);
     this.animations.add("walking_up", [0, 1, 2, 3, 4, 5, 6, 7], 10, true);
@@ -119,7 +116,6 @@ Player.prototype.restartCountdown = function (restarting) {
     this.hudVidaAnim.restart();
 
     this.deathCallback = this.game.time.events.add(time, this.die, this);
-    // console.log("countdown", this.deathCallback);
 }
 
 
@@ -140,11 +136,9 @@ Player.prototype.update = function () {
         if (this.invencible) this.invencibleAlpha();
 
         if (bodyVelocity.x > 0) {
-            // this.scale.setTo(this.tileData.Scale.x, this.tileData.Scale.y);
             this.animations.play("walking_right");
         }
         else if (bodyVelocity.x < 0) {
-            // this.scale.setTo(this.tileData.Scale.x*-1, this.tileData.Scale.y);
             this.animations.play("walking_left");
         }
         else if (bodyVelocity.y > 0)
@@ -166,7 +160,7 @@ Player.prototype.checkPowerUps = function () {
     this.game.physics.arcade.overlap(this, this.groups.powerUp, takePowerUp);
 
     function takePowerUp(player, powerUp) {
-        //console.log("takin powerUp");
+
         player.mods.push(powerUp.id);
 
         player.addPoints(powerUp.pts); //add points too
@@ -185,7 +179,6 @@ Player.prototype.checkEnemy = function () {
 //adds points and lives if required
 Player.prototype.addPoints = function (pts) {
 
-    // console.log(this.points, " + ", pts);
     this.points += pts;
 
     if (this.points >= playerExtraLifePoints) {
@@ -195,7 +188,6 @@ Player.prototype.addPoints = function (pts) {
 
             this.extraLives++;
             this.lives++;
-            // console.log(n, this.extraLives,  this.lives);
         }
     }
 }
@@ -216,9 +208,6 @@ Player.prototype.bombLogic = function () {
         && !this.game.physics.arcade.overlap(this, this.groups.bomb)) {
         //checks if the player is over a bomb
 
-        //console.log(this.groups.bomb.children)
-        //console.log(this.groups.flame.children)
-
         this[config.bombsKey]--;
 
         var bombPosition = new Point(this.position.x, this.position.y)
@@ -229,8 +218,6 @@ Player.prototype.bombLogic = function () {
             bombPosition, this.tileData, this.groups, this, this.bombMods)
         this.groups.bomb.add(bombie);
 
-        //console.log(bombie)
-
         this.inputs.bomb.ff = true;
     }
     else if (this.inputs.bomb.button.isUp) //deploy 1 bomb each time
@@ -240,7 +227,6 @@ Player.prototype.bombLogic = function () {
 
 //player concrete logic for die
 Player.prototype.die = function (flame) {
-    // console.log("checkin player die", this.level.pvpMode);
 
     this.dead = true; //to disable movement
 
@@ -255,7 +241,6 @@ Player.prototype.die = function (flame) {
             this.game.time.events.add(playerInvencibleTime, function reset() { this.debug.reset(); }, this.game);
         }
     }
-    // console.log(this.kills, this.selfKills);
 
     if (!this.level.pvpMode) {
         this.lives--;

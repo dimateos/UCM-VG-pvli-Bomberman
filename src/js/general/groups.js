@@ -27,7 +27,6 @@ Groups.prototype.clearGroups = function (game) {
             if (keys[i] !== "player") {
                 this[keys[i]].destroy(true);
                 this[keys[i]] = game.add.group();
-                // console.log(this[keys[i]].children);
             }
         }
 }

@@ -7,6 +7,7 @@ const Point = require('../general/point.js');
 const winWidth = config.winWidth;
 const winHeight = config.winHeight;
 
+//Player info HUD objects' data
 const HUDbombHeadPos = config.HUDbombHeadPos;
 const HUDbombHeadScale = config.HUDbombHeadScale;
 
@@ -24,7 +25,7 @@ const HUDPressXScale = config.HUDPressXScale;
 
 var HUDPressX;
 
-
+//Contructor. Creates all objects texts.
 var playerInfoHUD = function (game, HUDbombHead, playerNum, pvpMode) {
 
     var posX;
@@ -41,10 +42,7 @@ var playerInfoHUD = function (game, HUDbombHead, playerNum, pvpMode) {
         { font: "45px Comic Sans MS", fill: "#f9e000", align: "center" });
     this.HUDlives.anchor.setTo(HUDlivesScale.x, HUDlivesScale.y);
 
-
     if (!pvpMode) {
-        // this.HUDPointsWord = game.add.sprite(posX + 100, -5, 'HUDPoints');
-        // this.HUDPointsWord.scale.setTo(0.45, 0.7);
 
         this.HUDPointsNumber = game.add.text(posX + HUDPointsNumberPos.x, HUDPointsNumberPos.y, "",
             { font: "50px Comic Sans MS", fill: "#f9e000", align: "right" });
@@ -59,6 +57,7 @@ var playerInfoHUD = function (game, HUDbombHead, playerNum, pvpMode) {
 
 }
 
+//Updates player info
 playerInfoHUD.prototype.updatePlayerInfoHud = function (player, pvpMode) {
 
     if (pvpMode) this.HUDlives.text = player.wins;
@@ -68,6 +67,7 @@ playerInfoHUD.prototype.updatePlayerInfoHud = function (player, pvpMode) {
     }
 }
 
+//Draws the 'Press X' sign when needed
 playerInfoHUD.drawPressX = function (game, pvpMode) {
     if (!pvpMode) {
         HUDPressX = game.add.sprite(winWidth / 2 + HUDPressXPos.x, HUDPressXPos.y, 'HUDPressX');

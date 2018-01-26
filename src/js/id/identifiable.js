@@ -14,6 +14,7 @@ const idImmovable = config.idImmovable;
 
 var powerUpSound;
 
+//Identifiable constructor. Inherits from Physical.
 function Identifiable(game, position, scale, id) {
 
     var idPosition = new Point (position.x, position.y).add(idExtraOffset.x, idExtraOffset.y);
@@ -49,7 +50,7 @@ Identifiable.addPowerUps = function(powerUpIds, target, reverseMode) {
   //Adds the id of the mods to the player.mods (so we can reverse them, etc)
   for (var i = 0; i < powerUpIds.length; i++) {
       if (!reverseMode)target.mods.push(powerUpIds[i]);
-      //else target.mods.pop(); //ordered. NOT SURE if we should keep them
+    // //   //else target.mods.pop(); //ordered. NOT SURE if we should keep them
       //we do not pop, we keep target.mods as a log of powerUps
 
       var mods = idDataBase[powerUpIds[i].tier][powerUpIds[i].num].mods;
@@ -60,11 +61,8 @@ Identifiable.addPowerUps = function(powerUpIds, target, reverseMode) {
 //call respectives functions applied to the player
 Identifiable.applyMods = function(mods, target, reverseMode) {
   for (var i = 0; i < mods.length; i++) {
-      //console.log(target[mods[i].key]);
-      //console.log(mods[i].key, mods[i].mod);
       mods[i].call(target, reverseMode);
   }
-  //console.log(target.mods);
 }
 
 module.exports = Identifiable;

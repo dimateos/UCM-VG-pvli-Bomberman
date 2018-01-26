@@ -11,6 +11,7 @@ var flameExtraOffset = config.flameExtraOffset; //flame body is not full res
 var flameImmovable = config.flameImmovable;
 var flameSprite = config.keys.flame;
 
+//Flame constructor. Inherits from Physical
 function Flame (game, position, scale, player) {
 
     this.player = player; //link to reward the kill/points

@@ -2,7 +2,7 @@
 
 var Bombable = require('../objects/bombable.js'); //father
 var Point = require('../general/point.js');
-const config = require('../config.js');
+const config = require('../config.js'); //configuration data
 
 var Identifiable = require('../id/identifiable.js'); //deploy power ups
 
@@ -18,6 +18,7 @@ const tmpInvenTime = config.tmpInvenTime; //to sync with flames
 
 var enemyDataBase = require('./enemyDataBase.js');
 
+//Enemy constructor. Inherits from Bombable.
 function Enemy(game, position, level, enemyType, tileData, groups, dropId) {
 
     this.groups = groups;
@@ -37,6 +38,7 @@ function Enemy(game, position, level, enemyType, tileData, groups, dropId) {
         tileData.Scale, enemyBodySize, enemyBodyOffset, enemyImmovable,
         enemyDataBase[enemyType].lives, enemyInvecibleTime, dropId);
 
+    //Enemy animations
     this.animations.add("walking_left", [19, 20, 21, 22, 23, 24, 25], 10, true);
     this.animations.add("walking_right", [12, 13, 14, 15, 16, 17, 18], 10, true);
     this.animations.add("walking_up", [0, 1, 2, 3, 4, 5], 10, true);

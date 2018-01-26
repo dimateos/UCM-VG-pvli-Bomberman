@@ -87,7 +87,7 @@ var levelDataBase = [
             enemiesDrops: [0, 1],
             theme: "basic"
         },
-        //no more cause we istead use the rnd generation
+        //no more cause we instead use the rnd generation
     ]
 ];
 

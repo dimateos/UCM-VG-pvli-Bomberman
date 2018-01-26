@@ -17,12 +17,9 @@ var BootScene = {
 
       create: function () {
 
-        //this.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
-        //this.scale.pageAlignHorizontally = true;
-        //this.scale.setScreenSize();
-
         this.game.state.start(keys.preloader);
         if (DEBUG) console.log("Booting...", Date.now()-this.startTime, "ms");
+        
       }
     };
 

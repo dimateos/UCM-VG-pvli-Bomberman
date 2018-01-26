@@ -2,6 +2,7 @@
 
 const keys = {
 
+
 //STATES
 
 boot:'boot',
@@ -36,7 +37,9 @@ enemy_0:'enemy_0',
 enemy_1:'enemy_1',
 enemy_2:'enemy_2',
 
+
 //Main Menu sprites
+
 mMenuBG:'mMenuBG',
 mMenuButton1:'mMenuButton1',
 mMenuButton2:'mMenuButton2',
@@ -57,11 +60,14 @@ unmuted:'unmuted',
 muted:'muted',
 volArrow:'volArrow',
 
+
 //HUD sprites
+
 HUDPoints:'HUDPoints',
 HUD2:'HUD2',
 HUDPressX:'HUDPressX',
 HUDbomb: 'HUDbomb',
+
 
 //MUSIC AND AUDIO
 

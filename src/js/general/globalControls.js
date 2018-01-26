@@ -76,7 +76,6 @@ var globalControls = {
         else if (gInputs.nextLevel.button.isUp)
             gInputs.nextLevel.ff = false;
     },
-
 }
 
 module.exports = globalControls;

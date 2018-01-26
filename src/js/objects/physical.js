@@ -2,6 +2,7 @@
 
 var GameObject = require('./gameObject.js');
 
+//Inherits from GameObject
 function Physical(game, position, sprite, scale, bodySize, bodyOffSet, immovable) {
 
     GameObject.call(this, game, position, sprite, scale);

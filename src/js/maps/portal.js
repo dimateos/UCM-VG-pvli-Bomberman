@@ -7,6 +7,7 @@ var Enemy = require('../enemy/enemy.js'); //to spawn them
 
 const defaultEnemyType = config.defaultEnemyType;
 
+//Portal objects' data
 const portalImmovable = config.portalImmovable;
 const portalInvencible = config.portalInvencible;
 
@@ -21,12 +22,9 @@ const portalAnchor = config.portalAnchor;
 
 var portalSound;
 
+//Portal constructor. Inherits from Bombable
 function Portal(game, level, groups, position, sprite, tileData, bodyOffSet, immovable, lives, invencibleTime) {
 
-    //var portalPosition = position.add(portalExtraOffset.x, portalExtraOffset.y);
-
-    //var portalBodySize = new Point(bodySize.x/2, bodySize.y/2); //so you get to the center
-    //var bodyOffSet = portalBodySize; //the half too
     this.tileData = tileData;
     this.level = level;
 
@@ -66,7 +64,6 @@ Portal.prototype.update = function () {
 
 //player, bomb, enemie, etc will extend this
 Portal.prototype.die = function () {
-    //console.log("checkin die");
 
     if (this.spawned) this.game.time.events.add(portalBombTimer + 5, this.spawnEnemie, this);
 
@@ -109,7 +106,6 @@ Portal.prototype.spawnPortal = function () {
 
 //spawns an enemie
 Portal.prototype.spawnEnemie = function () {
-    //console.log(this.groups.enemy.children);
 
     var enemyPos = new Point(
         this.position.x - this.body.width, //corrects the anchor

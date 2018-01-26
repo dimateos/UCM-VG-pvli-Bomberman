@@ -1,5 +1,6 @@
 'use strict';
 
+//Inherits from Phaser.Sprite
 function GameObject (game, position, sprite, scale) {
 
     Phaser.Sprite.call(this, game, position.x, position.y, sprite);

@@ -70,7 +70,6 @@ Point.prototype.getReversedTileData = function (tileData, extraOffset) {
 Point.prototype.getMapSquarePos = function (tileData, extraOffset) {
 
     var exactMapValue = this.getReversedTileData(tileData, extraOffset);
-    //console.log(exactMapValue);
 
     var difX = exactMapValue.x % 1;
     exactMapValue.x -= difX;
@@ -80,7 +79,6 @@ Point.prototype.getMapSquarePos = function (tileData, extraOffset) {
     exactMapValue.y -= difY;
     if (difY >= 0.5) exactMapValue.y++;
 
-    //console.log(exactMapValue);
     return exactMapValue;
 }
 
@@ -92,8 +90,6 @@ Point.prototype.getMapSquareExtraPos = function (tileData, extraOffset) {
     var exactMapValue = this.getReversedTileData(tileData, extraOffset);
     var virtualMapValue = this.getMapSquarePos(tileData, extraOffset);
     var extraDir = new Point();
-    // console.log(exactMapValue);
-    // console.log(virtualMapValue);
 
     //margin to consider the center wide (not just a point)
     var margin = (tileData.Res.x*tileData.Scale.x+tileData.Res.y*tileData.Scale.y)/2;

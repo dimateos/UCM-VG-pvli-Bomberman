@@ -7,6 +7,7 @@ const Point = require('../general/point.js');
 const winWidth = config.winWidth;
 const winHeight = config.winHeight;
 
+//Bomb HUD objects' data
 const HUDBombPos = config.HUDBombPos;
 const HUDBombAnchor = config.HUDBombAnchor;
 const HUDBombScale = config.HUDBombScale;
@@ -17,7 +18,7 @@ const HUDFlameScale = config.HUDFlameScale;
 const HUDBombPosText = config.HUDBombPosText;
 const HUDBombPosOffset = config.HUDBombPosOffset;
 
-
+//Bomb HUD constructor
 var bombHUD = function (game, pvpMode) {
 
     var posX;
@@ -46,12 +47,14 @@ var bombHUD = function (game, pvpMode) {
     }
 };
 
+//Updates HUD depending on game mode
 bombHUD.prototype.updateBombHud = function (map, pvpMode) {
 
     if (!pvpMode) this.updateBombHudPve(map);
     else this.updateBombHudPvp(map);
 }
 
+//Updates HUD on PVE mode
 bombHUD.prototype.updateBombHudPve = function (map) {
 
     if (config.endless_rnd_map_gen) {
@@ -64,16 +67,17 @@ bombHUD.prototype.updateBombHudPve = function (map) {
     }
 }
 
+//Updares HUD on PVP mode
 bombHUD.prototype.updateBombHudPvp = function (map) {
 
-    if (map.deathZoneStarted) {
+    if (map.deathZoneStarted) { //If death zone has already started displays red bomb animation
         if (!this.HUDBombFF) {
             this.HUDBombFF = true;
             this.HUDBombText.visible = false;
             this.HUDBomb.animations.play("red", 4, true);
         }
     }
-    else {
+    else { //If death zone hasn't started displays countdown until it does
         this.HUDBombText.visible = true;
         this.HUDBombFF = false;
         this.HUDBomb.animations.play("static");
@@ -81,11 +85,6 @@ bombHUD.prototype.updateBombHudPvp = function (map) {
 
     var time = (map.deathZoneTimerEvent.delay - map.deathZoneTimer.ms) / 1000;
     this.HUDBombText.text = Math.round(time);
-
-    // if (time < 9.5 && !HUDBombTextFF) {
-    //     HUDBombTextFF = true;
-    //     HUDBombText.position.x -= HUDBombPosOffset.x;
-    // }
 }
 
 module.exports = bombHUD;

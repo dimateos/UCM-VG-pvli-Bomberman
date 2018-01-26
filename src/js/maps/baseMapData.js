@@ -12,7 +12,7 @@ var baseMapData = {
         return copiedMap;
     },
 
-    cols: 15, fils: 13, //not really necessary
+    cols: 15, fils: 13,// // //not really necessary
 
     playerSpawns:
     [

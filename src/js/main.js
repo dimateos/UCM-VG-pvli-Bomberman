@@ -15,6 +15,7 @@ var MainMenu = require('./states/main_menu.js');
 var PVEmode = require('./states/pve_mode.js');
 var PVPmode = require('./states/pvp_mode.js');
 
+//Adding states
 window.onload = function () {
   var game = new Phaser.Game(winWidth, winHeight, Phaser.AUTO, 'game');
 
