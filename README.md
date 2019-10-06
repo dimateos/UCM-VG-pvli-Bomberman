@@ -1,11 +1,13 @@
 # Super Bomboozleman
 *Super Bomberman (SNES 1993) remade in javascript (using Phaser engine)*
 
->[Diego Mateos Arlanzón](https://github.com/dimateos) `dimateos@ucm.es`
+>[Diego Mateos Arlanzón](https://github.com/dimateos) `dimateos@ucm.es` - Design, coding, sprites work, docs, etc
 
->[Jorge García García](https://github.com/jorgar17) `jorgar@ucm.es`
+>[Jorge García García](https://github.com/jorgar17) `jorgar@ucm.es` - Design, some little coding and sprites work
 
-## Play the game online [here](https://dimateos.github.io/PVLI_GLaDOS/).
+>Team known as GLaDOS for the university class
+
+## Play the game online [here](https://dimateos.github.io/Super_Bomboozleman/).
 
 ![Bomboozleman](src/images/bomboozleman.png)
 
@@ -89,8 +91,8 @@ npm install -g gulp
 Clone this repository and install dependencies:
 
 ```
-git clone dimateos/PVLI_GLaDOS
-cd PVLI_GLaDOS
+git clone dimateos/Super_Bomboozleman
+cd Super_Bomboozleman
 npm install
 ```
 
