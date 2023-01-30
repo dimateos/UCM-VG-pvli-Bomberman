@@ -1,11 +1,12 @@
-# Super Bomberman (SNES 1993): _remade in javascript (Phaser engine)_
-**AKA `Super Bomboozleman`: parody meme name along with comic sans on fire (I know sorry... XD)**
+# Super Bomberman (SNES 1993)
+* _Playable in the browser: remade in javascript (using Phaser engine)_
+* _AKA `Super Bomboozleman`: parody meme name along with comic sans on fire (I know sorry... XD)_
+
+Team known as `GLaDOS` for the university class:
 
 > [Diego Mateos Arlanzón](https://github.com/dimateos) `dimateos@ucm.es` - Design, coding, sprites work, docs, etc
 
 > [Jorge García García](https://github.com/jorgar17) `jorgar@ucm.es` - Design, some little coding and sprites work
-
-> *Team known as GLaDOS for the university class
 
 ## Play the game online [here](https://dimateos.github.io/Super_Bomboozleman/).
 
