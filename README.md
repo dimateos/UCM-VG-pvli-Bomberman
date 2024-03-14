@@ -8,7 +8,7 @@ Team known as `GLaDOS` for the university class:
 
 > [Jorge García García](https://github.com/jorgar17) `jorgar@ucm.es` - Design, some little coding and sprites work
 
-## Play the game online [here](https://dimateos.github.io/Super_Bomboozleman/).
+## Play the game online [here](https://dimateos.github.io/UCM-VG-pvli-Bomberman/).
 
 ![demo](src/images/bomboozleman.png)
 
